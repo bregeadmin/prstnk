@@ -220,9 +220,13 @@ FOOTER = '''  <footer class="site-footer">
 
 
 def plate_visual(art):
-    """Визуал работы: реальное фото (если загружено) или SVG-заглушка."""
+    """Визуал работы: реальное фото (если загружено) или SVG-заглушка.
+    Путь нормализуется: ведущий «/» убирается (относительный путь работает
+    и на github.io/prstnk/, и на prstnk.ru), пробелы и спецсимволы экранируются."""
     img = (art.get("mainImage") or "").strip()
     if img:
+        from urllib.parse import quote
+        img = quote(img.lstrip("/"), safe="/")  # «/images/works/a b.jpg» → «images/works/a%20b.jpg»
         alt = esc(art.get("alt") or art.get("title", ""))
         return (f'<img src="{img}" alt="{alt}" loading="lazy" '
                 f'style="width:100%;height:100%;object-fit:cover;display:block;"/>')
