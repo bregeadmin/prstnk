@@ -25,12 +25,16 @@ BASE_URL = "https://prstnk.ru"
 def load_collection(name):
     """Читает все JSON из data/<name>/ и сортирует по полю order."""
     folder = ROOT / "data" / name
+    if not folder.exists():
+        return []
     items = [json.loads(p.read_text()) for p in folder.glob("*.json")]
     return sorted(items, key=lambda x: x.get("order", 0))
 
 artworks = load_collection("artworks")
 artists = load_collection("artists")
 collections = load_collection("collections")
+issues = load_collection("issues")        # выпуски журнала «Во дела»
+materials = load_collection("materials")  # лента коротких постов
 
 artists_by_id = {a["id"]: a for a in artists}
 artworks_by_slug = {w["slug"]: w for w in artworks}
@@ -281,6 +285,10 @@ FOOTER = '''  <footer class="site-footer">
 </body>
 </html>
 '''
+
+
+ARROW = ('<svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true">'
+         '<path d="M1 7H17M17 7L11 1M17 7L11 13" stroke="currentColor" stroke-width="2"/></svg>')
 
 
 def plate_visual(art):
@@ -835,14 +843,426 @@ def render_artists_index():
 {FOOTER}'''
 
 
+# ============================================================
+#  ЖУРНАЛ «Во дела» — лента, выпуски и страницы выпусков
+# ============================================================
+
+PALETTE = {
+    "alyi": "#FA2A22", "limon": "#FFCC00", "kobalt": "#2A4BFF",
+    "hvoya": "#2E5A2A", "fuxia": "#FF3DA0", "ugol": "#161614",
+}
+_MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня",
+           "июля", "августа", "сентября", "октября", "ноября", "декабря"]
+
+
+def _plural(n, one, few, many):
+    n = abs(int(n))
+    if n % 10 == 1 and n % 100 != 11:
+        return one
+    if 2 <= n % 10 <= 4 and not (12 <= n % 100 <= 14):
+        return few
+    return many
+
+
+def strip_tags(s):
+    return re.sub(r"<[^>]+>", "", s or "").replace("&nbsp;", " ").strip()
+
+
+def _md_inline(s):
+    s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
+    s = re.sub(r"\[(.+?)\]\((.+?)\)", r'<a href="\2">\1</a>', s)
+    return s
+
+
+def md_to_html(text):
+    """Мини-markdown: абзацы через пустую строку, ### → h3, **жирный**, [текст](ссылка)."""
+    if not text:
+        return ""
+    out = []
+    for block in re.split(r"\n\s*\n", text.strip()):
+        block = block.strip()
+        if not block:
+            continue
+        if block.startswith("### "):
+            out.append(f"<h3>{_md_inline(block[4:].strip())}</h3>")
+        else:
+            para = " ".join(line.strip() for line in block.splitlines())
+            out.append(f"<p>{_md_inline(para)}</p>")
+    return "\n        ".join(out)
+
+
+def fmt_date_ru(s):
+    s = (s or "")[:10]  # «2026-05-20T00:00…» → «2026-05-20»
+    try:
+        y, m, d = s.split("-")
+        return f"{int(d)} {_MONTHS[int(m) - 1]} {y}"
+    except (ValueError, IndexError):
+        return s
+
+
+def issue_has_page(issue):
+    """Выпуск получает отдельную страницу zine-<slug>.html, если в нём есть статьи."""
+    return bool(issue.get("articles"))
+
+
+def issue_cover_svg(issue):
+    """Автообложка выпуска: чистая «печатная» композиция в выбранном цвете."""
+    c = PALETTE.get(issue.get("coverColor", "alyi"), "#FA2A22")
+    num = issue.get("number", "")
+    season = (issue.get("period", "") or "").upper()
+    return f'''<svg viewBox="0 0 400 530" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="400" height="530" fill="#F0EEE8"/>
+            <rect x="44" y="56" width="206" height="276" fill="{c}"/>
+            <g transform="translate(150,150)">
+              <rect width="206" height="276" fill="#F8F6F1" stroke="#141413" stroke-width="2"/>
+              <rect x="26" y="26" width="154" height="150" fill="{c}" opacity="0.16"/>
+              <circle cx="103" cy="101" r="34" fill="{c}"/>
+              <rect x="40" y="200" width="126" height="9" fill="#141413"/>
+              <rect x="40" y="220" width="84" height="9" fill="#9B9587"/>
+            </g>
+            <text x="40" y="498" font-family="serif" font-weight="800" font-size="40" fill="#141413" letter-spacing="-2">№ {num}</text>
+            <text x="148" y="498" font-family="monospace" font-size="12" fill="#6E6B61" letter-spacing="3">{season}</text>
+          </svg>'''
+
+
+def issue_cover_visual(issue):
+    """Обложка: загруженное фото (если есть) или автообложка."""
+    img = (issue.get("coverImage") or "").strip()
+    if img:
+        from urllib.parse import quote
+        img = quote(img.lstrip("/"), safe="/")
+        return (f'<img src="{img}" alt="Обложка выпуска № {issue.get("number","")}" '
+                f'loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/>')
+    return issue_cover_svg(issue)
+
+
+def render_picks(picks):
+    """Блок «работы из каталога» — данные подтягиваются из artworks по слагу."""
+    rows = []
+    for i, p in enumerate(picks, start=1):
+        w = artworks_by_slug.get(p.get("work"))
+        if w:
+            size = (w.get("sheetSize", "") or "").replace(" см", "").replace(" × ", "×")
+            small = f'{w["artistName"]} · {w["year"]} · {w["technique"]} · {size} · {w["priceFormatted"]}'
+            title, href, slug = w["title"], f'work-{w["slug"]}.html', w["slug"]
+        else:
+            title = p.get("title", p.get("work", ""))
+            small = p.get("small", "")
+            href, slug = "works.html", p.get("work", "")
+        rows.append(f'''<div class="zine-pick">
+          <div class="zine-pick__num">{i:02d}</div>
+          <div>
+            <div class="zine-pick__title">{title} <small>{small}</small></div>
+          </div>
+          <a class="zine-pick__cta" href="{href}" data-analytics="zine-pick" data-pick="{slug}">Купить →</a>
+          <div class="zine-pick__body">
+            {p.get("note", "")}
+          </div>
+        </div>''')
+    return '<div class="zine-article__picks">\n        ' + "\n        ".join(rows) + '\n      </div>'
+
+
+def render_article(issue, art, idx):
+    eyebrow = art.get("kicker", "")
+    if art.get("readMins"):
+        eyebrow = (f'{eyebrow} · читать {art["readMins"]} мин' if eyebrow
+                   else f'читать {art["readMins"]} мин')
+    parts = [f'    <article class="zine-article" id="article-{idx}">',
+             f'      <div class="zine-article__eyebrow">{eyebrow}</div>',
+             f'      <div class="zine-article__num">{idx:02d}</div>',
+             f'      <h2>{art.get("title", "")}</h2>']
+    if art.get("lead"):
+        parts.append(f'      <p class="zine-article__lead">{art["lead"]}</p>')
+    if art.get("body"):
+        parts.append(f'      <div class="zine-article__body">\n        {md_to_html(art["body"])}\n      </div>')
+    pq = art.get("pullquote") or {}
+    if pq.get("text"):
+        cite = f'\n        <cite>{pq["cite"]}</cite>' if pq.get("cite") else ""
+        parts.append(f'      <blockquote class="zine-pullquote">\n        {pq["text"]}{cite}\n      </blockquote>')
+    if art.get("picksIntro"):
+        parts.append(f'      <div class="zine-article__body">\n        {md_to_html(art["picksIntro"])}\n      </div>')
+    if art.get("picks"):
+        parts.append("      " + render_picks(art["picks"]))
+    if art.get("bodyAfter"):
+        parts.append(f'      <div class="zine-article__body">\n        {md_to_html(art["bodyAfter"])}\n      </div>')
+    cta = art.get("cta") or {}
+    if cta.get("label"):
+        parts.append(f'''      <div style="margin-top: 32px;">
+        <a class="btn btn--big btn--accent" data-tg-text="{esc(cta.get("tgText", ""))}" data-analytics="zine-{issue['slug']}-cta">
+          {cta["label"]}
+          {ARROW}
+        </a>
+      </div>''')
+    al = art.get("artistLink") or {}
+    if al.get("slug"):
+        parts.append(f'''      <div style="margin-top: 32px;">
+        <a class="btn btn--ghost" href="artist-{al["slug"]}.html" data-analytics="zine-{issue['slug']}-artist-{al["slug"]}">
+          {al.get("label", "На страницу художника")} →
+        </a>
+      </div>''')
+    parts.append('    </article>')
+    return "\n".join(parts)
+
+
+def render_issue_page(issue):
+    slug = issue["slug"]
+    canonical = f"{BASE_URL}/zine-{slug}.html"
+    plain_title = strip_tags(issue.get("title", ""))
+    title = f'«Во дела» № {issue["number"]}, {issue["period"]}: {plain_title} — PRSTNK'
+    desc = strip_tags(issue.get("coverLead") or issue.get("lead", ""))
+    credits = issue.get("credits") or []
+    author = credits[0]["name"] if credits else "PRSTNK"
+    extra_meta = f'  <meta property="article:author" content="{esc(author)}"/>\n'
+
+    arts = issue.get("articles", [])
+    mc = issue.get("materialsCount") or len(arts)
+    cover_eyebrow = f'Выпуск № {issue["number"]} · {issue["period"]}'
+    if mc:
+        cover_eyebrow += f' · {mc} {_plural(mc, "материал", "материала", "материалов")}'
+    if issue.get("readingTime"):
+        cover_eyebrow += f' · {issue["readingTime"]}'
+
+    credits_html = ""
+    if credits:
+        credits_html = ('<div class="zine-cover__meta">\n        '
+                        + "\n        ".join(f'<div><b>{c.get("role","")}:</b> {c.get("name","")}</div>'
+                                            for c in credits) + '\n      </div>')
+
+    toc_html = ""
+    if len(arts) > 1:
+        lis = []
+        for i, a in enumerate(arts, start=1):
+            tag = a.get("tocTag", "")
+            tag_html = f'\n          <span class="toc-tag">{tag}</span>' if tag else ""
+            lis.append(f'''<li>
+          <a href="#article-{i}">{strip_tags(a.get("title", ""))}</a>{tag_html}
+        </li>''')
+        toc_html = f'''
+    <section class="zine-toc">
+      <div class="zine-toc__head">Содержание</div>
+      <ol>
+        {"".join(lis)}
+      </ol>
+    </section>
+'''
+
+    articles_html = "\n\n".join(render_article(issue, a, i) for i, a in enumerate(arts, start=1))
+
+    next_eyebrow = ""
+    if issue.get("nextIssue"):
+        next_eyebrow = f'<div class="eyebrow" style="margin-bottom: 16px;">Следующий выпуск {issue["nextIssue"]}</div>'
+
+    cover_lead = issue.get("coverLead") or issue.get("lead", "")
+
+    return f'''{head(title, desc, canonical, og_type="article", extra_meta=extra_meta)}{HEADER}
+  <main class="wrap">
+    <nav class="crumbs" aria-label="Хлебные крошки">
+      <a href="index.html">Главная</a><span class="sep">/</span>
+      <a href="journal.html">Журнал</a><span class="sep">/</span>
+      <span class="here">№ {issue["number"]} · {issue["period"]}</span>
+    </nav>
+
+    <section class="zine-cover">
+      <div class="zine-cover__eyebrow">{cover_eyebrow}</div>
+      <h1>{issue.get("title", "")}</h1>
+      <p class="zine-cover__lead">
+        {cover_lead}
+      </p>
+      {credits_html}
+    </section>
+{toc_html}
+{articles_html}
+
+    <section style="padding: 64px 0 32px; border-top: 2px solid var(--ink);">
+      <div style="text-align: center;">
+        {next_eyebrow}
+        <h2 style="font-family: var(--f-display); font-weight: 800; font-size: clamp(32px, 4.4vw, 56px); letter-spacing: -0.035em; line-height: 1; margin-bottom: 24px;">Не пропускайте <em style="font-style: italic; color: var(--prstnk-color);">новые выпуски</em>.</h2>
+        <p style="font-family: var(--f-text); font-size: 17px; line-height: 1.5; color: var(--ink-2); max-width: 48ch; margin: 0 auto 32px;">
+          Между выпусками у нас в Telegram-канале — анонсы тиражей, репортажи из мастерских и короткие материалы, которые не попали в большой формат.
+        </p>
+        <a class="btn btn--big btn--accent"
+           data-tg-text="Здравствуйте! Прочитал выпуск {issue["number"]} журнала «Во дела». Хочу подписаться на канал и не пропускать новые выпуски."
+           data-analytics="zine-{slug}-subscribe">
+          Подписаться на Telegram-канал
+          {ARROW}
+        </a>
+      </div>
+    </section>
+  </main>
+
+{FOOTER}'''
+
+
+def render_journal_index():
+    canonical = f"{BASE_URL}/journal.html"
+    title = "Журнал «Во дела» — PRSTNK"
+    desc = ("Журнал PRSTNK «Во дела»: раз в квартал выходит полный выпуск, между выпусками — "
+            "короткие материалы в Telegram. Архив выпусков и лента постов.")
+
+    featured = next((i for i in issues if i.get("current") and issue_has_page(i)), None)
+    if not featured:
+        featured = next((i for i in issues if issue_has_page(i)), None)
+
+    feature_html = ""
+    if featured:
+        amc = featured.get("materialsCount") or len(featured.get("articles", []))
+        note = f'{amc} {_plural(amc, "материал", "материала", "материалов")}' if amc else ""
+        if featured.get("readingTime"):
+            note = (note + " · " if note else "") + featured["readingTime"]
+        feature_html = f'''    <section class="journal-feature">
+      <a class="journal-feature__cover" href="zine-{featured['slug']}.html" data-analytics="journal-feature-cover" aria-label="Открыть выпуск {featured['number']}">
+          {issue_cover_visual(featured)}
+      </a>
+      <div class="journal-feature__info">
+        <div class="journal-feature__eyebrow">актуальный выпуск · {featured['period']}</div>
+        <h2>{featured.get('title', '')}</h2>
+        <p class="journal-feature__lead">
+          {featured.get('lead', '')}
+        </p>
+        <div class="journal-feature__cta-row">
+          <a class="btn btn--big btn--accent" href="zine-{featured['slug']}.html" data-analytics="journal-feature-cta">
+            Открыть выпуск
+            {ARROW}
+          </a>
+          <span class="gifts__note">{note}</span>
+        </div>
+      </div>
+    </section>
+'''
+
+    archive = [i for i in issues if i is not featured]
+    archive_html = ""
+    if archive:
+        cards = []
+        for it in archive:
+            meta = f'№ {it["number"]} · {it["period"]}'
+            if it.get("archiveNote"):
+                meta += f' · {it["archiveNote"]}'
+            amc = it.get("materialsCount") or len(it.get("articles", []))
+            if amc:
+                meta += f' · {amc} {_plural(amc, "материал", "материала", "материалов")}'
+            if issue_has_page(it):
+                link = f'href="zine-{it["slug"]}.html"'
+            elif it.get("tgText"):
+                link = f'data-tg-text="{esc(it["tgText"])}"'
+            else:
+                link = "data-tg-open"
+            cards.append(f'''<a class="journal-archive__card" {link} data-analytics="archive-card" data-issue="{it['number']}">
+          <div class="journal-archive__cover">
+            {issue_cover_svg(it)}
+          </div>
+          <div class="journal-archive__meta">{meta}</div>
+          <h3 class="journal-archive__title">{it.get("title", "")}</h3>
+        </a>''')
+        total_mat = sum((i2.get("materialsCount") or len(i2.get("articles", []))) for i2 in archive)
+        nnum = len(archive)
+        head_meta = (f'{nnum} {_plural(nnum, "номер", "номера", "номеров")} · '
+                     f'{total_mat} {_plural(total_mat, "материал", "материала", "материалов")}')
+        archive_html = f'''    <section class="journal-archive">
+      <div class="section-head" style="padding: 0 0 36px;">
+        <h2 class="stagger">Архив <em>выпусков</em>.</h2>
+        <div class="section-head__right">
+          <span>{head_meta}</span>
+        </div>
+      </div>
+      <div class="journal-archive__grid">
+        {"".join(chr(10) + "        " + c for c in cards)}
+      </div>
+    </section>
+'''
+
+    feed_html = ""
+    if materials:
+        fcards = []
+        for m in materials:
+            color = PALETTE.get(m.get("color", "alyi"), "#FA2A22")
+            img = (m.get("image") or "").strip()
+            if img:
+                from urllib.parse import quote
+                img_q = quote(img.lstrip("/"), safe="/")
+                cover = (f'<img src="{img_q}" alt="{esc(m.get("title", ""))}" '
+                         f'loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/>')
+            else:
+                cover = f'''<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <rect width="400" height="300" fill="#F0EEE8"/>
+              <circle cx="120" cy="150" r="74" fill="{color}"/>
+              <rect x="190" y="70" width="150" height="160" fill="{color}" opacity="0.55"/>
+            </svg>'''
+            meta = fmt_date_ru(m.get("date", ""))
+            if m.get("tag"):
+                meta = (meta + " · " if meta else "") + m["tag"]
+            excerpt = f'<p class="feed-card__excerpt">{m["excerpt"]}</p>' if m.get("excerpt") else ""
+            url = (m.get("url") or "").strip()
+            if url:
+                link = f'href="{esc(url)}" target="_blank" rel="noopener"'
+            elif m.get("tgText"):
+                link = f'data-tg-text="{esc(m["tgText"])}"'
+            else:
+                link = "data-tg-open"
+            fcards.append(f'''<a class="feed-card" {link} data-analytics="feed-card" data-material="{m.get("slug", "")}">
+          <div class="feed-card__cover">{cover}</div>
+          <div class="feed-card__meta">{meta}</div>
+          <h3 class="feed-card__title">{m.get("title", "")}</h3>
+          {excerpt}
+          <span class="feed-card__cta">Читать в Telegram →</span>
+        </a>''')
+        feed_html = f'''    <section class="journal-feed">
+      <div class="section-head" style="padding: 0 0 36px;">
+        <h2 class="stagger">Между выпусками. <em>Лента</em>.</h2>
+        <div class="section-head__right">
+          <span>Короткие материалы и репортажи</span>
+        </div>
+      </div>
+      <div class="feed-grid">
+        {"".join(chr(10) + "        " + c for c in fcards)}
+      </div>
+    </section>
+'''
+
+    return f'''{head(title, desc, canonical)}{HEADER}
+  <main class="wrap">
+    <nav class="crumbs" aria-label="Хлебные крошки">
+      <a href="index.html">Главная</a><span class="sep">/</span>
+      <span class="here">Журнал «Во дела»</span>
+    </nav>
+
+    <section class="page-hero" style="padding-bottom: 32px;">
+      <div class="eyebrow">№ 06 · <b>Журнал</b></div>
+      <h1>«<em>Во дела</em>».<br/>Журнал про авторскую графику.</h1>
+      <p class="page-hero__lead">
+        Раз в квартал собираем полный выпуск: интервью с художниками, репортажи из мастерских, кураторские разборы. Между выпусками — короткие посты в Telegram. Без снобизма, иногда с матом.
+      </p>
+    </section>
+
+{feature_html}{archive_html}{feed_html}  </main>
+
+  <section class="journal-telegram">
+    <div class="journal-telegram__inner">
+      <div class="journal-telegram__text">
+        Между выпусками — короткие посты, анонсы тиражей и репортажи из мастерских <em>в Telegram-канале</em>.
+      </div>
+      <a class="btn btn--big btn--accent"
+         data-tg-text="Здравствуйте! Хочу подписаться на канал PRSTNK."
+         data-analytics="journal-telegram-cta">
+        Подписаться на канал
+        {ARROW}
+      </a>
+    </div>
+  </section>
+
+{FOOTER}'''
+
+
 def render_sitemap():
     urls = [
         ("", "1.0", "weekly"),
         ("works.html", "0.9", "weekly"),
         ("artists.html", "0.8", "monthly"),
         ("journal.html", "0.7", "monthly"),
-        ("zine-04.html", "0.8", "monthly"),
     ]
+    for issue in issues:
+        if issue_has_page(issue):
+            urls.append((f"zine-{issue['slug']}.html", "0.8", "monthly"))
     for a in artists:
         urls.append((f"artist-{a['slug']}.html", "0.7", "monthly"))
     for w in artworks:
@@ -872,7 +1292,19 @@ if __name__ == "__main__":
     (ROOT / "artists.html").write_text(render_artists_index())
     print("  ✓ artists.html — индекс художников")
 
-    (ROOT / "sitemap.xml").write_text(render_sitemap())
-    print(f"  ✓ sitemap.xml — {5 + len(artists) + len(artworks)} URL")
+    (ROOT / "journal.html").write_text(render_journal_index())
+    print(f"  ✓ journal.html — журнал ({len(issues)} вып., {len(materials)} постов в ленте)")
 
-    print(f"\nГотово. {len(artworks)} работ, {len(artists)} художников.")
+    zn = 0
+    for issue in issues:
+        if issue_has_page(issue):
+            (ROOT / f"zine-{issue['slug']}.html").write_text(render_issue_page(issue))
+            zn += 1
+    print(f"  ✓ {zn} страниц выпусков (zine-*.html)")
+
+    sitemap = render_sitemap()
+    (ROOT / "sitemap.xml").write_text(sitemap)
+    print(f"  ✓ sitemap.xml — {sitemap.count('<url>')} URL")
+
+    print(f"\nГотово. {len(artworks)} работ, {len(artists)} художников, "
+          f"{len(issues)} выпусков журнала.")

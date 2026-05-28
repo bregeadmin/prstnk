@@ -1977,6 +1977,49 @@ h1, h2, h3, h4 {
 }
 .journal-telegram__text em { font-style: italic; color: var(--prstnk-color); }
 
+/* Лента коротких постов «между выпусками» */
+.journal-feed { padding: 8px 0 48px; }
+.feed-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+}
+.feed-card {
+  display: flex; flex-direction: column;
+  color: inherit; cursor: pointer;
+}
+.feed-card__cover {
+  aspect-ratio: 4 / 3;
+  background: var(--paper-2);
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(.2,.7,.2,1);
+}
+.feed-card__cover svg,
+.feed-card__cover img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.feed-card:hover .feed-card__cover { transform: translateY(-4px); }
+.feed-card__meta {
+  margin-top: 14px;
+  font-family: var(--f-mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.feed-card__title {
+  font-family: var(--f-display); font-weight: 700;
+  font-size: 19px; letter-spacing: -0.02em;
+  margin-top: 6px; line-height: 1.25;
+  transition: color 0.2s;
+}
+.feed-card:hover .feed-card__title { color: var(--prstnk-color); }
+.feed-card__excerpt {
+  font-family: var(--f-text); font-size: 14px;
+  line-height: 1.5; color: var(--ink-2);
+  margin-top: 8px;
+}
+.feed-card__cta {
+  margin-top: 12px;
+  font-family: var(--f-mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--prstnk-color);
+}
+
 /* Адаптив для новых блоков */
 @media (max-width: 1000px) {
   .artist-page-hero { grid-template-columns: 1fr; gap: 32px; }
@@ -1985,6 +2028,7 @@ h1, h2, h3, h4 {
   .journal-feature { grid-template-columns: 1fr; gap: 28px; padding: 48px 0; }
   .journal-feature__cover { aspect-ratio: 4 / 3; }
   .journal-archive__grid { grid-template-columns: repeat(2, 1fr); }
+  .feed-grid { grid-template-columns: repeat(2, 1fr); }
   .journal-telegram__inner { grid-template-columns: 1fr; gap: 20px; }
   .zine-toc li { grid-template-columns: 40px 1fr; }
   .zine-toc li .toc-tag { grid-column: 2; }
@@ -1996,6 +2040,7 @@ h1, h2, h3, h4 {
   .artist-works { padding: 40px 0 56px; }
   .artist-works__empty { padding: 28px; }
   .journal-archive__grid { grid-template-columns: 1fr; }
+  .feed-grid { grid-template-columns: 1fr; }
   .journal-telegram { padding: 40px var(--gutter); }
   .zine-cover { padding: 32px 0 56px; }
   .zine-article { padding: 48px 0; }

@@ -188,3 +188,143 @@ collections:
       - { name: "slug", label: "Адрес (латиницей)", widget: "string", hint: "Напр. first-wall" }
       - { name: "id", widget: "hidden" }
       - { name: "order", widget: "hidden", required: false, default: 99 }
+
+  # ─────────────────────────────────────────────
+  # ЖУРНАЛ — ВЫПУСКИ
+  # Каждый выпуск со статьями → отдельная страница zine-<slug>.html.
+  # Выпуск без статей показывается тизером (ведёт в Telegram).
+  # ─────────────────────────────────────────────
+  - name: "issues"
+    label: "Журнал — выпуски"
+    label_singular: "Выпуск"
+    folder: "data/issues"
+    extension: "json"
+    format: "json"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    summary: "№ {{number}} · {{period}}"
+    sortable_fields: ["order", "number"]
+    fields:
+      - { name: "number", label: "Номер выпуска", widget: "string", hint: "Напр. 05" }
+      - { name: "period", label: "Период", widget: "string", hint: "Напр. лето 2026" }
+      - { name: "current", label: "Это текущий выпуск (большой блок наверху журнала)", widget: "boolean", default: false }
+      - { name: "title", label: "Заголовок выпуска", widget: "string", hint: "Курсив: <em>слово</em>. Перенос строки: <br/>" }
+      - { name: "lead", label: "Краткое описание (карточка в журнале)", widget: "text" }
+      - { name: "coverLead", label: "Описание на странице выпуска", widget: "text", required: false, hint: "Если пусто — возьмётся краткое описание выше." }
+      - { name: "coverImage", label: "📷 Обложка (необязательно)", widget: "image", required: false, hint: "Если пусто — соберётся аккуратная цветная обложка автоматически." }
+      - name: "coverColor"
+        label: "Цвет обложки (если без фото)"
+        widget: "select"
+        default: "alyi"
+        options:
+          - { label: "Алый", value: "alyi" }
+          - { label: "Лимон", value: "limon" }
+          - { label: "Кобальт", value: "kobalt" }
+          - { label: "Хвоя", value: "hvoya" }
+          - { label: "Фуксия", value: "fuxia" }
+          - { label: "Уголь", value: "ugol" }
+      - { name: "readingTime", label: "Время чтения", widget: "string", required: false, hint: "Напр. 20 мин чтения" }
+      - name: "credits"
+        label: "Над выпуском работали"
+        widget: "list"
+        required: false
+        summary: "{{fields.role}}: {{fields.name}}"
+        fields:
+          - { name: "role", label: "Роль", widget: "string", hint: "Напр. Куратор" }
+          - { name: "name", label: "Имя", widget: "string" }
+      - name: "articles"
+        label: "Материалы выпуска (статьи)"
+        label_singular: "Статья"
+        widget: "list"
+        required: false
+        summary: "{{fields.title}}"
+        fields:
+          - { name: "kicker", label: "Рубрика", widget: "string", hint: "Напр. Интервью" }
+          - { name: "readMins", label: "Минут чтения", widget: "number", value_type: "int", required: false }
+          - { name: "tocTag", label: "Метка в содержании", widget: "string", required: false, hint: "Напр. Интервью" }
+          - { name: "title", label: "Заголовок статьи", widget: "string", hint: "Можно <em>...</em> и <br/>" }
+          - { name: "lead", label: "Вводка", widget: "text", required: false }
+          - { name: "body", label: "Текст", widget: "text", hint: "Подзаголовок — строка с ### в начале. Жирный — **слово**. Абзацы — через пустую строку." }
+          - name: "pullquote"
+            label: "Цитата-врезка (необязательно)"
+            widget: "object"
+            required: false
+            collapsed: true
+            fields:
+              - { name: "text", label: "Цитата", widget: "text", required: false }
+              - { name: "cite", label: "Кто сказал", widget: "string", required: false }
+          - { name: "picksIntro", label: "Текст перед блоком работ (необязательно)", widget: "text", required: false }
+          - name: "picks"
+            label: "Блок «работы из каталога» (необязательно)"
+            widget: "list"
+            required: false
+            summary: "{{fields.work}}"
+            fields:
+              - name: "work"
+                label: "Работа"
+                widget: "relation"
+                collection: "artworks"
+                value_field: "slug"
+                search_fields: ["title"]
+                display_fields: ["title"]
+              - { name: "note", label: "Комментарий куратора", widget: "text" }
+          - { name: "bodyAfter", label: "Текст после блока работ (необязательно)", widget: "text", required: false }
+          - name: "cta"
+            label: "Кнопка-призыв (необязательно)"
+            widget: "object"
+            required: false
+            collapsed: true
+            fields:
+              - { name: "label", label: "Текст кнопки", widget: "string", required: false }
+              - { name: "tgText", label: "Сообщение в Telegram", widget: "text", required: false }
+          - name: "artistLink"
+            label: "Ссылка на художника (необязательно)"
+            widget: "object"
+            required: false
+            collapsed: true
+            fields:
+              - { name: "slug", label: "Адрес художника", widget: "string", required: false, hint: "Напр. shvetsov" }
+              - { name: "label", label: "Текст ссылки", widget: "string", required: false, hint: "Напр. На страницу Швецова" }
+      - { name: "nextIssue", label: "Анонс следующего выпуска", widget: "string", required: false, hint: "Напр. № 05 — лето 2026" }
+      - { name: "materialsCount", label: "Счётчик материалов (для карточки)", widget: "number", value_type: "int", required: false, hint: "Если пусто — посчитается по статьям." }
+      - { name: "archiveNote", label: "Подпись в архиве", widget: "string", required: false, hint: "Напр. первый выпуск" }
+      - { name: "slug", label: "Адрес страницы", widget: "string", hint: "Напр. 05 → zine-05.html. Только цифры/латиница." }
+      - { name: "tgText", widget: "hidden", required: false }
+      - { name: "order", widget: "hidden", required: false, default: 99 }
+
+  # ─────────────────────────────────────────────
+  # ЖУРНАЛ — ЛЕНТА ПОСТОВ (между выпусками)
+  # ─────────────────────────────────────────────
+  - name: "materials"
+    label: "Журнал — лента постов"
+    label_singular: "Пост"
+    folder: "data/materials"
+    extension: "json"
+    format: "json"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    summary: "{{title}} · {{date}}"
+    sortable_fields: ["order", "date"]
+    fields:
+      - { name: "title", label: "Заголовок", widget: "string" }
+      - { name: "excerpt", label: "Короткий текст", widget: "text", required: false, hint: "1–2 строки анонса." }
+      - { name: "image", label: "📷 Картинка (необязательно)", widget: "image", required: false, hint: "Если пусто — будет цветная плашка." }
+      - name: "color"
+        label: "Цвет плашки (если без картинки)"
+        widget: "select"
+        default: "alyi"
+        options:
+          - { label: "Алый", value: "alyi" }
+          - { label: "Лимон", value: "limon" }
+          - { label: "Кобальт", value: "kobalt" }
+          - { label: "Хвоя", value: "hvoya" }
+          - { label: "Фуксия", value: "fuxia" }
+          - { label: "Уголь", value: "ugol" }
+      - { name: "url", label: "Ссылка на пост в Telegram", widget: "string", required: false, hint: "Напр. https://t.me/prstnk_store/123. Если пусто — откроется чат." }
+      - { name: "tag", label: "Метка", widget: "string", required: false, hint: "Напр. репортаж" }
+      - { name: "date", label: "Дата", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { name: "slug", label: "Адрес (латиницей)", widget: "string", hint: "Напр. ofort-shtapakov" }
+      - { name: "tgText", label: "Сообщение в чат (если нет ссылки)", widget: "text", required: false, hint: "Откроется при клике, если ссылка не указана." }
+      - { name: "order", widget: "hidden", required: false, default: 99 }
