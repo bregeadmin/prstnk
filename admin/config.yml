@@ -12,7 +12,7 @@ backend:
   # base_url — адрес «пропускного пункта» (Cloudflare Worker sveltia-cms-auth).
   # Пока стоит заглушка. Заменить на свой адрес воркера после его запуска
   # (вида https://sveltia-cms-auth.ВАШ-СУБДОМЕН.workers.dev). См. README → «Запуск админки».
-  base_url: https://ЗАМЕНИТЕ-НА-АДРЕС-ВОРКЕРА.workers.dev
+  base_url: https://sveltia-cms-auth.grinbergartgroup.workers.dev
 
 # Куда CMS загружает фотографии работ
 media_folder: "images/works"
