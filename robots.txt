@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bregeadmin.github.io/prstnk/sitemap.xml
+Sitemap: https://prstnk.ru/sitemap.xml

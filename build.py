@@ -20,7 +20,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-BASE_URL = "https://bregeadmin.github.io/prstnk"
+BASE_URL = "https://prstnk.ru"
 
 def load_collection(name):
     """Читает все JSON из data/<name>/ и сортирует по полю order."""
