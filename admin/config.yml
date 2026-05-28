@@ -156,15 +156,14 @@ collections:
       - { name: "bio", label: "Биография (по абзацу)", widget: "list", field: { name: "p", label: "Абзац", widget: "text" } }
       - { name: "collections", label: "Коллекции / где увидеть", widget: "list", field: { name: "c", label: "Строка", widget: "string" } }
       - name: "meta"
-        label: "Мета-карточка (ключ: значение)"
-        widget: "object"
+        label: "Мета-карточка (строки под именем художника)"
+        widget: "list"
         required: false
+        label_singular: "Строка"
+        summary: "{{fields.key}}: {{fields.value}}"
         fields:
-          - { name: "Год рождения", label: "Год рождения", widget: "string", required: false }
-          - { name: "Город", label: "Город", widget: "string", required: false }
-          - { name: "Техники", label: "Техники", widget: "string", required: false }
-          - { name: "Образование", label: "Образование", widget: "string", required: false }
-          - { name: "Галерея", label: "Галерея", widget: "string", required: false }
+          - { name: "key", label: "Подпись (напр. Год рождения)", widget: "string" }
+          - { name: "value", label: "Значение (напр. 1958)", widget: "string" }
       - { name: "featured", label: "Заметный (показывать выше)", widget: "boolean", required: false, default: false }
       - { name: "order", label: "Порядок", widget: "number", value_type: "int", required: false, default: 99 }
 

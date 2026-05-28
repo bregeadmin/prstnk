@@ -622,7 +622,11 @@ def render_artist_page(a, idx):
     parts = a["name"].split(" ", 1)
     h1 = f'{parts[0]}<br/>{parts[1]}.' if len(parts) == 2 else f'{a["name"]}.'
 
-    meta_dl = "\n          ".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in a.get("meta", {}).items())
+    _meta = a.get("meta", [])
+    if isinstance(_meta, dict):  # старый формат (ключ:значение) — поддержим на всякий
+        _meta = [{"key": k, "value": v} for k, v in _meta.items()]
+    meta_dl = "\n          ".join(
+        f"<dt>{row.get('key','')}</dt><dd>{row.get('value','')}</dd>" for row in _meta)
     bio = "\n        ".join(f"<p>{p}</p>" for p in a.get("bio", []))
     colls = "\n          ".join(f"<li>{c}</li>" for c in a.get("collections", []))
 
