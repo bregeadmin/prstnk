@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#F8F6F1"/>
+
+  <!-- Левый текст-блок -->
+  <g font-family="'Unbounded', 'Helvetica Neue', Arial, sans-serif">
+    <text x="80" y="200" font-size="84" font-weight="800" fill="#141413" letter-spacing="-3">Большое</text>
+    <text x="80" y="290" font-size="84" font-weight="800" fill="#141413" letter-spacing="-3">искусство</text>
+    <text x="80" y="380" font-size="84" font-weight="800" fill="#141413" letter-spacing="-3">на <tspan font-style="italic" fill="#FA2A22">маленькой</tspan></text>
+    <text x="80" y="470" font-size="84" font-weight="800" fill="#141413" letter-spacing="-3">стене.</text>
+  </g>
+
+  <!-- Знак PRSTNK справа -->
+  <g transform="translate(850, 180)">
+    <rect x="0"  y="2" width="36" height="304" fill="none" stroke="#141413" stroke-width="9.6"/>
+    <rect x="52" y="0" width="136" height="308" fill="#FA2A22"/>
+    <rect x="204" y="2" width="36" height="304" fill="none" stroke="#141413" stroke-width="9.6"/>
+  </g>
+
+  <!-- Низ: марка -->
+  <g font-family="'Unbounded', 'Helvetica Neue', Arial, sans-serif">
+    <text x="80" y="565" font-size="32" font-weight="800" fill="#141413" letter-spacing="-1.2">PRSTNK</text>
+  </g>
+  <g font-family="'JetBrains Mono', monospace">
+    <text x="232" y="563" font-size="16" fill="#6E6B61" letter-spacing="3">[ простенок ] · тиражная графика · санкт-петербург</text>
+  </g>
+</svg>

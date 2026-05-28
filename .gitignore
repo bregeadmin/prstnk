@@ -1,0 +1,12 @@
+# системное
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# редакторы
+.vscode/
+.idea/
+*.swp
+
+# локальное (не для репозитория)
+.claude/

@@ -1,0 +1,85 @@
+name: Сборка и деплой PRSTNK
+
+# Что делает:
+#   1. при правке данных (data/**) или вёрстки — собирает страницы из data/*.json
+#   2. коммитит готовые HTML обратно в GitHub (история + резервная витрина на Pages)
+#   3. заливает ВИТРИНУ на российский хостинг по FTP (исходники не заливаются)
+#
+# Нужны секреты в Settings → Secrets and variables → Actions:
+#   FTP_HOST       — адрес FTP-сервера хостинга (например ftp.prstnk.ru)
+#   FTP_USERNAME   — FTP-логин
+#   FTP_PASSWORD   — FTP-пароль
+# (пока секретов нет — деплой по FTP просто пропускается, сборка работает)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Забрать репозиторий
+        uses: actions/checkout@v4
+
+      - name: Поставить Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Собрать страницы из данных
+        run: python build.py
+
+      - name: Закоммитить пересобранные страницы
+        run: |
+          git config user.name "prstnk-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "Изменений нет."
+          else
+            git commit -m "Авто-сборка страниц из данных [skip ci]"
+            git push
+          fi
+
+      - name: Проверить, заданы ли FTP-секреты
+        id: ftp_check
+        run: |
+          if [ -n "${{ secrets.FTP_HOST }}" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::FTP-секреты не заданы — деплой на хостинг пропущен. Витрина обновилась только на GitHub."
+          fi
+
+      - name: Залить витрину на российский хостинг (FTP)
+        if: steps.ftp_check.outputs.ready == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps          # Beget/Timeweb поддерживают; если не идёт — поменять на ftp
+          server-dir: ./          # FTP-аккаунт должен указывать на public_html домена
+          local-dir: ./
+          # На хостинг — только витрина. Исходники и инструменты остаются в GitHub.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/data/**
+            **/admin/**
+            **/build.py
+            **/*.py
+            **/*.md
+            **/.claude/**
+            **/launch.json
+            **/.DS_Store

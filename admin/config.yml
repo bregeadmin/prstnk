@@ -1,0 +1,201 @@
+# ============================================================
+# PRSTNK — конфиг визуальной админки (Sveltia / Decap CMS)
+# Управляет данными в data/artworks, data/artists, data/collections.
+# После сохранения изменения коммитятся в GitHub. Чтобы страницы
+# пересобрались — нужно запустить build.py (вручную или через Action).
+# ============================================================
+
+backend:
+  name: github
+  repo: bregeadmin/prstnk      # <-- замените на свой, если репозиторий переименуете
+  branch: main
+  # base_url — адрес «пропускного пункта» (Cloudflare Worker sveltia-cms-auth).
+  # Пока стоит заглушка. Заменить на свой адрес воркера после его запуска
+  # (вида https://sveltia-cms-auth.ВАШ-СУБДОМЕН.workers.dev). См. README → «Запуск админки».
+  base_url: https://ЗАМЕНИТЕ-НА-АДРЕС-ВОРКЕРА.workers.dev
+
+# Куда CMS загружает фотографии работ
+media_folder: "images/works"
+public_folder: "images/works"
+
+# Локаль интерфейса
+locale: "ru"
+
+collections:
+  # ─────────────────────────────────────────────
+  # РАБОТЫ
+  # ─────────────────────────────────────────────
+  - name: "artworks"
+    label: "Работы"
+    label_singular: "Работа"
+    folder: "data/artworks"
+    extension: "json"
+    format: "json"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    summary: "{{title}} — {{artistName}} ({{status}})"
+    sortable_fields: ["order", "title", "price", "year"]
+    fields:
+      - { name: "id", label: "ID (служебный, = slug)", widget: "string", hint: "Латиницей, без пробелов. Например severnyi-gost" }
+      - { name: "slug", label: "URL-имя (slug)", widget: "string", hint: "Совпадает с ID. Латиницей. Из него собирается адрес work-<slug>.html" }
+      - { name: "title", label: "Название работы", widget: "string" }
+      - name: "artistId"
+        label: "Художник"
+        widget: "relation"
+        collection: "artists"
+        value_field: "id"
+        search_fields: ["name"]
+        display_fields: ["name"]
+        hint: "Имя автора подставится автоматически при сборке"
+      - { name: "year", label: "Год", widget: "number", value_type: "int", min: 1900, max: 2100 }
+      - { name: "technique", label: "Техника (текстом)", widget: "string", hint: "Например: литография в три камня" }
+      - name: "techniqueGroup"
+        label: "Раздел каталога"
+        widget: "select"
+        options:
+          - { label: "Литография", value: "lithography" }
+          - { label: "Шелкография", value: "silkscreen" }
+          - { label: "Линогравюра / ксилография", value: "linocut" }
+          - { label: "Офорт", value: "etching" }
+          - { label: "Графика и монотипия", value: "graphics" }
+      - name: "workType"
+        label: "Тип работы"
+        widget: "select"
+        default: "editioned"
+        options:
+          - { label: "Тиражная (несколько экземпляров)", value: "editioned" }
+          - { label: "Уникальная (1 из 1)", value: "unique" }
+        hint: "От этого зависит, какой блок показывается на карточке"
+      - { name: "price", label: "Цена, ₽", widget: "number", value_type: "int", min: 0 }
+      - name: "status"
+        label: "Статус"
+        widget: "select"
+        default: "available"
+        options:
+          - { label: "Доступна", value: "available" }
+          - { label: "Забронирована", value: "reserved" }
+          - { label: "Продана", value: "sold" }
+
+      # ─── Поля ТИРАЖНОЙ работы (заполнять, если тип = тиражная) ───
+      - { name: "editionTotal", label: "ТИРАЖ · всего экземпляров", widget: "number", value_type: "int", required: false, min: 1, hint: "Только для тиражной. Например 30" }
+      - { name: "editionNumber", label: "ТИРАЖ · номер этого экземпляра", widget: "number", value_type: "int", required: false, min: 1, hint: "Только для тиражной. Например 14" }
+      - { name: "availableCount", label: "ТИРАЖ · сколько доступно", widget: "number", value_type: "int", required: false, min: 0, hint: "Только для тиражной. Если 1 — покажется «Последний экземпляр»" }
+      - { name: "artistProofs", label: "ТИРАЖ · авторских экз. (a.p.)", widget: "number", value_type: "int", required: false, default: 0 }
+      - { name: "editionClosed", label: "ТИРАЖ закрыт (форма уничтожена)", widget: "boolean", required: false, default: false }
+
+      # ─── Поле УНИКАЛЬНОЙ работы (заполнять, если тип = уникальная) ───
+      - { name: "uniquenessNote", label: "УНИКАЛЬНАЯ · примечание", widget: "string", required: false, default: "Повторов и допечаток не будет.", hint: "Только для уникальной работы" }
+
+      # ─── Физические атрибуты ───
+      - { name: "sheetSize", label: "Размер листа", widget: "string", hint: "Например 40 × 56 см" }
+      - { name: "imageSize", label: "Размер изображения", widget: "string", required: false }
+      - { name: "paper", label: "Бумага", widget: "string", required: false }
+      - { name: "signature", label: "Подпись", widget: "string", required: false, default: "карандашом, нижнее поле, справа" }
+      - { name: "condition", label: "Состояние", widget: "string", required: false, default: "Mint, не оформлено в раму" }
+      - { name: "certificate", label: "Сертификат", widget: "string", required: false, default: "сертификат подлинности от издательства PRSTNK" }
+
+      # ─── Тексты ───
+      - { name: "shortDescription", label: "Короткое описание", widget: "text", required: false }
+      - { name: "description", label: "Полное описание (для страницы работы)", widget: "text", required: false }
+
+      # ─── Изображения ───
+      - { name: "mainImage", label: "Главное фото", widget: "image", required: false, hint: "Скан работы. Пока пусто — показывается графическая заглушка" }
+      - { name: "galleryImages", label: "Доп. фото (галерея)", widget: "list", required: false, field: { name: "image", label: "Фото", widget: "image" } }
+      - { name: "alt", label: "Alt-текст для фото", widget: "string", required: false }
+      - { name: "placeholderSvg", label: "Файл графической заглушки", widget: "string", required: false, hint: "Служебное. Не трогать, если есть реальное фото" }
+      - { name: "dominantColor", label: "Доминирующий цвет (для подсветки знака)", widget: "string", required: false, hint: "HEX, например #FA2A22" }
+
+      # ─── Подборки / витрина ───
+      - name: "collections"
+        label: "В каких подборках"
+        widget: "list"
+        required: false
+        field:
+          name: "collection"
+          label: "Подборка"
+          widget: "relation"
+          collection: "collections"
+          value_field: "id"
+          search_fields: ["title"]
+          display_fields: ["title"]
+      - { name: "featuredOnHome", label: "Показать на главной (кураторская подборка)", widget: "boolean", required: false, default: false }
+      - { name: "featuredInCatalog", label: "Показывать в каталоге", widget: "boolean", required: false, default: true }
+
+      # ─── Тексты заявки и SEO ───
+      - { name: "telegramReserveText", label: "Текст брони в Telegram", widget: "text", required: false, hint: "Подставляется в кнопку «Забронировать»" }
+      - { name: "seoTitle", label: "SEO Title", widget: "string", required: false }
+      - { name: "seoDescription", label: "SEO Description", widget: "text", required: false }
+      - { name: "order", label: "Порядок сортировки", widget: "number", value_type: "int", required: false, default: 99 }
+
+  # ─────────────────────────────────────────────
+  # ХУДОЖНИКИ
+  # ─────────────────────────────────────────────
+  - name: "artists"
+    label: "Художники"
+    label_singular: "Художник"
+    folder: "data/artists"
+    extension: "json"
+    format: "json"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "name"
+    summary: "{{name}} ({{worksCount}} работ)"
+    sortable_fields: ["order", "name"]
+    fields:
+      - { name: "id", label: "ID (= slug)", widget: "string" }
+      - { name: "slug", label: "URL-имя (slug)", widget: "string" }
+      - { name: "name", label: "Имя", widget: "string" }
+      - { name: "nameShort", label: "Имя кратко", widget: "string", hint: "Например П. Швецов" }
+      - { name: "firstName", label: "Имя в род. падеже для кнопок", widget: "string", hint: "Например «Петра»" }
+      - { name: "gen", label: "Полное имя в род. падеже", widget: "string", hint: "Например «Петра Швецова»" }
+      - { name: "birthYear", label: "Год рождения", widget: "number", value_type: "int", required: false }
+      - { name: "city", label: "Город", widget: "string", default: "Санкт-Петербург" }
+      - { name: "techniques", label: "Техники", widget: "list", field: { name: "t", label: "Техника", widget: "string" } }
+      - { name: "oneLiner", label: "Девиз (одна фраза, можно <em>)", widget: "string" }
+      - { name: "bio", label: "Биография (по абзацу)", widget: "list", field: { name: "p", label: "Абзац", widget: "text" } }
+      - { name: "collections", label: "Коллекции / где увидеть", widget: "list", field: { name: "c", label: "Строка", widget: "string" } }
+      - name: "meta"
+        label: "Мета-карточка (ключ: значение)"
+        widget: "object"
+        required: false
+        fields:
+          - { name: "Год рождения", label: "Год рождения", widget: "string", required: false }
+          - { name: "Город", label: "Город", widget: "string", required: false }
+          - { name: "Техники", label: "Техники", widget: "string", required: false }
+          - { name: "Образование", label: "Образование", widget: "string", required: false }
+          - { name: "Галерея", label: "Галерея", widget: "string", required: false }
+      - { name: "featured", label: "Заметный (показывать выше)", widget: "boolean", required: false, default: false }
+      - { name: "order", label: "Порядок", widget: "number", value_type: "int", required: false, default: 99 }
+
+  # ─────────────────────────────────────────────
+  # ПОДБОРКИ
+  # ─────────────────────────────────────────────
+  - name: "collections"
+    label: "Подборки"
+    label_singular: "Подборка"
+    folder: "data/collections"
+    extension: "json"
+    format: "json"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    summary: "{{title}}"
+    fields:
+      - { name: "id", label: "ID (= slug)", widget: "string" }
+      - { name: "slug", label: "URL-имя", widget: "string" }
+      - { name: "title", label: "Название", widget: "string" }
+      - { name: "subtitle", label: "Подзаголовок", widget: "string", required: false }
+      - name: "color"
+        label: "Цвет плашки"
+        widget: "select"
+        options:
+          - { label: "Алый", value: "alyi" }
+          - { label: "Лимон", value: "limon" }
+          - { label: "Кобальт", value: "kobalt" }
+          - { label: "Хвоя", value: "hvoya" }
+          - { label: "Фуксия", value: "fuxia" }
+          - { label: "Уголь", value: "ugol" }
+      - { name: "description", label: "Описание", widget: "text", required: false }
+      - { name: "telegramText", label: "Текст в Telegram", widget: "text", required: false }
+      - { name: "order", label: "Порядок", widget: "number", value_type: "int", required: false, default: 99 }
