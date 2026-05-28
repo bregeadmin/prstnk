@@ -35,16 +35,80 @@ collections = load_collection("collections")
 artists_by_id = {a["id"]: a for a in artists}
 artworks_by_slug = {w["slug"]: w for w in artworks}
 
-# Нормализация: имя/slug художника всегда берём из artistId (единый источник).
-# Так в CMS достаточно выбрать художника — имя подставится при сборке.
-for _w in artworks:
-    _a = artists_by_id.get(_w.get("artistId"))
-    if _a:
-        _w["artistName"] = _a["name"]
-        _w["artistSlug"] = _a["slug"]
+def _fmt_price(n):
+    try:
+        return f"{int(n):,}".replace(",", " ") + " ₽"
+    except (ValueError, TypeError):
+        return ""
 
-# Пересчёт привязки работ к художникам (workSlugs / worksCount) из актуальных данных
+
+def enrich_artwork(w):
+    """Автозаполнение служебных полей, чтобы в админке их можно было не показывать.
+    Смысловые поля (название, цена, год…) задаёт человек; всё техническое —
+    SEO, текст брони, alt, цена прописью, реквизиты — генерится здесь при сборке."""
+    a = artists_by_id.get(w.get("artistId"))
+    aname = a["name"] if a else w.get("artistName", "")
+    if a:
+        w["artistName"] = a["name"]
+        w["artistSlug"] = a["slug"]
+
+    # id = slug
+    if not w.get("id"):
+        w["id"] = w.get("slug", "")
+
+    # Дефолты-реквизиты (партнёр может переопределить через JSON, но в форме не нужны)
+    w.setdefault("imageSize", "")
+    w.setdefault("galleryImages", [])
+    w.setdefault("collections", [])
+    w.setdefault("featuredInCatalog", True)
+    w.setdefault("featuredOnHome", False)
+    w.setdefault("order", 99)
+    if not w.get("dominantColor"):
+        w["dominantColor"] = "#FA2A22"
+    if not w.get("paper"):
+        w["paper"] = "Hahnemühle 300 г/м², фактурная"
+    if not w.get("signature"):
+        w["signature"] = "карандашом, нижнее поле, справа"
+    if not w.get("condition"):
+        w["condition"] = "Mint, не оформлено в раму"
+    if not w.get("certificate"):
+        w["certificate"] = "сертификат подлинности от издательства PRSTNK"
+
+    # Тип-зависимое
+    if w.get("workType") == "unique":
+        if not w.get("uniquenessNote"):
+            w["uniquenessNote"] = "Повторов и допечаток не будет."
+        w["availableCount"] = 1
+    else:
+        w["workType"] = "editioned"
+        w.setdefault("artistProofs", 0)
+        w.setdefault("editionClosed", False)
+        if not w.get("availableCount") and w.get("editionTotal") and w.get("editionNumber"):
+            w["availableCount"] = max(1, int(w["editionTotal"]) - int(w["editionNumber"]))
+
+    # Всегда пересчитываем (зависят от смысловых полей) — чтобы были актуальны
+    w["priceFormatted"] = _fmt_price(w.get("price"))
+    w["alt"] = f"{w.get('technique','')}, {w.get('title','')}, {aname}"
+    ed = (f"{w.get('editionNumber','')}/{w.get('editionTotal','')}"
+          if w.get("workType") == "editioned" else "1/1")
+    if w.get("workType") == "unique":
+        w["telegramReserveText"] = (f"Хочу забронировать уникальную работу «{w.get('title','')}» — "
+                                    f"{aname}, {w.get('year','')}. Цена {w['priceFormatted']}.")
+    else:
+        w["telegramReserveText"] = (f"Хочу забронировать экземпляр №{ed} работы «{w.get('title','')}» — "
+                                    f"{aname}, {w.get('year','')}. Цена {w['priceFormatted']}.")
+    w["seoTitle"] = f"{aname}. «{w.get('title','')}», {w.get('year','')} — {w.get('technique','')} {ed} — PRSTNK"
+    w["seoDescription"] = (f"«{w.get('title','')}» — {w.get('technique','')}, {aname}, {w.get('year','')}, "
+                           f"{w.get('sheetSize','')}. Подпись автора, сертификат. {w['priceFormatted']}.")
+
+
+for _w in artworks:
+    enrich_artwork(_w)
+
+# Художники: id = slug если пусто, пересчёт привязки работ
 for _a in artists:
+    if not _a.get("id"):
+        _a["id"] = _a.get("slug", "")
     _a["workSlugs"] = [w["slug"] for w in artworks if w.get("artistId") == _a["id"]]
     _a["worksCount"] = len(_a["workSlugs"])
 
