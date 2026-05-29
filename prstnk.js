@@ -256,7 +256,8 @@
     } else { sub.hidden = true; }
     const hidden = `<input type="hidden" name="type" value="${escAttr(opts.type)}"><input type="hidden" name="page" value="${escAttr(location.href)}">`
       + (opts.work ? `<input type="hidden" name="work" value="${escAttr(opts.work)}">` : '')
-      + (opts.price ? `<input type="hidden" name="price" value="${escAttr(opts.price)}">` : '');
+      + (opts.price ? `<input type="hidden" name="price" value="${escAttr(opts.price)}">` : '')
+      + (opts.slug ? `<input type="hidden" name="slug" value="${escAttr(opts.slug)}">` : '');
     modal.querySelector('#orderFields').innerHTML = hidden + (fit ? FIT_FIELDS : PURCHASE_FIELDS);
     const form = modal.querySelector('#orderForm');
     form.hidden = false;
@@ -272,7 +273,7 @@
 
   document.addEventListener('click', (e) => {
     const ob = e.target.closest('[data-buy]');
-    if (ob) { e.preventDefault(); openOrder({ mode: 'purchase', type: ob.dataset.buyType || 'Заявка на покупку', work: ob.dataset.work, price: ob.dataset.price, tgText: ob.dataset.tgText }); return; }
+    if (ob) { e.preventDefault(); openOrder({ mode: 'purchase', type: ob.dataset.buyType || 'Заявка на покупку', work: ob.dataset.work, price: ob.dataset.price, slug: ob.dataset.lotSlug, tgText: ob.dataset.tgText }); return; }
     const fb = e.target.closest('[data-fit]');
     if (fb) { e.preventDefault(); openOrder({ mode: 'fit', type: 'Подбор по фото стены', tgText: fb.dataset.tgText }); }
   });
