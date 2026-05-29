@@ -33,7 +33,7 @@ def load_collection(name):
 artworks = load_collection("artworks")
 artists = load_collection("artists")
 collections = load_collection("collections")
-issues = load_collection("issues")        # выпуски журнала «Во дела»
+issues = load_collection("issues")        # выпуски журнала «YO!PRST»
 materials = load_collection("materials")  # лента коротких постов
 
 
@@ -287,7 +287,7 @@ FOOTER = '''  <footer class="site-footer">
           <ul>
             <li><a data-tg-text="Здравствуйте! Расскажите про издательство PRSTNK." data-analytics="footer-about">О проекте</a></li>
             <li><a href="index.html#how">Как купить</a></li>
-            <li><a href="journal.html">Журнал «Во дела»</a></li>
+            <li><a href="journal.html">Журнал «YO!PRST»</a></li>
             <li><a href="index.html#faq">FAQ</a></li>
             <li><a data-tg-text="Здравствуйте! Хочу обсудить сотрудничество с PRSTNK." data-analytics="footer-partnership">Сотрудничество</a></li>
           </ul>
@@ -415,7 +415,7 @@ def cta_block(art):
     cta_label = "Забронировать работу" if art["workType"] == "unique" else "Забронировать экземпляр"
     tg = esc(art["telegramReserveText"])
     return f'''        <div class="lot__cta">
-          <a class="btn btn--big btn--accent" data-order data-order-type="Заявка на работу" data-work="{esc(art['title'])}" data-price="{esc(art['priceFormatted'])}" data-tg-text="{tg}" data-analytics="lot-reserve" data-lot-slug="{slug}" data-work-type="{art['workType']}">
+          <a class="btn btn--big btn--accent" data-buy data-buy-type="Заявка на работу" data-work="{esc(art['title'])}" data-price="{esc(art['priceFormatted'])}" data-tg-text="{tg}" data-analytics="lot-reserve" data-lot-slug="{slug}" data-work-type="{art['workType']}">
             {cta_label}
             <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true"><path d="M1 7H17M17 7L11 1M17 7L11 13" stroke="currentColor" stroke-width="2"/></svg>
           </a>
@@ -915,7 +915,7 @@ def render_artists_index():
 
 
 # ============================================================
-#  ЖУРНАЛ «Во дела» — лента, выпуски и страницы выпусков
+#  ЖУРНАЛ «YO!PRST» — лента, выпуски и страницы выпусков
 # ============================================================
 
 PALETTE = {
@@ -1130,7 +1130,7 @@ def render_issue_page(issue):
     slug = iss_slug(issue)
     canonical = f"{BASE_URL}/zine-{slug}.html"
     plain_title = strip_tags(issue.get("title", ""))
-    title = f'«Во дела» № {issue["number"]}, {issue["period"]}: {plain_title} — PRSTNK'
+    title = f'«YO!PRST» № {issue["number"]}, {issue["period"]}: {plain_title} — PRSTNK'
     desc = strip_tags(issue.get("coverLead") or issue.get("lead", ""))
     credits = issue.get("credits") or []
     author = credits[0]["name"] if credits else "PRSTNK"
@@ -1203,7 +1203,7 @@ def render_issue_page(issue):
           Между выпусками у нас в Telegram-канале — анонсы тиражей, репортажи из мастерских и короткие материалы, которые не попали в большой формат.
         </p>
         <a class="btn btn--big btn--accent"
-           data-tg-text="Здравствуйте! Прочитал выпуск {issue["number"]} журнала «Во дела». Хочу подписаться на канал и не пропускать новые выпуски."
+           data-tg-text="Здравствуйте! Прочитал выпуск {issue["number"]} журнала «YO!PRST». Хочу подписаться на канал и не пропускать новые выпуски."
            data-analytics="zine-{slug}-subscribe">
           Подписаться на Telegram-канал
           {ARROW}
@@ -1217,8 +1217,8 @@ def render_issue_page(issue):
 
 def render_journal_index():
     canonical = f"{BASE_URL}/journal.html"
-    title = "Журнал «Во дела» — PRSTNK"
-    desc = ("Журнал PRSTNK «Во дела»: раз в квартал выходит полный выпуск, между выпусками — "
+    title = "Журнал «YO!PRST» — PRSTNK"
+    desc = ("Журнал PRSTNK «YO!PRST»: раз в квартал выходит полный выпуск, между выпусками — "
             "короткие материалы в Telegram. Архив выпусков и лента постов.")
 
     featured = next((i for i in issues if i.get("current") and issue_has_page(i)), None)
@@ -1345,12 +1345,12 @@ def render_journal_index():
   <main class="wrap">
     <nav class="crumbs" aria-label="Хлебные крошки">
       <a href="index.html">Главная</a><span class="sep">/</span>
-      <span class="here">Журнал «Во дела»</span>
+      <span class="here">Журнал «YO!PRST»</span>
     </nav>
 
     <section class="page-hero" style="padding-bottom: 32px;">
       <div class="eyebrow">№ 06 · <b>Журнал</b></div>
-      <h1>«<em>Во дела</em>».<br/>Журнал про авторскую графику.</h1>
+      <h1>«<em>YO!PRST</em>».<br/>Журнал про авторскую графику.</h1>
       <p class="page-hero__lead">
         Раз в квартал собираем полный выпуск: интервью с художниками, репортажи из мастерских, кураторские разборы. Между выпусками — короткие посты в Telegram. Без снобизма, иногда с матом.
       </p>

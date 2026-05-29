@@ -271,8 +271,8 @@
   }
 
   document.addEventListener('click', (e) => {
-    const ob = e.target.closest('[data-order]');
-    if (ob) { e.preventDefault(); openOrder({ mode: 'purchase', type: ob.dataset.orderType || 'Заявка на покупку', work: ob.dataset.work, price: ob.dataset.price, tgText: ob.dataset.tgText }); return; }
+    const ob = e.target.closest('[data-buy]');
+    if (ob) { e.preventDefault(); openOrder({ mode: 'purchase', type: ob.dataset.buyType || 'Заявка на покупку', work: ob.dataset.work, price: ob.dataset.price, tgText: ob.dataset.tgText }); return; }
     const fb = e.target.closest('[data-fit]');
     if (fb) { e.preventDefault(); openOrder({ mode: 'fit', type: 'Подбор по фото стены', tgText: fb.dataset.tgText }); }
   });

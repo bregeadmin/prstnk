@@ -1451,7 +1451,7 @@ h1, h2, h3, h4 {
   color: var(--prstnk-color); background: none; border: 0;
   border-bottom: 1px solid currentColor; padding: 0 0 2px; cursor: pointer;
 }
-.catalog-grid-wrap { margin-top: 32px; }
+.catalog-grid-wrap { margin-top: 32px; margin-bottom: 72px; }
 .catalog-empty { text-align: center; padding: 72px 0 48px; }
 .catalog-empty h3 {
   font-family: var(--f-display); font-weight: 700;
