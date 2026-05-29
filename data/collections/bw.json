@@ -6,5 +6,12 @@
   "color": "ugol",
   "description": "Графика без цвета — только линия, штрих и фактура.",
   "telegramText": "Здравствуйте! Хочу подборку «Чёрно-белое».",
-  "order": 3
+  "order": 3,
+  "works": [
+    "chaynik",
+    "dvor-kolodets",
+    "stol-s-tarelkoy",
+    "dk-gaza",
+    "kupchino"
+  ]
 }

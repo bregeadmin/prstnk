@@ -1408,8 +1408,65 @@ def update_index_home():
                    f"{_plural(nvis, 'имя', 'имени', 'имён')}.<!--/AH-TITLE-->")
     html = re.sub(r"<!--AH-TITLE-->.*?<!--/AH-TITLE-->", lambda m: title_block, html, flags=re.DOTALL)
 
+    # Плашки подборок «Готовые подборки»: из data/collections, число листов считается само
+    plates = []
+    for i, c in enumerate(collections, start=1):
+        cn = len([s for s in c.get("works", []) if s in artworks_by_slug])
+        word = _plural(cn, "лист", "листа", "листов")
+        plates.append(
+            f'      <a class="plate plate--{c.get("color", "alyi")}" href="collection-{c["slug"]}.html" data-analytics="plate" data-plate-id="{c["slug"]}">\n'
+            f'        <span class="plate__num">№ {i:02d} · {cn} {word}</span>\n'
+            f'        <span class="plate__title">{c["title"]}</span>\n'
+            f'        <span class="plate__meta">{c.get("subtitle", "")}</span>\n'
+            f'      </a>')
+    plates_block = "<!--PLATES-START-->\n" + "\n".join(plates) + "\n      <!--PLATES-END-->"
+    html = re.sub(r"<!--PLATES-START-->.*?<!--PLATES-END-->", lambda m: plates_block, html, flags=re.DOTALL)
+
     path.write_text(html)
     return True
+
+
+def render_collection(coll):
+    slug = coll["slug"]
+    canonical = f"{BASE_URL}/collection-{slug}.html"
+    works = [artworks_by_slug[s] for s in coll.get("works", []) if s in artworks_by_slug]
+    n = len(works)
+    title = f"{coll['title']} — подборка PRSTNK"
+    desc = coll.get("description") or f"Кураторская подборка «{coll['title']}»: {n} работ авторской графики PRSTNK."
+    eyebrow = "Подборка" + (f" · {coll['subtitle']}" if coll.get("subtitle") else "")
+    if works:
+        cards = "\n        ".join(work_card(w) for w in works)
+        body_grid = f'<div class="grid-works">\n        {cards}\n      </div>'
+    else:
+        tg = esc(coll.get("telegramText") or f"Здравствуйте! Расскажите про подборку «{coll['title']}».")
+        body_grid = f'''<div class="favorites-empty">
+        <h3>Подборка пока собирается.</h3>
+        <p>Куратор готовит работы для этой подборки — напишите, подскажем, что уже есть.</p>
+        <a class="btn btn--accent" data-tg-text="{tg}" data-analytics="collection-empty">Спросить у куратора →</a>
+      </div>'''
+    return f'''{head(title, desc, canonical)}{HEADER}
+  <main class="wrap">
+    <nav class="crumbs" aria-label="Хлебные крошки">
+      <a href="index.html">Главная</a><span class="sep">/</span>
+      <a href="index.html#plates">Подборки</a><span class="sep">/</span>
+      <span class="here">{coll['title']}</span>
+    </nav>
+
+    <section class="page-hero" style="padding-bottom: 24px;">
+      <div class="eyebrow">{eyebrow}</div>
+      <h1>{coll['title']}</h1>
+      <p class="page-hero__lead">{coll.get('description', '')}</p>
+      <div class="page-hero__stats">
+        <div><b>{n}</b>{_plural(n, 'работа', 'работы', 'работ')}</div>
+      </div>
+    </section>
+
+    <section class="catalog-grid-wrap">
+      {body_grid}
+    </section>
+  </main>
+
+{FOOTER}'''
 
 
 def render_favorites():
@@ -1455,6 +1512,8 @@ def render_sitemap():
             urls.append((f"zine-{iss_slug(issue)}.html", "0.8", "monthly"))
     for a in artists:
         urls.append((f"artist-{a['slug']}.html", "0.7", "monthly"))
+    for c in collections:
+        urls.append((f"collection-{c['slug']}.html", "0.7", "monthly"))
     for w in artworks:
         urls.append((f"work-{w['slug']}.html", "0.8", "weekly"))
     body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -1481,6 +1540,10 @@ if __name__ == "__main__":
 
     (ROOT / "artists.html").write_text(render_artists_index())
     print("  ✓ artists.html — индекс художников")
+
+    for c in collections:
+        (ROOT / f"collection-{c['slug']}.html").write_text(render_collection(c))
+    print(f"  ✓ {len(collections)} страниц подборок (collection-*.html)")
 
     cards_index = {w["slug"]: work_card(w) for w in artworks}
     (ROOT / "works-index.js").write_text("window.PRSTNK_WORKS = " + json.dumps(cards_index, ensure_ascii=False) + ";\n")

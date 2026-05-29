@@ -186,7 +186,12 @@ collections:
           - { label: "Фуксия", value: "fuxia" }
           - { label: "Уголь", value: "ugol" }
       - { name: "description", label: "Описание", widget: "text", required: false }
-      - { name: "telegramText", label: "Текст в Telegram", widget: "text", required: false }
+      - name: "works"
+        label: "Работы в подборке"
+        widget: "list"
+        required: false
+        field: { name: "work", label: "Работа", widget: "relation", collection: "artworks", value_field: "slug", search_fields: ["title"], display_fields: ["title"] }
+      - { name: "telegramText", label: "Текст в Telegram (если работ нет)", widget: "text", required: false }
       - { name: "slug", label: "Адрес (латиницей)", widget: "string", hint: "Напр. first-wall" }
       - { name: "id", widget: "hidden" }
       - { name: "order", widget: "hidden", required: false, default: 99 }

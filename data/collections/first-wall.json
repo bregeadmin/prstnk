@@ -2,9 +2,16 @@
   "title": "Для первой стены",
   "subtitle": "собрал куратор",
   "color": "alyi",
-  "description": "Восемь работ, с которых не страшно начать коллекцию.",
+  "description": "Листы, с которых не страшно начать коллекцию — разные техники в одной палитре.",
   "telegramText": "Здравствуйте! Хочу подборку «Для первой стены».",
   "slug": "first-wall",
   "id": "first-wall",
-  "order": 0
+  "order": 0,
+  "works": [
+    "finskiy-zaliv",
+    "severnyi-gost",
+    "sosedskiy-etyud",
+    "budniy-den",
+    "stol-s-tarelkoy"
+  ]
 }

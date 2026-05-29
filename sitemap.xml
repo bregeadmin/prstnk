@@ -86,6 +86,26 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://prstnk.ru/collection-first-wall.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/collection-under-10k.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/collection-color.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/collection-bw.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://prstnk.ru/work-severnyi-gost.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

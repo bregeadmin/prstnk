@@ -6,5 +6,15 @@
   "color": "limon",
   "description": "Настоящая авторская графика по доступной цене.",
   "telegramText": "Здравствуйте! Хочу подборку до 10 000 ₽.",
-  "order": 1
+  "order": 1,
+  "works": [
+    "finskiy-zaliv",
+    "severnyi-gost",
+    "sosedskiy-etyud",
+    "luna-nad-ozerkami",
+    "kupchino",
+    "chaynik",
+    "kuhnya-v-neone",
+    "lestnitsa"
+  ]
 }
