@@ -1412,6 +1412,62 @@ h1, h2, h3, h4 {
 .catalog-filter__chip.is-active {
   background: var(--ink); color: var(--paper); border-color: var(--ink);
 }
+
+/* Панель каталога: чипсы + поиск + сортировка + счётчик */
+.catalog-toolbar {
+  display: flex; flex-wrap: wrap; gap: 16px 24px;
+  align-items: flex-start; justify-content: space-between;
+  padding: 24px 0 0;
+}
+.cat-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cat-chips__break { flex-basis: 100%; height: 0; margin: 0; }
+.cat-tools { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.cat-search {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--rule); padding: 8px 14px;
+}
+.cat-search:focus-within { border-color: var(--ink); }
+.cat-search__icon { font-size: 16px; color: var(--ink-3); line-height: 1; }
+.cat-search input {
+  border: 0; outline: 0; background: transparent;
+  font-family: var(--f-text); font-size: 14px; color: var(--ink);
+  min-width: 190px; width: 190px;
+}
+.cat-sort {
+  font-family: var(--f-mono); font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink); background: var(--paper);
+  border: 1px solid var(--rule); padding: 10px 14px; cursor: pointer;
+}
+.catalog-meta {
+  display: flex; align-items: center; gap: 18px;
+  padding: 18px 0 28px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--f-mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+}
+.cat-reset {
+  font: inherit; letter-spacing: inherit; text-transform: inherit;
+  color: var(--prstnk-color); background: none; border: 0;
+  border-bottom: 1px solid currentColor; padding: 0 0 2px; cursor: pointer;
+}
+.catalog-grid-wrap { margin-top: 32px; }
+.catalog-empty { text-align: center; padding: 72px 0 48px; }
+.catalog-empty h3 {
+  font-family: var(--f-display); font-weight: 700;
+  font-size: clamp(26px, 3vw, 36px); letter-spacing: -0.02em; margin-bottom: 10px;
+}
+.catalog-empty p {
+  font-family: var(--f-text); font-size: 16px; line-height: 1.5;
+  color: var(--ink-2); max-width: 46ch; margin: 0 auto 24px;
+}
+@media (max-width: 720px) {
+  .catalog-toolbar { flex-direction: column; gap: 16px; }
+  .cat-tools { width: 100%; }
+  .cat-search { flex: 1; }
+  .cat-search input { width: 100%; min-width: 0; }
+}
+
 .catalog-section { margin-bottom: 80px; }
 .catalog-section__head {
   display: flex; justify-content: space-between; align-items: baseline;

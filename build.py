@@ -446,7 +446,12 @@ def work_card(art, stagger=False, delay=None):
     sub = (f'{art["technique"]} · {art["sheetSize"].replace(" см","").replace(" × ","×")} · тираж <b>{art["editionTotal"]}</b>'
            if art["workType"] == "editioned"
            else f'{art["technique"]} · {art["sheetSize"].replace(" см","").replace(" × ","×")} · <b>1/1</b>')
-    return f'''<a class="{cls}{stag}" href="{href}" data-work-color="{art['dominantColor']}"{stag_attr} data-analytics="work-card" data-work-slug="{art['slug']}">
+    search_blob = esc(f"{art.get('title','')} {aname} {art.get('technique','')}".lower())
+    filt = (f' data-price="{art.get("price",0)}" data-status="{art["status"]}"'
+            f' data-technique="{art["techniqueGroup"]}" data-type="{art["workType"]}"'
+            f' data-available="{art.get("availableCount",1)}" data-year="{art.get("year","")}"'
+            f' data-order="{art.get("order",99)}" data-search="{search_blob}"')
+    return f'''<a class="{cls}{stag}" href="{href}" data-work-color="{art['dominantColor']}"{stag_attr} data-analytics="work-card" data-work-slug="{art['slug']}"{filt}>
           {badge}
           <div class="work__sheet">
             <div class="work__plate">
@@ -624,44 +629,34 @@ def render_work_page(art):
 
 
 def render_catalog():
-    # группировка
     groups = [
-        ("lithography", "Литография", "камень · вода · масло"),
-        ("silkscreen", "Шелкография", "шёлк · краска · экран"),
-        ("linocut", "Линогравюра и ксилография", "резец · линолеум · топор"),
-        ("etching", "Офорт", "цинк · кислота · игла"),
-        ("graphics", "Графика и монотипия", "рисунок · валик · стекло"),
+        ("lithography", "Литография"),
+        ("silkscreen", "Шелкография"),
+        ("linocut", "Линогравюра"),
+        ("etching", "Офорт"),
+        ("graphics", "Графика и монотипия"),
     ]
-    filter_labels = {
-        "lithography": "Литография", "silkscreen": "Шелкография",
-        "linocut": "Линогравюра", "etching": "Офорт", "graphics": "Графика и монотипия",
-    }
     total = len(artworks)
     avail = sum(1 for w in artworks if w["status"] == "available")
     min_price = min(w["price"] for w in artworks)
     min_price_str = f"{min_price:,}".replace(",", " ")  # 4800 → «4 800»
 
-    chips = ['<button class="catalog-filter__chip is-active" data-filter="all" data-analytics="catalog-filter" data-filter-id="all">Все техники</button>']
-    for gid, label in [(g[0], filter_labels[g[0]]) for g in groups]:
-        chips.append(f'<button class="catalog-filter__chip" data-filter="{gid}" data-analytics="catalog-filter" data-filter-id="{gid}">{label}</button>')
+    # Чипсы техник (выбор один из) + чипсы-переключатели
+    tech_chips = ['<button class="catalog-filter__chip is-active" data-group="tech" data-filter="all" data-analytics="catalog-filter">Все техники</button>']
+    for gid, label in groups:
+        if any(w["techniqueGroup"] == gid for w in artworks):
+            tech_chips.append(f'<button class="catalog-filter__chip" data-group="tech" data-filter="{gid}" data-analytics="catalog-filter">{label}</button>')
+    toggle_chips = [
+        '<button class="catalog-filter__chip" data-toggle="available" data-analytics="catalog-toggle">В наличии</button>',
+        '<button class="catalog-filter__chip" data-toggle="under10k" data-analytics="catalog-toggle">До 10 000 ₽</button>',
+        '<button class="catalog-filter__chip" data-toggle="unique" data-analytics="catalog-toggle">Уникальные 1/1</button>',
+        '<button class="catalog-filter__chip" data-toggle="last" data-analytics="catalog-toggle">Последние экземпляры</button>',
+    ]
+    tech_html = "".join(chr(10) + "        " + c for c in tech_chips)
+    toggle_html = "".join(chr(10) + "        " + c for c in toggle_chips)
 
-    sections = []
-    for gid, gname, gmeta in groups:
-        items = [w for w in artworks if w["techniqueGroup"] == gid]
-        if not items:
-            continue
-        n = len(items)
-        word = "лист" if n == 1 else ("листа" if n < 5 else "листов")
-        cards = "\n        ".join(work_card(w) for w in items)
-        sections.append(f'''    <section class="catalog-section" data-technique="{gid}">
-      <div class="catalog-section__head">
-        <h2>{gname}. <em>{n} {word}</em>.</h2>
-        <span class="meta">{gmeta}</span>
-      </div>
-      <div class="grid-works">
-        {cards}
-      </div>
-    </section>''')
+    # Все работы одной сеткой, в кураторском порядке (artworks отсортированы по order)
+    cards = "\n        ".join(work_card(w) for w in artworks)
 
     canonical = f"{BASE_URL}/works.html"
     title = "Каталог авторской графики — PRSTNK"
@@ -688,11 +683,38 @@ def render_catalog():
       </div>
     </section>
 
-    <div class="catalog-filter" role="tablist" aria-label="Фильтр по технике">
-      {"".join(chr(10)+"      "+c for c in chips)}
+    <div class="catalog-toolbar">
+      <div class="cat-chips" role="group" aria-label="Фильтры">{tech_html}
+        <span class="cat-chips__break" aria-hidden="true"></span>{toggle_html}
+      </div>
+      <div class="cat-tools">
+        <label class="cat-search">
+          <span class="cat-search__icon" aria-hidden="true">⌕</span>
+          <input type="search" id="catSearch" placeholder="Название, художник, техника" aria-label="Поиск по каталогу"/>
+        </label>
+        <select class="cat-sort" id="catSort" aria-label="Сортировка">
+          <option value="curated">Кураторская подборка</option>
+          <option value="new">Сначала новые</option>
+          <option value="price-asc">Сначала дешевле</option>
+          <option value="price-desc">Сначала дороже</option>
+        </select>
+      </div>
+    </div>
+    <div class="catalog-meta">
+      <span id="catCount">Показано {total} из {total}</span>
+      <button class="cat-reset" id="catReset" hidden>Сбросить фильтры</button>
     </div>
 
-{chr(10).join(sections)}
+    <section class="catalog-grid-wrap">
+      <div class="grid-works" id="catGrid">
+        {cards}
+      </div>
+      <div class="catalog-empty" id="catEmpty" hidden>
+        <h3>Ничего не нашлось.</h3>
+        <p>Снимите часть фильтров — или попросите куратора подобрать листы под вашу стену.</p>
+        <a class="btn btn--accent" data-tg-text="Здравствуйте! Не нашёл подходящую работу в каталоге — помогите подобрать." data-analytics="catalog-empty">Куратор подберёт →</a>
+      </div>
+    </section>
 
     <section class="fit-block" style="padding: 56px 0;">
       <div class="fit__grid">

@@ -77,23 +77,41 @@
       </div>
     </section>
 
-    <div class="catalog-filter" role="tablist" aria-label="Фильтр по технике">
-      
-      <button class="catalog-filter__chip is-active" data-filter="all" data-analytics="catalog-filter" data-filter-id="all">Все техники</button>
-      <button class="catalog-filter__chip" data-filter="lithography" data-analytics="catalog-filter" data-filter-id="lithography">Литография</button>
-      <button class="catalog-filter__chip" data-filter="silkscreen" data-analytics="catalog-filter" data-filter-id="silkscreen">Шелкография</button>
-      <button class="catalog-filter__chip" data-filter="linocut" data-analytics="catalog-filter" data-filter-id="linocut">Линогравюра</button>
-      <button class="catalog-filter__chip" data-filter="etching" data-analytics="catalog-filter" data-filter-id="etching">Офорт</button>
-      <button class="catalog-filter__chip" data-filter="graphics" data-analytics="catalog-filter" data-filter-id="graphics">Графика и монотипия</button>
+    <div class="catalog-toolbar">
+      <div class="cat-chips" role="group" aria-label="Фильтры">
+        <button class="catalog-filter__chip is-active" data-group="tech" data-filter="all" data-analytics="catalog-filter">Все техники</button>
+        <button class="catalog-filter__chip" data-group="tech" data-filter="lithography" data-analytics="catalog-filter">Литография</button>
+        <button class="catalog-filter__chip" data-group="tech" data-filter="silkscreen" data-analytics="catalog-filter">Шелкография</button>
+        <button class="catalog-filter__chip" data-group="tech" data-filter="linocut" data-analytics="catalog-filter">Линогравюра</button>
+        <button class="catalog-filter__chip" data-group="tech" data-filter="etching" data-analytics="catalog-filter">Офорт</button>
+        <button class="catalog-filter__chip" data-group="tech" data-filter="graphics" data-analytics="catalog-filter">Графика и монотипия</button>
+        <span class="cat-chips__break" aria-hidden="true"></span>
+        <button class="catalog-filter__chip" data-toggle="available" data-analytics="catalog-toggle">В наличии</button>
+        <button class="catalog-filter__chip" data-toggle="under10k" data-analytics="catalog-toggle">До 10 000 ₽</button>
+        <button class="catalog-filter__chip" data-toggle="unique" data-analytics="catalog-toggle">Уникальные 1/1</button>
+        <button class="catalog-filter__chip" data-toggle="last" data-analytics="catalog-toggle">Последние экземпляры</button>
+      </div>
+      <div class="cat-tools">
+        <label class="cat-search">
+          <span class="cat-search__icon" aria-hidden="true">⌕</span>
+          <input type="search" id="catSearch" placeholder="Название, художник, техника" aria-label="Поиск по каталогу"/>
+        </label>
+        <select class="cat-sort" id="catSort" aria-label="Сортировка">
+          <option value="curated">Кураторская подборка</option>
+          <option value="new">Сначала новые</option>
+          <option value="price-asc">Сначала дешевле</option>
+          <option value="price-desc">Сначала дороже</option>
+        </select>
+      </div>
+    </div>
+    <div class="catalog-meta">
+      <span id="catCount">Показано 20 из 20</span>
+      <button class="cat-reset" id="catReset" hidden>Сбросить фильтры</button>
     </div>
 
-    <section class="catalog-section" data-technique="lithography">
-      <div class="catalog-section__head">
-        <h2>Литография. <em>4 листа</em>.</h2>
-        <span class="meta">камень · вода · масло</span>
-      </div>
-      <div class="grid-works">
-        <a class="work" href="work-severnyi-gost.html" data-work-color="#FA2A22" data-analytics="work-card" data-work-slug="severnyi-gost">
+    <section class="catalog-grid-wrap">
+      <div class="grid-works" id="catGrid">
+        <a class="work" href="work-severnyi-gost.html" data-work-color="#FA2A22" data-analytics="work-card" data-work-slug="severnyi-gost" data-price="9800" data-status="available" data-technique="lithography" data-type="editioned" data-available="16" data-year="2024" data-order="0" data-search="северный гость пётр швецов литография в три камня">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -120,7 +138,7 @@
             <div class="work__sub">литография в три камня · 40×56 · тираж <b>30</b></div>
           </div>
         </a>
-        <a class="work" href="work-finskiy-zaliv.html" data-work-color="#2A4BFF" data-analytics="work-card" data-work-slug="finskiy-zaliv">
+        <a class="work" href="work-finskiy-zaliv.html" data-work-color="#2A4BFF" data-analytics="work-card" data-work-slug="finskiy-zaliv" data-price="8400" data-status="available" data-technique="lithography" data-type="editioned" data-available="29" data-year="2022" data-order="1" data-search="финский залив, июль пётр швецов литография">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -142,7 +160,7 @@
             <div class="work__sub">литография · 42×30 · тираж <b>40</b></div>
           </div>
         </a>
-        <a class="work is-sold" href="work-more-pasmurniy.html" data-work-color="#6E6B61" data-analytics="work-card" data-work-slug="more-pasmurniy">
+        <a class="work is-sold" href="work-more-pasmurniy.html" data-work-color="#6E6B61" data-analytics="work-card" data-work-slug="more-pasmurniy" data-price="8800" data-status="sold" data-technique="lithography" data-type="editioned" data-available="31" data-year="2023" data-order="2" data-search="море в пасмурный пётр швецов литография">
           <span class="work__badge work__badge--sold">Продано</span>
           <div class="work__sheet">
             <div class="work__plate">
@@ -157,7 +175,7 @@
             <div class="work__sub">литография · 42×30 · тираж <b>35</b></div>
           </div>
         </a>
-        <a class="work" href="work-dvorik.html" data-work-color="#7A1F12" data-analytics="work-card" data-work-slug="dvorik">
+        <a class="work" href="work-dvorik.html" data-work-color="#7A1F12" data-analytics="work-card" data-work-slug="dvorik" data-price="14000" data-status="available" data-technique="lithography" data-type="editioned" data-available="18" data-year="2023" data-order="3" data-search="дворик на 7-й красноармейской денис ичитовкин литография">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -187,15 +205,7 @@
             <div class="work__sub">литография · 50×70 · тираж <b>20</b></div>
           </div>
         </a>
-      </div>
-    </section>
-    <section class="catalog-section" data-technique="silkscreen">
-      <div class="catalog-section__head">
-        <h2>Шелкография. <em>5 листов</em>.</h2>
-        <span class="meta">шёлк · краска · экран</span>
-      </div>
-      <div class="grid-works">
-        <a class="work" href="work-sosedskiy-etyud.html" data-work-color="#FA2A22" data-analytics="work-card" data-work-slug="sosedskiy-etyud">
+        <a class="work" href="work-sosedskiy-etyud.html" data-work-color="#FA2A22" data-analytics="work-card" data-work-slug="sosedskiy-etyud" data-price="9800" data-status="available" data-technique="silkscreen" data-type="editioned" data-available="16" data-year="2024" data-order="4" data-search="соседский этюд станислав казимов шелкография">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -216,7 +226,7 @@
             <div class="work__sub">шелкография · 50×70 · тираж <b>30</b></div>
           </div>
         </a>
-        <a class="work" href="work-portret-soseda.html" data-work-color="#FFCC00" data-analytics="work-card" data-work-slug="portret-soseda">
+        <a class="work" href="work-portret-soseda.html" data-work-color="#FFCC00" data-analytics="work-card" data-work-slug="portret-soseda" data-price="12000" data-status="available" data-technique="silkscreen" data-type="editioned" data-available="16" data-year="2025" data-order="5" data-search="портрет соседа света исаева шелкография">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -237,7 +247,7 @@
             <div class="work__sub">шелкография · 50×70 · тираж <b>25</b></div>
           </div>
         </a>
-        <a class="work" href="work-budniy-den.html" data-work-color="#FF3DA0" data-analytics="work-card" data-work-slug="budniy-den">
+        <a class="work" href="work-budniy-den.html" data-work-color="#FF3DA0" data-analytics="work-card" data-work-slug="budniy-den" data-price="10500" data-status="available" data-technique="silkscreen" data-type="editioned" data-available="21" data-year="2023" data-order="6" data-search="будний день надежда косинская шелкография + ручная прошивка">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -258,7 +268,7 @@
             <div class="work__sub">шелкография + ручная прошивка · 50×70 · тираж <b>25</b></div>
           </div>
         </a>
-        <a class="work" href="work-tsvety-na-chernom.html" data-work-color="#FF3DA0" data-analytics="work-card" data-work-slug="tsvety-na-chernom">
+        <a class="work" href="work-tsvety-na-chernom.html" data-work-color="#FF3DA0" data-analytics="work-card" data-work-slug="tsvety-na-chernom" data-price="11000" data-status="available" data-technique="silkscreen" data-type="editioned" data-available="1" data-year="2024" data-order="7" data-search="цветы на чёрном света исаева шелкография">
           <span class="work__badge work__badge--last">Последний экз.</span>
           <div class="work__sheet">
             <div class="work__plate">
@@ -281,7 +291,7 @@
             <div class="work__sub">шелкография · 40×56 · тираж <b>24</b></div>
           </div>
         </a>
-        <a class="work" href="work-valentina.html" data-work-color="#C4794D" data-analytics="work-card" data-work-slug="valentina">
+        <a class="work" href="work-valentina.html" data-work-color="#C4794D" data-analytics="work-card" data-work-slug="valentina" data-price="13000" data-status="available" data-technique="silkscreen" data-type="editioned" data-available="15" data-year="2024" data-order="8" data-search="валентина, 73, повар надежда косинская шелкография">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -303,15 +313,7 @@
             <div class="work__sub">шелкография · 40×56 · тираж <b>18</b></div>
           </div>
         </a>
-      </div>
-    </section>
-    <section class="catalog-section" data-technique="linocut">
-      <div class="catalog-section__head">
-        <h2>Линогравюра и ксилография. <em>4 листа</em>.</h2>
-        <span class="meta">резец · линолеум · топор</span>
-      </div>
-      <div class="grid-works">
-        <a class="work" href="work-luna-nad-ozerkami.html" data-work-color="#FFCC00" data-analytics="work-card" data-work-slug="luna-nad-ozerkami">
+        <a class="work" href="work-luna-nad-ozerkami.html" data-work-color="#FFCC00" data-analytics="work-card" data-work-slug="luna-nad-ozerkami" data-price="7200" data-status="available" data-technique="linocut" data-type="editioned" data-available="40" data-year="2023" data-order="9" data-search="луна над озерками станислав казимов линогравюра">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -334,7 +336,7 @@
             <div class="work__sub">линогравюра · 38×54 · тираж <b>45</b></div>
           </div>
         </a>
-        <a class="work is-reserved" href="work-venskiy-stul.html" data-work-color="#2E5A2A" data-analytics="work-card" data-work-slug="venskiy-stul">
+        <a class="work is-reserved" href="work-venskiy-stul.html" data-work-color="#2E5A2A" data-analytics="work-card" data-work-slug="venskiy-stul" data-price="5400" data-status="reserved" data-technique="linocut" data-type="editioned" data-available="38" data-year="2021" data-order="10" data-search="венский стул станислав казимов линогравюра">
           <span class="work__badge work__badge--reserved">Бронь</span>
           <div class="work__sheet">
             <div class="work__plate">
@@ -349,7 +351,7 @@
             <div class="work__sub">линогравюра · 28×40 · тираж <b>60</b></div>
           </div>
         </a>
-        <a class="work" href="work-dk-gaza.html" data-work-color="#6E6B61" data-analytics="work-card" data-work-slug="dk-gaza">
+        <a class="work" href="work-dk-gaza.html" data-work-color="#6E6B61" data-analytics="work-card" data-work-slug="dk-gaza" data-price="11500" data-status="available" data-technique="linocut" data-type="editioned" data-available="15" data-year="2023" data-order="11" data-search="дк газа нестор энгельке гравюра на дереве">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -374,7 +376,7 @@
             <div class="work__sub">гравюра на дереве · 50×70 · тираж <b>22</b></div>
           </div>
         </a>
-        <a class="work" href="work-kupchino.html" data-work-color="#C4794D" data-analytics="work-card" data-work-slug="kupchino">
+        <a class="work" href="work-kupchino.html" data-work-color="#C4794D" data-analytics="work-card" data-work-slug="kupchino" data-price="9000" data-status="available" data-technique="linocut" data-type="editioned" data-available="2" data-year="2022" data-order="12" data-search="купчино, вид с балкона нестор энгельке гравюра на дереве">
           <span class="work__badge work__badge--last">Тираж закрыт</span>
           <div class="work__sheet">
             <div class="work__plate">
@@ -405,15 +407,7 @@
             <div class="work__sub">гравюра на дереве · 38×54 · тираж <b>30</b></div>
           </div>
         </a>
-      </div>
-    </section>
-    <section class="catalog-section" data-technique="etching">
-      <div class="catalog-section__head">
-        <h2>Офорт. <em>3 листа</em>.</h2>
-        <span class="meta">цинк · кислота · игла</span>
-      </div>
-      <div class="grid-works">
-        <a class="work" href="work-stol-s-tarelkoy.html" data-work-color="#FF3DA0" data-analytics="work-card" data-work-slug="stol-s-tarelkoy">
+        <a class="work" href="work-stol-s-tarelkoy.html" data-work-color="#FF3DA0" data-analytics="work-card" data-work-slug="stol-s-tarelkoy" data-price="11500" data-status="available" data-technique="etching" data-type="editioned" data-available="17" data-year="2024" data-order="13" data-search="стол с тарелкой юрий штапаков офорт">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -428,7 +422,7 @@
             <div class="work__sub">офорт · 35×50 · тираж <b>20</b></div>
           </div>
         </a>
-        <a class="work" href="work-chaynik.html" data-work-color="#38362F" data-analytics="work-card" data-work-slug="chaynik">
+        <a class="work" href="work-chaynik.html" data-work-color="#38362F" data-analytics="work-card" data-work-slug="chaynik" data-price="6500" data-status="available" data-technique="etching" data-type="editioned" data-available="13" data-year="2024" data-order="14" data-search="чайник на плите юрий штапаков офорт">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -443,7 +437,7 @@
             <div class="work__sub">офорт · 28×40 · тираж <b>15</b></div>
           </div>
         </a>
-        <a class="work" href="work-dvor-kolodets.html" data-work-color="#38362F" data-analytics="work-card" data-work-slug="dvor-kolodets">
+        <a class="work" href="work-dvor-kolodets.html" data-work-color="#38362F" data-analytics="work-card" data-work-slug="dvor-kolodets" data-price="13500" data-status="available" data-technique="etching" data-type="editioned" data-available="8" data-year="2023" data-order="15" data-search="двор-колодец валерий гриковский офорт, акватинта">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -469,15 +463,7 @@
             <div class="work__sub">офорт, акватинта · 35×50 · тираж <b>12</b></div>
           </div>
         </a>
-      </div>
-    </section>
-    <section class="catalog-section" data-technique="graphics">
-      <div class="catalog-section__head">
-        <h2>Графика и монотипия. <em>4 листа</em>.</h2>
-        <span class="meta">рисунок · валик · стекло</span>
-      </div>
-      <div class="grid-works">
-        <a class="work" href="work-kuhnya-v-neone.html" data-work-color="#FF3DA0" data-analytics="work-card" data-work-slug="kuhnya-v-neone">
+        <a class="work" href="work-kuhnya-v-neone.html" data-work-color="#FF3DA0" data-analytics="work-card" data-work-slug="kuhnya-v-neone" data-price="4800" data-status="available" data-technique="graphics" data-type="editioned" data-available="39" data-year="2024" data-order="16" data-search="кухня в неоне вася хорст графика, риzo">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -498,7 +484,7 @@
             <div class="work__sub">графика, риzo · 30×42 · тираж <b>50</b></div>
           </div>
         </a>
-        <a class="work" href="work-lestnitsa.html" data-work-color="#2A4BFF" data-analytics="work-card" data-work-slug="lestnitsa">
+        <a class="work" href="work-lestnitsa.html" data-work-color="#2A4BFF" data-analytics="work-card" data-work-slug="lestnitsa" data-price="5200" data-status="available" data-technique="graphics" data-type="editioned" data-available="34" data-year="2024" data-order="17" data-search="лестничная клетка пётр дьяков графика">
           
           <div class="work__sheet">
             <div class="work__plate">
@@ -520,7 +506,7 @@
             <div class="work__sub">графика · 30×42 · тираж <b>40</b></div>
           </div>
         </a>
-        <a class="work" href="work-pustaya-komnata.html" data-work-color="#6E6B61" data-analytics="work-card" data-work-slug="pustaya-komnata">
+        <a class="work" href="work-pustaya-komnata.html" data-work-color="#6E6B61" data-analytics="work-card" data-work-slug="pustaya-komnata" data-price="16000" data-status="available" data-technique="graphics" data-type="unique" data-available="1" data-year="2024" data-order="18" data-search="пустая комната леонид агальцов монотипия">
           <span class="work__badge work__badge--unique">1/1 · уникальная</span>
           <div class="work__sheet">
             <div class="work__plate">
@@ -541,7 +527,7 @@
             <div class="work__sub">монотипия · 30×42 · <b>1/1</b></div>
           </div>
         </a>
-        <a class="work" href="work-okno-s-dozhdyom.html" data-work-color="#2A4BFF" data-analytics="work-card" data-work-slug="okno-s-dozhdyom">
+        <a class="work" href="work-okno-s-dozhdyom.html" data-work-color="#2A4BFF" data-analytics="work-card" data-work-slug="okno-s-dozhdyom" data-price="18000" data-status="available" data-technique="graphics" data-type="unique" data-available="1" data-year="2025" data-order="19" data-search="окно с дождём леонид агальцов монотипия">
           <span class="work__badge work__badge--unique">1/1 · уникальная</span>
           <div class="work__sheet">
             <div class="work__plate">
@@ -565,6 +551,11 @@
             <div class="work__sub">монотипия · 30×42 · <b>1/1</b></div>
           </div>
         </a>
+      </div>
+      <div class="catalog-empty" id="catEmpty" hidden>
+        <h3>Ничего не нашлось.</h3>
+        <p>Снимите часть фильтров — или попросите куратора подобрать листы под вашу стену.</p>
+        <a class="btn btn--accent" data-tg-text="Здравствуйте! Не нашёл подходящую работу в каталоге — помогите подобрать." data-analytics="catalog-empty">Куратор подберёт →</a>
       </div>
     </section>
 

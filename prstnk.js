@@ -91,18 +91,82 @@
     card.addEventListener('mouseleave', () => root.style.setProperty('--prstnk-color', defaultColor));
   });
 
-  /* --- Каталог: фильтр-чипы по технике (works.html) --- */
-  const chips = document.querySelectorAll('.catalog-filter__chip');
-  const sections = document.querySelectorAll('[data-technique]');
-  if (chips.length && sections.length) {
-    chips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        const filter = chip.dataset.filter;
-        chips.forEach(c => c.classList.toggle('is-active', c === chip));
-        sections.forEach(s => {
-          s.style.display = (filter === 'all' || s.dataset.technique === filter) ? '' : 'none';
-        });
+  /* --- Каталог: фильтры + сортировка + поиск (works.html) --- */
+  const grid = document.getElementById('catGrid');
+  if (grid) {
+    const cards = Array.from(grid.querySelectorAll('.work'));
+    const techChips = Array.from(document.querySelectorAll('.catalog-filter__chip[data-group="tech"]'));
+    const toggleChips = Array.from(document.querySelectorAll('.catalog-filter__chip[data-toggle]'));
+    const searchInput = document.getElementById('catSearch');
+    const sortSelect = document.getElementById('catSort');
+    const countEl = document.getElementById('catCount');
+    const resetBtn = document.getElementById('catReset');
+    const emptyEl = document.getElementById('catEmpty');
+    const total = cards.length;
+    let tech = 'all';
+    const toggles = { available: false, under10k: false, unique: false, last: false };
+
+    const num = (c, key) => Number(c.dataset[key] || 0);
+
+    function matches(c) {
+      if (tech !== 'all' && c.dataset.technique !== tech) return false;
+      if (toggles.available && c.dataset.status !== 'available') return false;
+      if (toggles.under10k && num(c, 'price') > 10000) return false;
+      if (toggles.unique && c.dataset.type !== 'unique') return false;
+      if (toggles.last && !(c.dataset.type === 'editioned' && num(c, 'available') <= 1 && c.dataset.status === 'available')) return false;
+      const q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      if (q && !(c.dataset.search || '').includes(q)) return false;
+      return true;
+    }
+
+    function anyActive() {
+      return tech !== 'all' || toggles.available || toggles.under10k || toggles.unique ||
+             toggles.last || (searchInput && searchInput.value.trim() !== '') ||
+             (sortSelect && sortSelect.value !== 'curated');
+    }
+
+    function apply() {
+      let shown = 0;
+      cards.forEach(c => {
+        const ok = matches(c);
+        c.style.display = ok ? '' : 'none';
+        if (ok) shown++;
       });
+      const mode = sortSelect ? sortSelect.value : 'curated';
+      cards.filter(c => c.style.display !== 'none').sort((a, b) => {
+        if (mode === 'price-asc') return num(a, 'price') - num(b, 'price');
+        if (mode === 'price-desc') return num(b, 'price') - num(a, 'price');
+        if (mode === 'new') return num(b, 'year') - num(a, 'year') || num(a, 'order') - num(b, 'order');
+        return num(a, 'order') - num(b, 'order');
+      }).forEach(c => grid.appendChild(c));
+      if (countEl) countEl.textContent = `Показано ${shown} из ${total}`;
+      if (emptyEl) emptyEl.hidden = shown !== 0;
+      if (resetBtn) resetBtn.hidden = !anyActive();
+    }
+
+    techChips.forEach(chip => chip.addEventListener('click', () => {
+      tech = chip.dataset.filter;
+      techChips.forEach(c => c.classList.toggle('is-active', c === chip));
+      apply();
+    }));
+    toggleChips.forEach(chip => chip.addEventListener('click', () => {
+      const key = chip.dataset.toggle;
+      toggles[key] = !toggles[key];
+      chip.classList.toggle('is-active', toggles[key]);
+      apply();
+    }));
+    if (searchInput) searchInput.addEventListener('input', apply);
+    if (sortSelect) sortSelect.addEventListener('change', apply);
+    if (resetBtn) resetBtn.addEventListener('click', () => {
+      tech = 'all';
+      Object.keys(toggles).forEach(k => (toggles[k] = false));
+      techChips.forEach(c => c.classList.toggle('is-active', c.dataset.filter === 'all'));
+      toggleChips.forEach(c => c.classList.remove('is-active'));
+      if (searchInput) searchInput.value = '';
+      if (sortSelect) sortSelect.value = 'curated';
+      apply();
     });
+
+    apply();
   }
 })();
