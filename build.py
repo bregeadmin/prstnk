@@ -869,26 +869,62 @@ def strip_tags(s):
 
 
 def _md_inline(s):
+    """Строчное форматирование: ссылки, **жирный**, *курсив*, _курсив_."""
+    s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
-    s = re.sub(r"\[(.+?)\]\((.+?)\)", r'<a href="\2">\1</a>', s)
+    s = re.sub(r"\*([^*]+?)\*", r"<em>\1</em>", s)
+    s = re.sub(r"(?<!\w)_([^_]+?)_(?!\w)", r"<em>\1</em>", s)
     return s
 
 
 def md_to_html(text):
-    """Мини-markdown: абзацы через пустую строку, ### → h3, **жирный**, [текст](ссылка)."""
+    """Мини-markdown → HTML. Понимает то, что выдаёт визуальный редактор с кнопками:
+    заголовки (#/##/###), маркированные и нумерованные списки, цитаты (>),
+    **жирный**, *курсив*, [ссылки], абзацы через пустую строку."""
     if not text:
         return ""
-    out = []
-    for block in re.split(r"\n\s*\n", text.strip()):
-        block = block.strip()
-        if not block:
+    lines = text.replace("\r\n", "\n").split("\n")
+    blocks, para, i, n = [], [], 0, len(lines)
+
+    def flush():
+        if para:
+            blocks.append("<p>" + _md_inline(" ".join(p.strip() for p in para)) + "</p>")
+            para.clear()
+
+    while i < n:
+        raw = lines[i]
+        s = raw.strip()
+        if not s:
+            flush(); i += 1; continue
+        m = re.match(r"^#{1,6}\s+(.*)$", s)
+        if m:
+            flush(); blocks.append("<h3>" + _md_inline(m.group(1).strip()) + "</h3>"); i += 1; continue
+        if s.startswith(">"):
+            flush(); q = []
+            while i < n and lines[i].strip().startswith(">"):
+                q.append(re.sub(r"^\s*>\s?", "", lines[i])); i += 1
+            blocks.append("<blockquote>" + _md_inline(" ".join(x.strip() for x in q)) + "</blockquote>")
             continue
-        if block.startswith("### "):
-            out.append(f"<h3>{_md_inline(block[4:].strip())}</h3>")
-        else:
-            para = " ".join(line.strip() for line in block.splitlines())
-            out.append(f"<p>{_md_inline(para)}</p>")
-    return "\n        ".join(out)
+        if re.match(r"^[-*]\s+", s):
+            flush(); items = []
+            while i < n and re.match(r"^\s*[-*]\s+", lines[i]):
+                items.append(re.sub(r"^\s*[-*]\s+", "", lines[i]).strip()); i += 1
+            blocks.append("<ul>" + "".join(f"<li>{_md_inline(x)}</li>" for x in items) + "</ul>")
+            continue
+        if re.match(r"^\d+\.\s+", s):
+            flush(); items = []
+            while i < n and re.match(r"^\s*\d+\.\s+", lines[i]):
+                items.append(re.sub(r"^\s*\d+\.\s+", "", lines[i]).strip()); i += 1
+            blocks.append("<ol>" + "".join(f"<li>{_md_inline(x)}</li>" for x in items) + "</ol>")
+            continue
+        para.append(raw); i += 1
+    flush()
+    return "\n        ".join(blocks)
+
+
+def iss_slug(issue):
+    """Адрес выпуска: своё поле slug, иначе из номера (05 → zine-05.html)."""
+    return issue.get("slug") or issue.get("number") or ""
 
 
 def fmt_date_ru(s):
@@ -988,7 +1024,7 @@ def render_article(issue, art, idx):
     cta = art.get("cta") or {}
     if cta.get("label"):
         parts.append(f'''      <div style="margin-top: 32px;">
-        <a class="btn btn--big btn--accent" data-tg-text="{esc(cta.get("tgText", ""))}" data-analytics="zine-{issue['slug']}-cta">
+        <a class="btn btn--big btn--accent" data-tg-text="{esc(cta.get("tgText", ""))}" data-analytics="zine-{iss_slug(issue)}-cta">
           {cta["label"]}
           {ARROW}
         </a>
@@ -996,7 +1032,7 @@ def render_article(issue, art, idx):
     al = art.get("artistLink") or {}
     if al.get("slug"):
         parts.append(f'''      <div style="margin-top: 32px;">
-        <a class="btn btn--ghost" href="artist-{al["slug"]}.html" data-analytics="zine-{issue['slug']}-artist-{al["slug"]}">
+        <a class="btn btn--ghost" href="artist-{al["slug"]}.html" data-analytics="zine-{iss_slug(issue)}-artist-{al["slug"]}">
           {al.get("label", "На страницу художника")} →
         </a>
       </div>''')
@@ -1005,7 +1041,7 @@ def render_article(issue, art, idx):
 
 
 def render_issue_page(issue):
-    slug = issue["slug"]
+    slug = iss_slug(issue)
     canonical = f"{BASE_URL}/zine-{slug}.html"
     plain_title = strip_tags(issue.get("title", ""))
     title = f'«Во дела» № {issue["number"]}, {issue["period"]}: {plain_title} — PRSTNK'
@@ -1110,7 +1146,7 @@ def render_journal_index():
         if featured.get("readingTime"):
             note = (note + " · " if note else "") + featured["readingTime"]
         feature_html = f'''    <section class="journal-feature">
-      <a class="journal-feature__cover" href="zine-{featured['slug']}.html" data-analytics="journal-feature-cover" aria-label="Открыть выпуск {featured['number']}">
+      <a class="journal-feature__cover" href="zine-{iss_slug(featured)}.html" data-analytics="journal-feature-cover" aria-label="Открыть выпуск {featured['number']}">
           {issue_cover_visual(featured)}
       </a>
       <div class="journal-feature__info">
@@ -1120,7 +1156,7 @@ def render_journal_index():
           {featured.get('lead', '')}
         </p>
         <div class="journal-feature__cta-row">
-          <a class="btn btn--big btn--accent" href="zine-{featured['slug']}.html" data-analytics="journal-feature-cta">
+          <a class="btn btn--big btn--accent" href="zine-{iss_slug(featured)}.html" data-analytics="journal-feature-cta">
             Открыть выпуск
             {ARROW}
           </a>
@@ -1142,7 +1178,7 @@ def render_journal_index():
             if amc:
                 meta += f' · {amc} {_plural(amc, "материал", "материала", "материалов")}'
             if issue_has_page(it):
-                link = f'href="zine-{it["slug"]}.html"'
+                link = f'href="zine-{iss_slug(it)}.html"'
             elif it.get("tgText"):
                 link = f'data-tg-text="{esc(it["tgText"])}"'
             else:
@@ -1262,7 +1298,7 @@ def render_sitemap():
     ]
     for issue in issues:
         if issue_has_page(issue):
-            urls.append((f"zine-{issue['slug']}.html", "0.8", "monthly"))
+            urls.append((f"zine-{iss_slug(issue)}.html", "0.8", "monthly"))
     for a in artists:
         urls.append((f"artist-{a['slug']}.html", "0.7", "monthly"))
     for w in artworks:
@@ -1298,7 +1334,7 @@ if __name__ == "__main__":
     zn = 0
     for issue in issues:
         if issue_has_page(issue):
-            (ROOT / f"zine-{issue['slug']}.html").write_text(render_issue_page(issue))
+            (ROOT / f"zine-{iss_slug(issue)}.html").write_text(render_issue_page(issue))
             zn += 1
     print(f"  ✓ {zn} страниц выпусков (zine-*.html)")
 

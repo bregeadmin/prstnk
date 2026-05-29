@@ -1800,6 +1800,20 @@ h1, h2, h3, h4 {
 }
 .zine-article__body p { margin: 0; }
 .zine-article__body p + p { margin-top: 18px; }
+.zine-article__body ul,
+.zine-article__body ol { margin: 16px 0 0; padding-left: 24px; }
+.zine-article__body li { margin: 6px 0; padding-left: 4px; }
+.zine-article__body li::marker { color: var(--prstnk-color); }
+.zine-article__body em { font-style: italic; }
+.zine-article__body a {
+  color: var(--prstnk-color);
+  text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px;
+}
+.zine-article__body blockquote {
+  margin: 20px 0; padding-left: 18px;
+  border-left: 3px solid var(--prstnk-color);
+  font-style: italic; color: var(--ink-2);
+}
 .zine-article__body h3 {
   font-family: var(--f-display); font-weight: 700;
   font-size: 24px; letter-spacing: -0.025em;

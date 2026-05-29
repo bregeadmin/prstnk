@@ -201,12 +201,12 @@ collections:
     extension: "json"
     format: "json"
     create: true
-    slug: "{{slug}}"
+    slug: "{{number}}"
     identifier_field: "title"
     summary: "№ {{number}} · {{period}}"
     sortable_fields: ["order", "number"]
     fields:
-      - { name: "number", label: "Номер выпуска", widget: "string", hint: "Напр. 05" }
+      - { name: "number", label: "Номер выпуска", widget: "string", hint: "Шаг 1: заполните номер, период, заголовок и краткое описание. Шаг 2: ниже в блоке «Материалы выпуска» нажмите «Add Статья» и напишите текст. Поля с пометкой «можно пропустить» заполнять не нужно. Напр. номер: 05" }
       - { name: "period", label: "Период", widget: "string", hint: "Напр. лето 2026" }
       - { name: "current", label: "Это текущий выпуск (большой блок наверху журнала)", widget: "boolean", default: false }
       - { name: "title", label: "Заголовок выпуска", widget: "string", hint: "Курсив: <em>слово</em>. Перенос строки: <br/>" }
@@ -245,18 +245,28 @@ collections:
           - { name: "tocTag", label: "Метка в содержании", widget: "string", required: false, hint: "Напр. Интервью" }
           - { name: "title", label: "Заголовок статьи", widget: "string", hint: "Можно <em>...</em> и <br/>" }
           - { name: "lead", label: "Вводка", widget: "text", required: false }
-          - { name: "body", label: "Текст", widget: "text", hint: "Подзаголовок — строка с ### в начале. Жирный — **слово**. Абзацы — через пустую строку." }
+          - name: "body"
+            label: "Текст статьи"
+            widget: "markdown"
+            buttons: ["bold", "italic", "heading-three", "bulleted-list", "numbered-list", "link"]
+            editor_components: []
+            hint: "Выделите текст и жмите кнопки: Ж — жирный, «Заголовок» — подзаголовок раздела, списки, ссылка. Enter — новый абзац."
           - name: "pullquote"
-            label: "Цитата-врезка (необязательно)"
+            label: "Цитата-врезка — можно пропустить"
             widget: "object"
             required: false
             collapsed: true
             fields:
               - { name: "text", label: "Цитата", widget: "text", required: false }
               - { name: "cite", label: "Кто сказал", widget: "string", required: false }
-          - { name: "picksIntro", label: "Текст перед блоком работ (необязательно)", widget: "text", required: false }
+          - name: "picksIntro"
+            label: "Текст перед блоком работ — можно пропустить"
+            widget: "markdown"
+            required: false
+            buttons: ["bold", "italic", "heading-three", "bulleted-list", "numbered-list", "link"]
+            editor_components: []
           - name: "picks"
-            label: "Блок «работы из каталога» (необязательно)"
+            label: "Блок «работы из каталога» — можно пропустить"
             widget: "list"
             required: false
             summary: "{{fields.work}}"
@@ -269,9 +279,14 @@ collections:
                 search_fields: ["title"]
                 display_fields: ["title"]
               - { name: "note", label: "Комментарий куратора", widget: "text" }
-          - { name: "bodyAfter", label: "Текст после блока работ (необязательно)", widget: "text", required: false }
+          - name: "bodyAfter"
+            label: "Текст после блока работ — можно пропустить"
+            widget: "markdown"
+            required: false
+            buttons: ["bold", "italic", "heading-three", "bulleted-list", "numbered-list", "link"]
+            editor_components: []
           - name: "cta"
-            label: "Кнопка-призыв (необязательно)"
+            label: "Кнопка-призыв — можно пропустить"
             widget: "object"
             required: false
             collapsed: true
@@ -279,7 +294,7 @@ collections:
               - { name: "label", label: "Текст кнопки", widget: "string", required: false }
               - { name: "tgText", label: "Сообщение в Telegram", widget: "text", required: false }
           - name: "artistLink"
-            label: "Ссылка на художника (необязательно)"
+            label: "Ссылка на художника — можно пропустить"
             widget: "object"
             required: false
             collapsed: true
@@ -288,8 +303,8 @@ collections:
               - { name: "label", label: "Текст ссылки", widget: "string", required: false, hint: "Напр. На страницу Швецова" }
       - { name: "nextIssue", label: "Анонс следующего выпуска", widget: "string", required: false, hint: "Напр. № 05 — лето 2026" }
       - { name: "materialsCount", label: "Счётчик материалов (для карточки)", widget: "number", value_type: "int", required: false, hint: "Если пусто — посчитается по статьям." }
-      - { name: "archiveNote", label: "Подпись в архиве", widget: "string", required: false, hint: "Напр. первый выпуск" }
-      - { name: "slug", label: "Адрес страницы", widget: "string", hint: "Напр. 05 → zine-05.html. Только цифры/латиница." }
+      - { name: "archiveNote", label: "Подпись в архиве — можно пропустить", widget: "string", required: false, hint: "Напр. первый выпуск" }
+      - { name: "slug", widget: "hidden", required: false }
       - { name: "tgText", widget: "hidden", required: false }
       - { name: "order", widget: "hidden", required: false, default: 99 }
 
