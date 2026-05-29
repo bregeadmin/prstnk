@@ -22,6 +22,27 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 BASE_URL = "https://prstnk.ru"
 
+# ─── Чистые адреса без .html ───
+# Файлы на диске остаются <name>.html, но во всех ссылках/канонических/OG
+# расширение убирается: GitHub Pages сам отдаёт /journal как journal.html.
+# Главная (index.html) превращается в «/».
+_LINK_RE = re.compile(
+    r'(href|content)="((?:https://prstnk\.ru)?/?[A-Za-z0-9._\-]+)\.html((?:#|\?)[^"]*)?"'
+)
+
+def _link_repl(m):
+    attr, base, suffix = m.group(1), m.group(2), m.group(3) or ""
+    if base == "index":
+        base = "/"                 # относительная ссылка на главную
+    elif base.endswith("/index"):
+        base = base[:-5]           # https://prstnk.ru/index → https://prstnk.ru/
+    return f'{attr}="{base}{suffix}"'
+
+def clean_links(html):
+    """Убирает .html из всех внутренних href/content. Идемпотентна."""
+    return _LINK_RE.sub(_link_repl, html)
+
+
 def load_collection(name):
     """Читает все JSON из data/<name>/ и сортирует по полю order."""
     folder = ROOT / "data" / name
@@ -1422,7 +1443,7 @@ def update_index_home():
     plates_block = "<!--PLATES-START-->\n" + "\n".join(plates) + "\n      <!--PLATES-END-->"
     html = re.sub(r"<!--PLATES-START-->.*?<!--PLATES-END-->", lambda m: plates_block, html, flags=re.DOTALL)
 
-    path.write_text(html)
+    path.write_text(clean_links(html))
     return True
 
 
@@ -1518,7 +1539,8 @@ def render_sitemap():
         urls.append((f"work-{w['slug']}.html", "0.8", "weekly"))
     body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for path, prio, freq in urls:
-        body += f"  <url>\n    <loc>{BASE_URL}/{path}</loc>\n    <changefreq>{freq}</changefreq>\n    <priority>{prio}</priority>\n  </url>\n"
+        loc = re.sub(r"\.html$", "", path)  # чистый адрес без .html
+        body += f"  <url>\n    <loc>{BASE_URL}/{loc}</loc>\n    <changefreq>{freq}</changefreq>\n    <priority>{prio}</priority>\n  </url>\n"
     body += "</urlset>\n"
     return body
 
@@ -1527,39 +1549,39 @@ def render_sitemap():
 if __name__ == "__main__":
     n = 0
     for art in artworks:
-        (ROOT / f"work-{art['slug']}.html").write_text(render_work_page(art))
+        (ROOT / f"work-{art['slug']}.html").write_text(clean_links(render_work_page(art)))
         n += 1
     print(f"  ✓ {n} страниц работ (work-*.html)")
 
-    (ROOT / "works.html").write_text(render_catalog())
+    (ROOT / "works.html").write_text(clean_links(render_catalog()))
     print("  ✓ works.html — каталог из данных")
 
     for idx, a in enumerate(artists, start=1):
-        (ROOT / f"artist-{a['slug']}.html").write_text(render_artist_page(a, idx))
+        (ROOT / f"artist-{a['slug']}.html").write_text(clean_links(render_artist_page(a, idx)))
     print(f"  ✓ {len(artists)} страниц художников (artist-*.html)")
 
-    (ROOT / "artists.html").write_text(render_artists_index())
+    (ROOT / "artists.html").write_text(clean_links(render_artists_index()))
     print("  ✓ artists.html — индекс художников")
 
     for c in collections:
-        (ROOT / f"collection-{c['slug']}.html").write_text(render_collection(c))
+        (ROOT / f"collection-{c['slug']}.html").write_text(clean_links(render_collection(c)))
     print(f"  ✓ {len(collections)} страниц подборок (collection-*.html)")
 
-    cards_index = {w["slug"]: work_card(w) for w in artworks}
+    cards_index = {w["slug"]: clean_links(work_card(w)) for w in artworks}
     (ROOT / "works-index.js").write_text("window.PRSTNK_WORKS = " + json.dumps(cards_index, ensure_ascii=False) + ";\n")
-    (ROOT / "favorites.html").write_text(render_favorites())
+    (ROOT / "favorites.html").write_text(clean_links(render_favorites()))
     print("  ✓ favorites.html + works-index.js — избранное")
 
     if update_index_home():
         print("  ✓ index.html — блок художников и счётчик на главной обновлены")
 
-    (ROOT / "journal.html").write_text(render_journal_index())
+    (ROOT / "journal.html").write_text(clean_links(render_journal_index()))
     print(f"  ✓ journal.html — журнал ({len(issues)} вып., {len(materials)} постов в ленте)")
 
     zn = 0
     for issue in issues:
         if issue_has_page(issue):
-            (ROOT / f"zine-{iss_slug(issue)}.html").write_text(render_issue_page(issue))
+            (ROOT / f"zine-{iss_slug(issue)}.html").write_text(clean_links(render_issue_page(issue)))
             zn += 1
     print(f"  ✓ {zn} страниц выпусков (zine-*.html)")
 

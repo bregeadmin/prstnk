@@ -6,202 +6,202 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/works.html</loc>
+    <loc>https://prstnk.ru/works</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artists.html</loc>
+    <loc>https://prstnk.ru/artists</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/journal.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/zine-04.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-shtapakov.html</loc>
+    <loc>https://prstnk.ru/journal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-shvetsov.html</loc>
+    <loc>https://prstnk.ru/zine-04</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/artist-shtapakov</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-grikovsky.html</loc>
+    <loc>https://prstnk.ru/artist-shvetsov</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-kazimov.html</loc>
+    <loc>https://prstnk.ru/artist-grikovsky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-engelke.html</loc>
+    <loc>https://prstnk.ru/artist-kazimov</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-ichitovkin.html</loc>
+    <loc>https://prstnk.ru/artist-engelke</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-isaeva.html</loc>
+    <loc>https://prstnk.ru/artist-ichitovkin</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-kosinskaya.html</loc>
+    <loc>https://prstnk.ru/artist-isaeva</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-dyakov.html</loc>
+    <loc>https://prstnk.ru/artist-kosinskaya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-mikhailov.html</loc>
+    <loc>https://prstnk.ru/artist-dyakov</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-agaltsov.html</loc>
+    <loc>https://prstnk.ru/artist-mikhailov</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-khorst.html</loc>
+    <loc>https://prstnk.ru/artist-agaltsov</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/collection-first-wall.html</loc>
+    <loc>https://prstnk.ru/artist-khorst</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/collection-under-10k.html</loc>
+    <loc>https://prstnk.ru/collection-first-wall</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/collection-color.html</loc>
+    <loc>https://prstnk.ru/collection-under-10k</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/collection-bw.html</loc>
+    <loc>https://prstnk.ru/collection-color</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-severnyi-gost.html</loc>
+    <loc>https://prstnk.ru/collection-bw</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-severnyi-gost</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-finskiy-zaliv.html</loc>
+    <loc>https://prstnk.ru/work-finskiy-zaliv</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-more-pasmurniy.html</loc>
+    <loc>https://prstnk.ru/work-more-pasmurniy</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-dvorik.html</loc>
+    <loc>https://prstnk.ru/work-dvorik</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-sosedskiy-etyud.html</loc>
+    <loc>https://prstnk.ru/work-sosedskiy-etyud</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-portret-soseda.html</loc>
+    <loc>https://prstnk.ru/work-portret-soseda</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-budniy-den.html</loc>
+    <loc>https://prstnk.ru/work-budniy-den</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-tsvety-na-chernom.html</loc>
+    <loc>https://prstnk.ru/work-tsvety-na-chernom</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-valentina.html</loc>
+    <loc>https://prstnk.ru/work-valentina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-luna-nad-ozerkami.html</loc>
+    <loc>https://prstnk.ru/work-luna-nad-ozerkami</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-venskiy-stul.html</loc>
+    <loc>https://prstnk.ru/work-venskiy-stul</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-dk-gaza.html</loc>
+    <loc>https://prstnk.ru/work-dk-gaza</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-kupchino.html</loc>
+    <loc>https://prstnk.ru/work-kupchino</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-stol-s-tarelkoy.html</loc>
+    <loc>https://prstnk.ru/work-stol-s-tarelkoy</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-chaynik.html</loc>
+    <loc>https://prstnk.ru/work-chaynik</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-dvor-kolodets.html</loc>
+    <loc>https://prstnk.ru/work-dvor-kolodets</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-kuhnya-v-neone.html</loc>
+    <loc>https://prstnk.ru/work-kuhnya-v-neone</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-lestnitsa.html</loc>
+    <loc>https://prstnk.ru/work-lestnitsa</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-pustaya-komnata.html</loc>
+    <loc>https://prstnk.ru/work-pustaya-komnata</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-okno-s-dozhdyom.html</loc>
+    <loc>https://prstnk.ru/work-okno-s-dozhdyom</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

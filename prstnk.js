@@ -1,6 +1,15 @@
 /* PRSTNK — минимальный JS */
 
 (() => {
+  /* --- Чистый адрес: если зашли по старой ссылке с .html, убираем
+         расширение из адресной строки (страница та же, GitHub Pages
+         отдаёт и /journal, и /journal.html). /index.html → /. --- */
+  if (location.pathname.endsWith('.html')) {
+    let clean = location.pathname.slice(0, -5);   // отрезаем ".html"
+    if (clean === '/index') clean = '/';
+    history.replaceState(null, '', clean + location.search + location.hash);
+  }
+
   // ────────────────────────────────────────────────
   // Telegram-юзернейм. Меняется в одном месте.
   // ────────────────────────────────────────────────
