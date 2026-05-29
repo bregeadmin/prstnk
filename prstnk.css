@@ -1504,6 +1504,29 @@ h1, h2, h3, h4 {
 .modal__done h3 { font-family: var(--f-display); font-weight: 800; font-size: 28px; letter-spacing: -0.02em; margin-bottom: 8px; }
 .modal__done p { font-family: var(--f-text); font-size: 16px; color: var(--ink-2); line-height: 1.5; margin-bottom: 20px; }
 
+/* Избранное (♡) */
+.work__fav {
+  position: absolute; top: 0; right: 0; z-index: 4;
+  width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+  background: var(--paper); color: var(--ink-3);
+  border: 1px solid var(--ink); border-top: 0; border-right: 0;
+  font-size: 17px; line-height: 1; cursor: pointer; transition: color .15s;
+}
+.work__fav:hover, .work__fav.is-faved { color: var(--prstnk-color); }
+.btn--ghost.is-faved { color: var(--prstnk-color); border-color: var(--prstnk-color); }
+.fav-fab {
+  position: fixed; right: 20px; bottom: 20px; z-index: 90;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 18px; background: var(--ink); color: var(--paper);
+  font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+.fav-fab[hidden] { display: none; }
+.fav-fab span { background: var(--prstnk-color); color: var(--paper); border-radius: 999px; padding: 1px 8px; font-size: 11px; }
+.favorites-empty { text-align: center; padding: 72px 0 48px; }
+.favorites-empty h3 { font-family: var(--f-display); font-weight: 700; font-size: clamp(26px, 3vw, 36px); letter-spacing: -0.02em; margin-bottom: 10px; }
+.favorites-empty p { font-family: var(--f-text); font-size: 16px; color: var(--ink-2); line-height: 1.5; max-width: 44ch; margin: 0 auto 22px; }
+
 .catalog-section { margin-bottom: 80px; }
 .catalog-section__head {
   display: flex; justify-content: space-between; align-items: baseline;

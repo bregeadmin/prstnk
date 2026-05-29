@@ -276,4 +276,70 @@
     const fb = e.target.closest('[data-fit]');
     if (fb) { e.preventDefault(); openOrder({ mode: 'fit', type: 'Подбор по фото стены', tgText: fb.dataset.tgText }); }
   });
+
+  /* --- Избранное (♡): хранится в памяти браузера (localStorage) --- */
+  const FAV_KEY = 'prstnk_fav';
+  const getFavs = () => { try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch (e) { return []; } };
+  const setFavs = (a) => { try { localStorage.setItem(FAV_KEY, JSON.stringify(a)); } catch (e) {} };
+
+  function paintFav(slug, on) {
+    document.querySelectorAll(`[data-fav-toggle][data-fav-slug="${slug}"]`).forEach((b) => {
+      b.classList.toggle('is-faved', on);
+      b.setAttribute('aria-pressed', String(on));
+      b.textContent = on ? '♥' : '♡';
+    });
+  }
+
+  function initFavButtons() {
+    const favs = getFavs();
+    document.querySelectorAll('[data-fav-toggle][data-fav-slug]').forEach((b) => {
+      paintFav(b.dataset.favSlug, favs.includes(b.dataset.favSlug));
+    });
+  }
+
+  function updateFab() {
+    const n = getFavs().length;
+    const onFavPage = !!document.getElementById('favGrid');
+    let fab = document.getElementById('favFab');
+    if (n === 0 || onFavPage) { if (fab) fab.hidden = true; return; }
+    if (!fab) {
+      fab = document.createElement('a');
+      fab.id = 'favFab'; fab.className = 'fav-fab'; fab.href = 'favorites.html';
+      document.body.appendChild(fab);
+    }
+    fab.hidden = false;
+    fab.innerHTML = `♥ Избранное <span>${n}</span>`;
+  }
+
+  function renderFavorites() {
+    const grid = document.getElementById('favGrid');
+    if (!grid) return;
+    const empty = document.getElementById('favEmpty');
+    const data = window.PRSTNK_WORKS || {};
+    const favs = getFavs().filter((s) => data[s]);
+    grid.innerHTML = favs.length ? favs.map((s) => data[s]).join('\n') : '';
+    if (empty) empty.hidden = favs.length > 0;
+    const countEl = document.getElementById('favCount');
+    if (countEl) countEl.textContent = favs.length;
+    initFavButtons();
+  }
+
+  document.addEventListener('click', (e) => {
+    const f = e.target.closest('[data-fav-toggle]');
+    if (!f) return;
+    e.preventDefault();
+    const slug = f.dataset.favSlug;
+    if (!slug) return;
+    const arr = getFavs();
+    const i = arr.indexOf(slug);
+    if (i >= 0) arr.splice(i, 1); else arr.push(slug);
+    setFavs(arr);
+    paintFav(slug, arr.includes(slug));
+    updateFab();
+    if (document.getElementById('favGrid')) renderFavorites();
+  });
+
+  initFavButtons();
+  updateFab();
+  renderFavorites();
 })();

@@ -395,7 +395,7 @@ def cta_block(art):
     """CTA: available → форма-заявка (модалка); reserved/sold → Telegram."""
     status = art["status"]
     slug = art["slug"]
-    wish = f'<button class="btn btn--big btn--ghost" aria-label="Сохранить в избранное" data-analytics="lot-wishlist" data-lot-slug="{slug}">♡</button>'
+    wish = f'<button class="btn btn--big btn--ghost" aria-label="Сохранить в избранное" data-fav-toggle data-fav-slug="{slug}" aria-pressed="false" data-analytics="lot-wishlist" data-lot-slug="{slug}">♡</button>'
     extra = f'''        <div class="lot__cta-extra">
           <a class="btn btn--ghost" data-tg-text="Здравствуйте! Хочу подобрать раму для «{esc(art['title'])}» — {esc(art['artistName'])}, {art['year']}, {esc(art['sheetSize'])}." data-analytics="lot-frame" data-lot-slug="{slug}">Подобрать раму</a>
           <a class="btn btn--ghost" data-tg-text="Здравствуйте! Есть вопрос по «{esc(art['title'])}» — {esc(art['artistName'])}, {art['year']}." data-analytics="lot-curator-question" data-lot-slug="{slug}">Задать вопрос куратору</a>
@@ -461,6 +461,7 @@ def work_card(art, stagger=False, delay=None):
             f' data-order="{art.get("order",99)}" data-search="{search_blob}"')
     return f'''<a class="{cls}{stag}" href="{href}" data-work-color="{art['dominantColor']}"{stag_attr} data-analytics="work-card" data-work-slug="{art['slug']}"{filt}>
           {badge}
+          <button class="work__fav" data-fav-toggle data-fav-slug="{art['slug']}" aria-label="В избранное" aria-pressed="false">♡</button>
           <div class="work__sheet">
             <div class="work__plate">
               {svg}
@@ -1411,6 +1412,37 @@ def update_index_home():
     return True
 
 
+def render_favorites():
+    canonical = f"{BASE_URL}/favorites.html"
+    title = "Избранное — PRSTNK"
+    desc = "Сохранённые работы — список откладывается в этом браузере."
+    return f'''{head(title, desc, canonical)}{HEADER}
+  <main class="wrap">
+    <nav class="crumbs" aria-label="Хлебные крошки">
+      <a href="index.html">Главная</a><span class="sep">/</span>
+      <span class="here">Избранное</span>
+    </nav>
+
+    <section class="page-hero" style="padding-bottom: 24px;">
+      <div class="eyebrow">♥ · <b>Избранное</b></div>
+      <h1>Отложено: <em><span id="favCount">0</span></em>.</h1>
+      <p class="page-hero__lead">Работы, которые вы сохранили. Список хранится в этом браузере. Когда готовы — откройте работу и оформите заявку или попросите куратора придержать.</p>
+    </section>
+
+    <section class="catalog-grid-wrap">
+      <div class="grid-works" id="favGrid"></div>
+      <div class="favorites-empty" id="favEmpty" hidden>
+        <h3>Пока пусто.</h3>
+        <p>Нажимайте ♡ на работах в каталоге — они появятся здесь.</p>
+        <a class="btn btn--accent" href="works.html">В каталог →</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="works-index.js" defer></script>
+{FOOTER}'''
+
+
 def render_sitemap():
     urls = [
         ("", "1.0", "weekly"),
@@ -1449,6 +1481,11 @@ if __name__ == "__main__":
 
     (ROOT / "artists.html").write_text(render_artists_index())
     print("  ✓ artists.html — индекс художников")
+
+    cards_index = {w["slug"]: work_card(w) for w in artworks}
+    (ROOT / "works-index.js").write_text("window.PRSTNK_WORKS = " + json.dumps(cards_index, ensure_ascii=False) + ";\n")
+    (ROOT / "favorites.html").write_text(render_favorites())
+    print("  ✓ favorites.html + works-index.js — избранное")
 
     if update_index_home():
         print("  ✓ index.html — блок художников и счётчик на главной обновлены")
