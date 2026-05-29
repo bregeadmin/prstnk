@@ -36,8 +36,39 @@ collections = load_collection("collections")
 issues = load_collection("issues")        # выпуски журнала «Во дела»
 materials = load_collection("materials")  # лента коротких постов
 
+
+def _slugify(s):
+    s = re.sub(r"[^a-z0-9]+", "-", (s or "").lower()).strip("-")
+    return s or "zapis"
+
+
+def enrich_artist(a):
+    """Безопасные значения по умолчанию — чтобы неполная запись из админки
+    (например, без скрытого id) не роняла сборку всего сайта."""
+    if not a.get("slug"):
+        a["slug"] = _slugify(a.get("name", ""))
+    if not a.get("id"):
+        a["id"] = a["slug"]
+    a.setdefault("name", "Без имени")
+    a.setdefault("nameShort", a.get("name", ""))
+    _parts = (a.get("name", "") or "").split()
+    a.setdefault("firstName", _parts[0] if _parts else "автора")
+    a.setdefault("gen", a.get("name", ""))
+    a.setdefault("oneLiner", "")
+    a.setdefault("city", "Санкт-Петербург")
+    a.setdefault("techniques", [])
+    a.setdefault("bio", [])
+    a.setdefault("collections", [])
+    a.setdefault("meta", [])
+    a.setdefault("featured", False)
+    a.setdefault("order", 99)
+
+
+for _a in artists:
+    enrich_artist(_a)
+
 artists_by_id = {a["id"]: a for a in artists}
-artworks_by_slug = {w["slug"]: w for w in artworks}
+
 
 def _fmt_price(n):
     try:
@@ -50,6 +81,8 @@ def enrich_artwork(w):
     """Автозаполнение служебных полей, чтобы в админке их можно было не показывать.
     Смысловые поля (название, цена, год…) задаёт человек; всё техническое —
     SEO, текст брони, alt, цена прописью, реквизиты — генерится здесь при сборке."""
+    if not w.get("slug"):
+        w["slug"] = _slugify(w.get("title", ""))
     a = artists_by_id.get(w.get("artistId"))
     aname = a["name"] if a else w.get("artistName", "")
     if a:
@@ -108,6 +141,8 @@ def enrich_artwork(w):
 
 for _w in artworks:
     enrich_artwork(_w)
+
+artworks_by_slug = {w["slug"]: w for w in artworks if w.get("slug")}
 
 # Художники: id = slug если пусто, пересчёт привязки работ
 for _a in artists:
