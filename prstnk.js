@@ -169,4 +169,111 @@
 
     apply();
   }
+
+  /* --- Заявки: модальная форма (покупка / подбор по фото) → Cloudflare-воркер → Telegram --- */
+  const ORDERS_URL = 'https://prstnk-orders.grinbergartgroup.workers.dev';
+  const escAttr = (s) => (s || '').toString().replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+
+  const PURCHASE_FIELDS = `
+    <label class="field"><span>Имя *</span><input name="name" required autocomplete="name"></label>
+    <label class="field"><span>Телефон или Telegram *</span><input name="phone" required placeholder="+7… или @ник"></label>
+    <label class="field"><span>Город</span><input name="city"></label>
+    <label class="field"><span>Доставка</span><select name="delivery"><option>Самовывоз (Санкт-Петербург)</option><option>СДЭК</option><option>Почта России</option><option>Уточнить при заказе</option></select></label>
+    <label class="field"><span>Комментарий</span><textarea name="comment" rows="2"></textarea></label>`;
+  const FIT_FIELDS = `
+    <label class="field"><span>Фото стены</span><input type="file" name="photo" accept="image/*"></label>
+    <label class="field"><span>Размер стены</span><input name="size" placeholder="напр. 150 × 200 см"></label>
+    <label class="field"><span>Бюджет</span><input name="budget" placeholder="напр. до 30 000 ₽"></label>
+    <label class="field"><span>Про комнату и пожелания</span><textarea name="room" rows="2"></textarea></label>
+    <label class="field"><span>Имя *</span><input name="name" required></label>
+    <label class="field"><span>Телефон или Telegram *</span><input name="phone" required placeholder="+7… или @ник"></label>`;
+
+  let modal;
+  function ensureModal() {
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.hidden = true;
+    modal.innerHTML = `
+      <div class="modal__overlay" data-close></div>
+      <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="orderTitle">
+        <button class="modal__close" data-close aria-label="Закрыть" type="button">✕</button>
+        <div class="eyebrow" id="orderEyebrow">Заявка</div>
+        <h3 class="modal__title" id="orderTitle">Оформить заявку</h3>
+        <p class="modal__sub" id="orderSub" hidden></p>
+        <form class="modal__form" id="orderForm">
+          <div id="orderFields"></div>
+          <button type="submit" class="btn btn--big btn--accent" id="orderSubmit">Отправить заявку</button>
+          <p class="modal__alt">или <a id="orderTg" target="_blank" rel="noopener">написать в Telegram</a></p>
+          <div class="modal__status" id="orderStatus" hidden></div>
+        </form>
+        <div class="modal__done" id="orderDone" hidden>
+          <h3>Спасибо! Заявка отправлена.</h3>
+          <p>Ответим в течение дня — в Telegram или по телефону.</p>
+          <button type="button" class="btn btn--accent" data-close>Закрыть</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target.hasAttribute('data-close')) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+    modal.querySelector('#orderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      const btn = modal.querySelector('#orderSubmit');
+      const status = modal.querySelector('#orderStatus');
+      btn.disabled = true;
+      status.hidden = false; status.className = 'modal__status'; status.textContent = 'Отправляем…';
+      try {
+        const r = await fetch(ORDERS_URL, { method: 'POST', body: new FormData(form) });
+        const d = await r.json().catch(() => ({ ok: false }));
+        if (!d.ok) throw new Error('fail');
+        form.hidden = true;
+        modal.querySelector('#orderDone').hidden = false;
+      } catch (err) {
+        status.className = 'modal__status modal__status--err';
+        status.textContent = 'Не отправилось. Попробуйте ещё раз или напишите в Telegram.';
+        btn.disabled = false;
+      }
+    });
+    return modal;
+  }
+
+  function closeModal() { if (modal) { modal.hidden = true; document.body.style.overflow = ''; } }
+
+  function openOrder(opts) {
+    ensureModal();
+    const fit = opts.mode === 'fit';
+    modal.querySelector('#orderEyebrow').textContent = fit ? 'Подбор куратора' : 'Заявка';
+    modal.querySelector('#orderTitle').textContent = fit ? 'Подбор по фото стены' : 'Оформить заявку';
+    const sub = modal.querySelector('#orderSub');
+    if (fit) {
+      sub.hidden = false;
+      sub.textContent = 'Пришлите фото стены — куратор подберёт 3–5 листов по размеру, цвету и настроению. Бесплатно.';
+    } else if (opts.work) {
+      sub.hidden = false;
+      sub.innerHTML = `<b>${escAttr(opts.work)}</b>` + (opts.price ? ` · ${escAttr(opts.price)}` : '');
+    } else { sub.hidden = true; }
+    const hidden = `<input type="hidden" name="type" value="${escAttr(opts.type)}"><input type="hidden" name="page" value="${escAttr(location.href)}">`
+      + (opts.work ? `<input type="hidden" name="work" value="${escAttr(opts.work)}">` : '')
+      + (opts.price ? `<input type="hidden" name="price" value="${escAttr(opts.price)}">` : '');
+    modal.querySelector('#orderFields').innerHTML = hidden + (fit ? FIT_FIELDS : PURCHASE_FIELDS);
+    const form = modal.querySelector('#orderForm');
+    form.hidden = false;
+    modal.querySelector('#orderDone').hidden = true;
+    modal.querySelector('#orderStatus').hidden = true;
+    modal.querySelector('#orderSubmit').disabled = false;
+    modal.querySelector('#orderTg').href = `https://t.me/${TG_USER}?text=${encodeURIComponent(opts.tgText || 'Здравствуйте! Хочу оставить заявку на сайте PRSTNK.')}`;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    const first = modal.querySelector('#orderFields input:not([type=hidden]), #orderFields select');
+    if (first) first.focus();
+  }
+
+  document.addEventListener('click', (e) => {
+    const ob = e.target.closest('[data-order]');
+    if (ob) { e.preventDefault(); openOrder({ mode: 'purchase', type: ob.dataset.orderType || 'Заявка на покупку', work: ob.dataset.work, price: ob.dataset.price, tgText: ob.dataset.tgText }); return; }
+    const fb = e.target.closest('[data-fit]');
+    if (fb) { e.preventDefault(); openOrder({ mode: 'fit', type: 'Подбор по фото стены', tgText: fb.dataset.tgText }); }
+  });
 })();

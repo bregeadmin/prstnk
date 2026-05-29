@@ -392,28 +392,36 @@ def status_block(art):
 
 
 def cta_block(art):
-    """CTA в зависимости от статуса и типа."""
+    """CTA: available → форма-заявка (модалка); reserved/sold → Telegram."""
     status = art["status"]
-    tg = esc(art["telegramReserveText"])
+    slug = art["slug"]
+    wish = f'<button class="btn btn--big btn--ghost" aria-label="Сохранить в избранное" data-analytics="lot-wishlist" data-lot-slug="{slug}">♡</button>'
+    extra = f'''        <div class="lot__cta-extra">
+          <a class="btn btn--ghost" data-tg-text="Здравствуйте! Хочу подобрать раму для «{esc(art['title'])}» — {esc(art['artistName'])}, {art['year']}, {esc(art['sheetSize'])}." data-analytics="lot-frame" data-lot-slug="{slug}">Подобрать раму</a>
+          <a class="btn btn--ghost" data-tg-text="Здравствуйте! Есть вопрос по «{esc(art['title'])}» — {esc(art['artistName'])}, {art['year']}." data-analytics="lot-curator-question" data-lot-slug="{slug}">Задать вопрос куратору</a>
+        </div>'''
     if status == "sold":
         return f'''        <div class="lot__cta">
-          <a class="btn btn--big btn--ghost" data-tg-text="Здравствуйте! Работа «{esc(art['title'])}» продана. Подскажите, появится ли что-то похожее у {esc(art['artistName'])}?" data-analytics="lot-sold-ask" data-lot-slug="{art['slug']}">Работа продана · спросить о похожей</a>
+          <a class="btn btn--big btn--ghost" data-tg-text="Здравствуйте! Работа «{esc(art['title'])}» продана. Подскажите, появится ли что-то похожее у {esc(art['artistName'])}?" data-analytics="lot-sold-ask" data-lot-slug="{slug}">Работа продана · спросить о похожей</a>
+          {wish}
         </div>'''
-    cta_label = "Забронировать работу" if art["workType"] == "unique" else "Забронировать экземпляр"
     if status == "reserved":
-        cta_label = "Уже забронирована · встать в лист ожидания"
         tg = f"Здравствуйте! Работа «{esc(art['title'])}» — {esc(art['artistName'])} забронирована. Хочу встать в лист ожидания, если бронь снимется."
+        return f'''        <div class="lot__cta">
+          <a class="btn btn--big btn--ghost" data-tg-text="{tg}" data-analytics="lot-waitlist" data-lot-slug="{slug}">Уже забронирована · встать в лист ожидания</a>
+          {wish}
+        </div>
+{extra}'''
+    cta_label = "Забронировать работу" if art["workType"] == "unique" else "Забронировать экземпляр"
+    tg = esc(art["telegramReserveText"])
     return f'''        <div class="lot__cta">
-          <a class="btn btn--big btn--accent" data-tg-text="{tg}" data-analytics="lot-reserve" data-lot-slug="{art['slug']}" data-work-type="{art['workType']}">
+          <a class="btn btn--big btn--accent" data-order data-order-type="Заявка на работу" data-work="{esc(art['title'])}" data-price="{esc(art['priceFormatted'])}" data-tg-text="{tg}" data-analytics="lot-reserve" data-lot-slug="{slug}" data-work-type="{art['workType']}">
             {cta_label}
             <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true"><path d="M1 7H17M17 7L11 1M17 7L11 13" stroke="currentColor" stroke-width="2"/></svg>
           </a>
-          <button class="btn btn--big btn--ghost" aria-label="Сохранить в избранное" data-analytics="lot-wishlist" data-lot-slug="{art['slug']}">♡</button>
+          {wish}
         </div>
-        <div class="lot__cta-extra">
-          <a class="btn btn--ghost" data-tg-text="Здравствуйте! Хочу подобрать раму для «{esc(art['title'])}» — {esc(art['artistName'])}, {art['year']}, {esc(art['sheetSize'])}." data-analytics="lot-frame" data-lot-slug="{art['slug']}">Подобрать раму</a>
-          <a class="btn btn--ghost" data-tg-text="Здравствуйте! Есть вопрос по «{esc(art['title'])}» — {esc(art['artistName'])}, {art['year']}." data-analytics="lot-curator-question" data-lot-slug="{art['slug']}">Задать вопрос куратору</a>
-        </div>'''
+{extra}'''
 
 
 def work_card(art, stagger=False, delay=None):
@@ -712,7 +720,7 @@ def render_catalog():
       <div class="catalog-empty" id="catEmpty" hidden>
         <h3>Ничего не нашлось.</h3>
         <p>Снимите часть фильтров — или попросите куратора подобрать листы под вашу стену.</p>
-        <a class="btn btn--accent" data-tg-text="Здравствуйте! Не нашёл подходящую работу в каталоге — помогите подобрать." data-analytics="catalog-empty">Куратор подберёт →</a>
+        <a class="btn btn--accent" data-fit data-tg-text="Здравствуйте! Не нашёл подходящую работу в каталоге — помогите подобрать." data-analytics="catalog-empty">Куратор подберёт →</a>
       </div>
     </section>
 
@@ -722,7 +730,7 @@ def render_catalog():
           <div class="eyebrow">Не нашли своё?</div>
           <h2 style="font-size: clamp(32px, 4.4vw, 56px); margin-top: 16px;">Куратор подберёт <em>под стену</em>.</h2>
           <p class="fit__lead">Покажите фото стены — Илья Кирин подберёт 3–5 листов по размеру, цвету и настроению. Бесплатно.</p>
-          <a class="btn btn--big btn--accent fit__cta" data-tg-text="Здравствуйте! Хочу подбор работы по фото стены." data-analytics="catalog-fit">
+          <a class="btn btn--big btn--accent fit__cta" data-fit data-tg-text="Здравствуйте! Хочу подбор работы по фото стены." data-analytics="catalog-fit">
             Отправить фото стены
             <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true"><path d="M1 7H17M17 7L11 1M17 7L11 13" stroke="currentColor" stroke-width="2"/></svg>
           </a>
