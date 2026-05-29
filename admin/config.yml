@@ -133,6 +133,9 @@ collections:
       - { name: "birthYear", label: "Год рождения", widget: "number", value_type: "int", required: false }
       - { name: "techniques", label: "Техники", widget: "list", field: { name: "t", label: "Техника", widget: "string" } }
       - { name: "oneLiner", label: "Девиз (одна фраза)", widget: "string", hint: "Короткий портрет автора. Слово можно выделить так: <em>главное</em>" }
+      # ── Размещение ──
+      - { name: "showInArtists", label: "Показывать в разделе «Художники»", widget: "boolean", default: true, hint: "Включено — художник в общем списке на странице «Художники». Выключите, чтобы временно скрыть черновик." }
+      - { name: "featured", label: "Показать на главной странице", widget: "boolean", required: false, default: false, hint: "Включите, чтобы автор попал в блок художников на главной." }
       - { name: "bio", label: "Биография (по абзацу)", widget: "list", field: { name: "p", label: "Абзац", widget: "text" } }
       - { name: "collections", label: "Где увидеть / коллекции", widget: "list", field: { name: "c", label: "Строка", widget: "string" } }
       - name: "meta"
@@ -152,7 +155,6 @@ collections:
       - { name: "slug", label: "Адрес страницы (латиницей)", widget: "string", hint: "Напр. shvetsov" }
       # ── Служебное (скрыто) ──
       - { name: "id", widget: "hidden" }
-      - { name: "featured", widget: "hidden", required: false, default: false }
       - { name: "order", widget: "hidden", required: false, default: 99 }
       - { name: "workSlugs", widget: "hidden", required: false }
       - { name: "worksCount", widget: "hidden", required: false }

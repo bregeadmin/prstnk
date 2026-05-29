@@ -15,7 +15,7 @@
     "Galerie Evdokimov",
     "Музей Анны Ахматовой"
   ],
-  "featured": false,
+  "featured": true,
   "workSlugs": [
     "portret-soseda",
     "tsvety-na-chernom"

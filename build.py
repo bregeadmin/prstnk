@@ -801,11 +801,16 @@ def render_artist_page(a, idx):
 
 def render_artists_index():
     canonical = f"{BASE_URL}/artists.html"
-    title = "Художники PRSTNK — двенадцать имён ленинградской школы"
-    desc = "Двенадцать петербургских художников авторской графики: Юрий Штапаков, Пётр Швецов, Валерий Гриковский, Станислав Казимов, Нестор Энгельке и другие."
+    vis = [a for a in artists if a.get("showInArtists", True)]
+    nvis = len(vis)
+    word_cap = num2word_ru(nvis)
+    noun = _plural(nvis, "имя", "имени", "имён")
+    title = f"Художники PRSTNK — {word_cap.lower()} {noun} ленинградской школы"
+    desc = (f"{word_cap} петербургских художников авторской графики: Юрий Штапаков, "
+            f"Пётр Швецов, Валерий Гриковский, Станислав Казимов, Нестор Энгельке и другие.")
 
     cards = []
-    for idx, a in enumerate(artists, start=1):
+    for idx, a in enumerate(vis, start=1):
         n = a["worksCount"]
         if n == 0:
             count_html = '<span class="artist-card__count">скоро</span>'
@@ -836,12 +841,12 @@ def render_artists_index():
 
     <section class="page-hero">
       <div class="eyebrow">№ 05 · <b>Все художники</b></div>
-      <h1>Двенадцать <em>имён</em>.<br/>От ленинградской школы до Север-7.</h1>
+      <h1>{word_cap} <em>{noun}</em>.<br/>От ленинградской школы до Север-7.</h1>
       <p class="page-hero__lead">
         У нас печатают мастера трёх поколений: одни учились у Пахомова и Бакакина в Мухинском, другие выросли на риzо и зине нулевых, третьи дебютировали недавно. Объединяет одно — каждый делает форму сам.
       </p>
       <div class="page-hero__stats">
-        <div><b>{len(artists)}</b>художников</div>
+        <div><b>{nvis}</b>художников</div>
         <div><b>{len(artworks)}</b>работ в каталоге</div>
         <div><b>с&nbsp;2019</b>работаем с авторами</div>
       </div>
@@ -897,6 +902,21 @@ def _plural(n, one, few, many):
     if 2 <= n % 10 <= 4 and not (12 <= n % 100 <= 14):
         return few
     return many
+
+
+_NUMWORDS = {
+    1: "Одно", 2: "Два", 3: "Три", 4: "Четыре", 5: "Пять", 6: "Шесть", 7: "Семь",
+    8: "Восемь", 9: "Девять", 10: "Десять", 11: "Одиннадцать", 12: "Двенадцать",
+    13: "Тринадцать", 14: "Четырнадцать", 15: "Пятнадцать", 16: "Шестнадцать",
+    17: "Семнадцать", 18: "Восемнадцать", 19: "Девятнадцать", 20: "Двадцать",
+    21: "Двадцать одно", 22: "Двадцать два", 23: "Двадцать три", 24: "Двадцать четыре",
+    25: "Двадцать пять", 30: "Тридцать", 40: "Сорок",
+}
+
+
+def num2word_ru(n):
+    """Число → слово для заголовков (Двенадцать). Вне таблицы — цифрой."""
+    return _NUMWORDS.get(int(n), str(n))
 
 
 def strip_tags(s):
@@ -1324,6 +1344,43 @@ def render_journal_index():
 {FOOTER}'''
 
 
+def update_index_home():
+    """Обновляет на главной (index.html) блок художников и число «N имён» из данных.
+    Меняется только содержимое между HTML-маркерами — остальная вёрстка главной не трогается."""
+    path = ROOT / "index.html"
+    if not path.exists():
+        return False
+    html = path.read_text()
+
+    # Блок художников: те, у кого включено «на главной» (с фолбэком на первые 6 видимых)
+    home = [a for a in artists if a.get("featured") and a.get("showInArtists", True)]
+    if not home:
+        home = [a for a in artists if a.get("showInArtists", True)][:6]
+    rows = []
+    for i, a in enumerate(home, start=1):
+        tag = ", ".join(a.get("techniques", [])[:2])
+        n = a.get("worksCount", 0)
+        cnt = f'{n} {_plural(n, "работа", "работы", "работ")}' if n else "скоро"
+        rows.append(
+            f'      <a class="artist-row" href="artist-{a["slug"]}.html" data-analytics="artist-row" data-artist-slug="{a["slug"]}">\n'
+            f'        <span class="artist-row__num">{i:02d}</span>\n'
+            f'        <span class="artist-row__name">{a["name"]}</span>\n'
+            f'        <span class="artist-row__tag">{tag}</span>\n'
+            f'        <span class="artist-row__count">{cnt}</span>\n'
+            f'      </a>')
+    rows_block = "<!--AH-ROWS-->\n" + "\n".join(rows) + "\n      <!--/AH-ROWS-->"
+    html = re.sub(r"<!--AH-ROWS-->.*?<!--/AH-ROWS-->", lambda m: rows_block, html, flags=re.DOTALL)
+
+    # Заголовок-число «N имён»
+    nvis = len([a for a in artists if a.get("showInArtists", True)])
+    title_block = (f"<!--AH-TITLE--><em>{num2word_ru(nvis)}</em> "
+                   f"{_plural(nvis, 'имя', 'имени', 'имён')}.<!--/AH-TITLE-->")
+    html = re.sub(r"<!--AH-TITLE-->.*?<!--/AH-TITLE-->", lambda m: title_block, html, flags=re.DOTALL)
+
+    path.write_text(html)
+    return True
+
+
 def render_sitemap():
     urls = [
         ("", "1.0", "weekly"),
@@ -1362,6 +1419,9 @@ if __name__ == "__main__":
 
     (ROOT / "artists.html").write_text(render_artists_index())
     print("  ✓ artists.html — индекс художников")
+
+    if update_index_home():
+        print("  ✓ index.html — блок художников и счётчик на главной обновлены")
 
     (ROOT / "journal.html").write_text(render_journal_index())
     print(f"  ✓ journal.html — журнал ({len(issues)} вып., {len(materials)} постов в ленте)")
