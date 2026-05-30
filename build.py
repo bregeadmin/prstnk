@@ -59,6 +59,21 @@ materials = load_collection("materials")  # лента коротких пост
 articles = load_collection("articles")    # материалы журнала (track A)
 
 
+def load_lenta():
+    """Лента: посты канала (data/lenta_channel.json) если есть, иначе ручная коллекция materials."""
+    p = ROOT / "data" / "lenta_channel.json"
+    if p.exists():
+        try:
+            items = json.loads(p.read_text())
+            if items:
+                return items
+        except Exception:
+            pass
+    return materials
+
+lenta = load_lenta()
+
+
 def _slugify(s):
     s = re.sub(r"[^a-z0-9]+", "-", (s or "").lower()).strip("-")
     return s or "zapis"
@@ -1316,7 +1331,7 @@ def render_journal_index():
     lead_art     = rest[0] if rest else {}
     sec_arts     = rest[1:3]
     feature_art  = rest[3] if len(rest) > 3 else {}
-    lenta_items  = materials[:4]
+    lenta_items  = lenta[:4]
     recent_iss   = issues[:3]
 
     # ── HERO (полноширинное фото + текст поверх) ────────────────────────────
