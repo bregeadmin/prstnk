@@ -574,7 +574,7 @@ def render_work_page(art):
     if same_artist:
         same_artist_section = f'''    <section style="padding: 80px 0 0;">
       <div class="section-head">
-        <h2 class="stagger">Ещё <em>у {a["nameShort"].split(".")[-1].strip()}</em>.</h2>
+        <h2 class="stagger">Ещё <em>у {a["gen"].split()[-1]}</em>.</h2>
         <div class="section-head__right">
           <span>{a["worksCount"]} {"работа" if a["worksCount"]==1 else ("работы" if a["worksCount"]<5 else "работ")} в коллекции</span>
           <a class="link" href="artist-{a["slug"]}.html" data-analytics="lot-artist-all">Все работы автора →</a>
