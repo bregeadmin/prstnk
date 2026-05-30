@@ -624,7 +624,7 @@ def render_work_page(art):
       <div class="lot__info stagger" data-stag-delay="0.10">
         <div class="eyebrow">{eyebrow}</div>
         <h1 class="lot__author"><a href="artist-{a['slug']}.html" style="color: inherit;">{author_h1}</a></h1>
-        <h2 class="lot__title">«{art['title']}», <span class="lot__year">{art['year']}</span></h2>
+        <h2 class="lot__title"><span class="lot__q">«</span>{art['title']}<span class="lot__q">»</span>, <span class="lot__year">{art['year']}</span></h2>
 
         <dl class="lot__attrib">
           {attrib_html}
