@@ -1444,7 +1444,7 @@ def render_journal_index():
         tag_s  = m.get("tag","")
         url_m  = (m.get("url") or "").strip()
         if not url_m and m.get("tgText"):
-            url_m = "https://t.me/prstnk_store"
+            url_m = "https://t.me/prstnk_eprst"
         href_attr = f'href="{esc(url_m)}" target="_blank" rel="noopener"' if url_m else ""
         lc_html += f'''<a class="lc" {href_attr} data-analytics="lenta-card">
   <div class="lc-meta">
@@ -1463,7 +1463,7 @@ def render_journal_index():
         <div class="lenta-label-title">Лента.<br/><em>Каждый<br/>день.</em></div>
         <div class="lenta-label-sub">из Telegram · между выпусками</div>
       </div>
-      <a class="lenta-label-tg" href="https://t.me/prstnk_store" target="_blank" rel="noopener">@prstnk_store →</a>
+      <a class="lenta-label-tg" href="https://t.me/prstnk_eprst" target="_blank" rel="noopener">@prstnk_eprst →</a>
     </div>
     <div class="lenta-list">{lc_html}</div>
   </div>
