@@ -1536,10 +1536,58 @@ def _blk_quote(b):
     return (f'<div class="bl bl-quote"><blockquote>{esc(b.get("text", ""))}'
             f'{cite_html}</blockquote></div>')
 
+def _blk_photo(b):
+    img = esc(b.get("image", ""))
+    cap = b.get("caption", "")
+    cap_html = f'<figcaption class="bl-cap">{esc(cap)}</figcaption>' if cap else ""
+    return (f'<figure class="bl bl-photo"><img src="{img}" loading="lazy" alt="{esc(cap)}"/>'
+            f'{cap_html}</figure>')
+
+def _blk_split(b):
+    side = "left" if b.get("imageSide") == "left" else "right"
+    img_html = f'<div class="bl-split-img"><img src="{esc(b.get("image", ""))}" loading="lazy" alt=""/></div>'
+    txt_html = f'<div class="bl-split-text">{md_to_html(b.get("text", ""))}</div>'
+    inner = (img_html + txt_html) if side == "left" else (txt_html + img_html)
+    return f'<div class="bl bl-split bl-split--{side}"><div class="bl-split-grid">{inner}</div></div>'
+
+def _blk_gallery(b):
+    imgs = b.get("images") or []
+    cells = "".join(f'<img src="{esc(i)}" loading="lazy" alt=""/>' for i in imgs)
+    return f'<div class="bl bl-gallery" data-count="{len(imgs)}">{cells}</div>'
+
+def _embed_id(provider, url):
+    url = url or ""
+    if provider == "youtube":
+        m = re.search(r"(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})", url)
+        return m.group(1) if m else ""
+    if provider == "vimeo":
+        m = re.search(r"vimeo\.com/(?:video/)?(\d+)", url)
+        return m.group(1) if m else ""
+    return ""
+
+def _blk_embed(b):
+    provider = b.get("provider", "")
+    vid = _embed_id(provider, b.get("url", ""))
+    if not vid:
+        return ""
+    if provider == "youtube":
+        src = f'https://www.youtube.com/embed/{vid}'
+    else:
+        src = f'https://player.vimeo.com/video/{vid}'
+    cap = b.get("caption", "")
+    cap_html = f'<div class="bl-cap">{esc(cap)}</div>' if cap else ""
+    return (f'<div class="bl bl-embed"><div class="bl-embed-frame">'
+            f'<iframe src="{src}" loading="lazy" allowfullscreen '
+            f'referrerpolicy="strict-origin-when-cross-origin"></iframe></div>{cap_html}</div>')
+
 _BLOCK_RENDERERS = {
     "text": _blk_text,
     "heading": _blk_heading,
     "quote": _blk_quote,
+    "photo": _blk_photo,
+    "split": _blk_split,
+    "gallery": _blk_gallery,
+    "embed": _blk_embed,
 }
 
 def render_block(block):

@@ -45,5 +45,36 @@ class TestTextBlocks(unittest.TestCase):
         self.assertEqual(build.render_block({"type": "wat"}), "")
 
 
+class TestMediaBlocks(unittest.TestCase):
+    def test_photo_with_caption(self):
+        html = build.render_block({"type": "photo", "image": "/u/a.jpg", "caption": "Подпись"})
+        self.assertIn("bl-photo", html)
+        self.assertIn('src="/u/a.jpg"', html)
+        self.assertIn("Подпись", html)
+
+    def test_split_image_side_left(self):
+        html = build.render_block({"type": "split", "text": "т", "image": "/u/b.jpg", "imageSide": "left"})
+        self.assertIn("bl-split--left", html)
+        self.assertIn('src="/u/b.jpg"', html)
+
+    def test_gallery_counts_images(self):
+        html = build.render_block({"type": "gallery", "images": ["/1.jpg", "/2.jpg", "/3.jpg"]})
+        self.assertIn('data-count="3"', html)
+        self.assertEqual(html.count("<img"), 3)
+
+    def test_embed_youtube_extracts_id(self):
+        html = build.render_block({"type": "embed", "provider": "youtube",
+                                   "url": "https://youtu.be/dQw4w9WgXcQ"})
+        self.assertIn("youtube.com/embed/dQw4w9WgXcQ", html)
+
+    def test_embed_vimeo_extracts_id(self):
+        html = build.render_block({"type": "embed", "provider": "vimeo",
+                                   "url": "https://vimeo.com/123456"})
+        self.assertIn("player.vimeo.com/video/123456", html)
+
+    def test_embed_bad_url_empty(self):
+        self.assertEqual(build.render_block({"type": "embed", "provider": "youtube", "url": "x"}), "")
+
+
 if __name__ == "__main__":
     unittest.main()
