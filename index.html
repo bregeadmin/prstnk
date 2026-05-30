@@ -502,43 +502,51 @@
           <!-- фон -->
           <rect width="400" height="300" fill="#FA2A22"/>
 
-          <!-- крестики приводки по углам (печатницкая пасхалка) -->
-          <g stroke="#FCFCFB" stroke-width="0.6" fill="none" opacity="0.45">
-            <g transform="translate(14, 14)"><line x1="-5" y1="0" x2="5" y2="0"/><line x1="0" y1="-5" x2="0" y2="5"/><circle cx="0" cy="0" r="3.4"/></g>
-            <g transform="translate(386, 14)"><line x1="-5" y1="0" x2="5" y2="0"/><line x1="0" y1="-5" x2="0" y2="5"/><circle cx="0" cy="0" r="3.4"/></g>
-            <g transform="translate(14, 286)"><line x1="-5" y1="0" x2="5" y2="0"/><line x1="0" y1="-5" x2="0" y2="5"/><circle cx="0" cy="0" r="3.4"/></g>
-            <g transform="translate(386, 286)"><line x1="-5" y1="0" x2="5" y2="0"/><line x1="0" y1="-5" x2="0" y2="5"/><circle cx="0" cy="0" r="3.4"/></g>
+          <!-- крестики приводки в углах: каждый — другой фирменный цвет -->
+          <g stroke-width="0.8" fill="none">
+            <g transform="translate(16, 16)" stroke="#FFCC00"><line x1="-5" y1="0" x2="5" y2="0"/><line x1="0" y1="-5" x2="0" y2="5"/><circle cx="0" cy="0" r="3.6"/></g>
+            <g transform="translate(384, 16)" stroke="#2A4BFF"><line x1="-5" y1="0" x2="5" y2="0"/><line x1="0" y1="-5" x2="0" y2="5"/><circle cx="0" cy="0" r="3.6"/></g>
+            <g transform="translate(16, 270)" stroke="#FF3DA0"><line x1="-5" y1="0" x2="5" y2="0"/><line x1="0" y1="-5" x2="0" y2="5"/><circle cx="0" cy="0" r="3.6"/></g>
+            <g transform="translate(384, 270)" stroke="#2E5A2A"><line x1="-5" y1="0" x2="5" y2="0"/><line x1="0" y1="-5" x2="0" y2="5"/><circle cx="0" cy="0" r="3.6"/></g>
           </g>
 
           <!-- фирменный знак «простенок» -->
-          <g transform="translate(32, 32)">
+          <g transform="translate(32, 36)">
             <rect x="0" y="1.6" width="5.4" height="36.8" fill="none" stroke="#FCFCFB" stroke-width="1.5"/>
             <rect x="7.8" y="0" width="20.4" height="40" fill="#FCFCFB"/>
             <rect x="30.6" y="1.6" width="5.4" height="36.8" fill="none" stroke="#FCFCFB" stroke-width="1.5"/>
           </g>
 
           <!-- вордмарк -->
-          <text x="84" y="58" font-family="Unbounded, sans-serif" font-weight="800" font-size="28" letter-spacing="-1.1" fill="#FCFCFB">PRSTNK</text>
-          <text x="84" y="76" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="2" fill="#FCFCFB" opacity="0.75">[ ПРОСТЕНОК ]</text>
+          <text x="84" y="62" font-family="Unbounded, sans-serif" font-weight="800" font-size="28" letter-spacing="-1.1" fill="#FCFCFB">PRSTNK</text>
+          <text x="84" y="80" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="2" fill="#FCFCFB" opacity="0.75">[ ПРОСТЕНОК ]</text>
 
           <!-- метаданные справа -->
-          <text x="368" y="44" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" text-anchor="end" fill="#FCFCFB" opacity="0.9">№ 042 / 2026</text>
-          <text x="368" y="60" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1.5" text-anchor="end" fill="#FCFCFB" opacity="0.65">САНКТ-ПЕТЕРБУРГ</text>
-          <text x="368" y="76" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1.5" text-anchor="end" fill="#FCFCFB" opacity="0.65">PRSTNK.RU</text>
+          <text x="368" y="48" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" text-anchor="end" fill="#FCFCFB" opacity="0.9">№ 042 / 2026</text>
+          <text x="368" y="64" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1.5" text-anchor="end" fill="#FCFCFB" opacity="0.65">САНКТ-ПЕТЕРБУРГ</text>
+          <text x="368" y="80" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1.5" text-anchor="end" fill="#FCFCFB" opacity="0.65">PRSTNK.RU</text>
 
           <!-- разделитель -->
-          <line x1="32" y1="108" x2="368" y2="108" stroke="#FCFCFB" stroke-width="0.7" opacity="0.4"/>
+          <line x1="32" y1="112" x2="368" y2="112" stroke="#FCFCFB" stroke-width="0.7" opacity="0.4"/>
 
-          <!-- главный текст: italic serif -->
-          <text x="32" y="172" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="400" font-size="52" letter-spacing="-1.8" fill="#FCFCFB">подарочный</text>
-          <text x="32" y="222" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="400" font-size="52" letter-spacing="-1.8" fill="#FCFCFB">сертификат</text>
+          <!-- главное слово — Unbounded, нашим шрифтом -->
+          <text x="200" y="218" font-family="Unbounded, sans-serif" font-weight="800" font-size="96" letter-spacing="-4.5" text-anchor="middle" fill="#FCFCFB">подарок</text>
 
           <!-- разделитель -->
-          <line x1="32" y1="250" x2="368" y2="250" stroke="#FCFCFB" stroke-width="0.7" opacity="0.4"/>
+          <line x1="32" y1="246" x2="368" y2="246" stroke="#FCFCFB" stroke-width="0.7" opacity="0.4"/>
 
           <!-- нижняя строка -->
-          <text x="32" y="277" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#FCFCFB" opacity="0.9">НА ЛЮБОЙ ЛИСТ ИЗ КАТАЛОГА</text>
-          <text x="368" y="277" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" text-anchor="end" fill="#FCFCFB" opacity="0.9">СРОК · 1 ГОД</text>
+          <text x="32" y="270" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#FCFCFB" opacity="0.9">НА ЛЮБУЮ РАБОТУ ИЗ КАТАЛОГА</text>
+          <text x="368" y="270" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" text-anchor="end" fill="#FCFCFB" opacity="0.9">СРОК · 1 ГОД</text>
+
+          <!-- печатницкий контрольный бар: все фирменные цвета -->
+          <g>
+            <rect x="0"   y="290" width="80" height="10" fill="#FFCC00"/>
+            <rect x="80"  y="290" width="80" height="10" fill="#2A4BFF"/>
+            <rect x="160" y="290" width="80" height="10" fill="#2E5A2A"/>
+            <rect x="240" y="290" width="80" height="10" fill="#FF3DA0"/>
+            <rect x="320" y="290" width="80" height="10" fill="#161614"/>
+          </g>
         </svg>
       </div>
       <div class="gift-cert__copy">
