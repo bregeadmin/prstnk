@@ -1284,16 +1284,6 @@ def render_issue_page(issue):
 {FOOTER}'''
 
 
-def _jrn_rub_class(kicker: str) -> str:
-    """Возвращает CSS-класс цвета рубрики по тексту кикера."""
-    k = (kicker or "").lower()
-    if "куратор" in k or "подбор" in k: return "rub-alyi"
-    if "интервью" in k or "разговор" in k: return "rub-kobalt"
-    if "история" in k or "техник" in k: return "rub-hvoya"
-    if "репортаж" in k or "лента" in k: return "rub-fuxia"
-    return "rub-default"
-
-
 def _jrn_article_img(art: dict) -> str:
     """Изображение статьи: загруженное фото или SVG-плейсхолдер."""
     img = (art.get("image") or "").strip()
@@ -1327,9 +1317,6 @@ def render_journal_index():
     feature_art  = rest[3] if len(rest) > 3 else {}
     lenta_items  = materials[:4]
     recent_iss   = issues[:3]
-
-    issue_slug   = iss_slug(current)
-    issue_url    = f"zine-{issue_slug}.html" if issue_has_page(current) else ""
 
     # ── HERO ───────────────────────────────────────────────────────────────
     h_kicker  = rubric_label(hero_art.get("rubric", ""))
