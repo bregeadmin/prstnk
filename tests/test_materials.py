@@ -21,5 +21,29 @@ class TestRubrics(unittest.TestCase):
             self.assertIn(r, build.RESERVED_SLUGS)
 
 
+class TestTextBlocks(unittest.TestCase):
+    def test_text_block_renders_markdown(self):
+        html = build.render_block({"type": "text", "text": "Привет **мир**"})
+        self.assertIn("bl-text", html)
+        self.assertIn("<b>мир</b>", html)
+
+    def test_heading_block(self):
+        html = build.render_block({"type": "heading", "text": "Подзаголовок"})
+        self.assertIn("bl-heading", html)
+        self.assertIn("Подзаголовок", html)
+
+    def test_quote_with_cite(self):
+        html = build.render_block({"type": "quote", "text": "Фраза", "cite": "Автор"})
+        self.assertIn("bl-quote", html)
+        self.assertIn("<cite>Автор</cite>", html)
+
+    def test_quote_without_cite(self):
+        html = build.render_block({"type": "quote", "text": "Фраза"})
+        self.assertNotIn("<cite>", html)
+
+    def test_unknown_block_is_empty(self):
+        self.assertEqual(build.render_block({"type": "wat"}), "")
+
+
 if __name__ == "__main__":
     unittest.main()

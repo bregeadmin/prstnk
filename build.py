@@ -1520,6 +1520,34 @@ def render_journal_index():
     return clean_links(raw)
 
 
+# ═══════════════════════════════════════════════════════════
+#  МАТЕРИАЛЫ ИЗ БЛОКОВ (track A)
+# ═══════════════════════════════════════════════════════════
+
+def _blk_text(b):
+    return f'<div class="bl bl-text">{md_to_html(b.get("text", ""))}</div>'
+
+def _blk_heading(b):
+    return f'<div class="bl bl-heading"><h2>{esc(b.get("text", ""))}</h2></div>'
+
+def _blk_quote(b):
+    cite = b.get("cite", "")
+    cite_html = f'<cite>{esc(cite)}</cite>' if cite else ""
+    return (f'<div class="bl bl-quote"><blockquote>{esc(b.get("text", ""))}'
+            f'{cite_html}</blockquote></div>')
+
+_BLOCK_RENDERERS = {
+    "text": _blk_text,
+    "heading": _blk_heading,
+    "quote": _blk_quote,
+}
+
+def render_block(block):
+    """Диспетчер блока материала по полю type. Неизвестный тип → пустая строка."""
+    fn = _BLOCK_RENDERERS.get(block.get("type", ""))
+    return fn(block) if fn else ""
+
+
 def update_index_home():
     """Обновляет на главной (index.html) блок художников и число «N имён» из данных.
     Меняется только содержимое между HTML-маркерами — остальная вёрстка главной не трогается."""
