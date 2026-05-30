@@ -1446,6 +1446,27 @@ def update_index_home():
     plates_block = "<!--PLATES-START-->\n" + "\n".join(plates) + "\n      <!--PLATES-END-->"
     html = re.sub(r"<!--PLATES-START-->.*?<!--PLATES-END-->", lambda m: plates_block, html, flags=re.DOTALL)
 
+    # Блок «Кураторская подборка» (6 карточек на главной) — из данных.
+    # Берём работы с featuredOnHome: true, отсортированные по order. Если их меньше 6,
+    # добиваем оставшимися видимыми (featuredInCatalog) по тому же ключу.
+    featured = sorted(
+        [a for a in artworks if a.get("featuredOnHome")],
+        key=lambda a: a.get("order", 99))
+    if len(featured) < 6:
+        seen = {a["slug"] for a in featured}
+        extras = sorted(
+            [a for a in artworks if a.get("featuredInCatalog") and a["slug"] not in seen],
+            key=lambda a: a.get("order", 99))
+        featured = (featured + extras)[:6]
+    else:
+        featured = featured[:6]
+    home_cards = []
+    for i, art in enumerate(featured):
+        delay = f"{i * 0.06:.2f}"
+        home_cards.append("      " + work_card(art, stagger=True, delay=delay))
+    home_block = "<!--HOME-WORKS-->\n" + "\n".join(home_cards) + "\n      <!--/HOME-WORKS-->"
+    html = re.sub(r"<!--HOME-WORKS-->.*?<!--/HOME-WORKS-->", lambda m: home_block, html, flags=re.DOTALL)
+
     path.write_text(clean_links(html))
     return True
 
