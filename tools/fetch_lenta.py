@@ -41,7 +41,12 @@ def parse_channel_html(page_html, limit=LIMIT):
         tag = f'#{tag_m.group(1)}' if tag_m else ""
         clean = re.sub(r'#[A-Za-zА-Яа-яЁё0-9_]+', '', text)
         lines = [ln for ln in (x.strip() for x in clean.split("\n")) if ln]
-        title = _clip(lines[0], 90) if lines else ""        # 1-я строка → заголовок
+        first = lines[0] if lines else ""
+        # пропускаем служебные сообщения телеграма (фиксированные строки)
+        if (first in ("Channel created", "Group created")
+                or first.startswith("Channel photo") or first.startswith("Channel name")):
+            continue
+        title = _clip(first, 90) if first else ""           # 1-я строка → заголовок
         excerpt = _clip(" ".join(lines[1:]), 180)            # остальное → описание
         posts.append({"title": title, "excerpt": excerpt, "date": date[:10],
                       "url": url, "tag": tag, "photo": photo})
