@@ -1624,6 +1624,46 @@ def check_article_slugs(items):
             raise ValueError(f'Slug материала "{a.get("slug")}" зарезервирован под рубрику. Переименуйте.')
 
 
+def render_material_page(article):
+    slug = article.get("slug", "")
+    canonical = f"{BASE_URL}/journal/{slug}.html"
+    plain_title = strip_tags(article.get("title", ""))
+    page_title = f"{plain_title} — Журнал ЁPRST · PRSTNK"
+    desc = strip_tags(article.get("lead", ""))
+    rub = article.get("rubric", "")
+    rub_cls = f"rub-{rubric_color(rub)}"
+
+    # заголовок с курсивным выделением titleEm
+    h1 = esc(article.get("title", ""))
+    em = article.get("titleEm", "")
+    if em:
+        h1 = h1.replace(esc(em), f"<em>{esc(em)}</em>", 1)
+
+    meta_parts = [esc(article.get("author", "редакция ЁPRST"))]
+    if article.get("readMins"):
+        meta_parts.append(f'{article["readMins"]} мин')
+    if article.get("date"):
+        meta_parts.append(fmt_date_ru(article["date"]))
+
+    blocks_html = "\n".join(render_block(b) for b in article.get("blocks", []))
+
+    body = f'''<article class="material">
+  <header class="material-head">
+    <div class="material-kicker {rub_cls}">{rubric_label(rub)}</div>
+    <h1 class="material-title">{h1}</h1>
+    <p class="material-lead">{esc(article.get("lead", ""))}</p>
+    <div class="material-meta">{" · ".join(meta_parts)}</div>
+  </header>
+  <div class="material-body">
+{blocks_html}
+  </div>
+  <a class="material-back" href="materials">← Все материалы</a>
+</article>'''
+
+    return (f'{head(page_title, desc, canonical, extra_css="journal.css")}{HEADER}\n'
+            f'<div class="jn-wrap" style="padding:0;">\n{body}\n</div>\n{FOOTER}')
+
+
 def update_index_home():
     """Обновляет на главной (index.html) блок художников и число «N имён» из данных.
     Меняется только содержимое между HTML-маркерами — остальная вёрстка главной не трогается."""
@@ -1873,6 +1913,12 @@ if __name__ == "__main__":
 
     (ROOT / "journal.html").write_text(clean_links(render_journal_index()))
     print(f"  ✓ journal.html — журнал ({len(issues)} вып., {len(materials)} постов в ленте)")
+
+    check_article_slugs(articles)
+    (ROOT / "journal").mkdir(exist_ok=True)
+    for a in articles:
+        (ROOT / "journal" / f'{a["slug"]}.html').write_text(clean_links(render_material_page(a)))
+    print(f"  ✓ {len(articles)} страниц материалов (journal/<slug>.html)")
 
     zn = 0
     for issue in issues:

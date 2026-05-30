@@ -104,5 +104,29 @@ class TestArticlesCollection(unittest.TestCase):
         build.check_article_slugs([{"slug": "normalnyy-slug"}])  # не должно бросать
 
 
+class TestMaterialPage(unittest.TestCase):
+    def setUp(self):
+        self.art = next(a for a in build.articles if a["slug"] == "kak-travyat-tsink")
+        self.html = build.render_material_page(self.art)
+
+    def test_has_title_and_em(self):
+        self.assertIn("material-title", self.html)
+        self.assertIn("<em>кислота и игла</em>", self.html)
+
+    def test_has_rubric_label_and_class(self):
+        self.assertIn("На пальцах", self.html)
+        self.assertIn("rub-kobalt", self.html)
+
+    def test_renders_blocks(self):
+        self.assertIn("bl-quote", self.html)
+        self.assertIn("Пётр Швецов", self.html)
+
+    def test_links_journal_css(self):
+        self.assertIn('href="journal.css"', self.html)
+
+    def test_back_link_to_materials(self):
+        self.assertIn("Все материалы", self.html)
+
+
 if __name__ == "__main__":
     unittest.main()
