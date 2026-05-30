@@ -524,6 +524,8 @@
 .material-meta { font-family: var(--f-mono); font-size: 11px; letter-spacing: .04em; color: rgba(20,20,19,.45); display: flex; gap: 16px; flex-wrap: wrap; padding-top: 18px; border-top: 1px solid rgba(20,20,19,.12); }
 .material-body { max-width: 680px; margin: 0 auto; }
 .material-back { display: inline-block; max-width: 680px; margin: 40px auto 0; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); }
+.material-back--top { margin: 0 0 24px; color: rgba(20,20,19,.55); border-bottom: none; }
+.material-back--top:hover { color: var(--ink); }
 
 /* блоки материала */
 .bl { margin: 0 0 34px; }

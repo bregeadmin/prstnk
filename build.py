@@ -1652,6 +1652,7 @@ def render_material_page(article):
 
     body = f'''<article class="material">
   <header class="material-head">
+    <a class="material-back material-back--top" href="journal">← В журнал</a>
     <div class="material-kicker {rub_cls}">{rubric_label(rub)}</div>
     <h1 class="material-title">{h1}</h1>
     <p class="material-lead">{esc(article.get("lead", ""))}</p>
