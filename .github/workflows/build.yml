@@ -44,6 +44,12 @@ jobs:
       - name: Собрать страницы из данных
         run: python build.py
 
+      - name: Анонсировать новые материалы в телеграм-канал
+        run: python tools/announce_materials.py
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+        continue-on-error: true
+
       - name: Закоммитить пересобранные страницы
         run: |
           git config user.name "prstnk-bot"
