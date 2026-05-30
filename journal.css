@@ -3,11 +3,11 @@
    Подключается только на страницах журнала.
    ═══════════════════════════════════════════════════ */
 
-/* ─── JOURNAL WRAP (шире обычного wrap для редакционной сетки) ─── */
+/* ─── JOURNAL WRAP (как .wrap сайта: ширина и поля общие) ─── */
 .jn-wrap {
-  max-width: 1080px;
+  max-width: var(--maxw);
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 var(--gutter);
 }
 
 /* ─── МАСТКЕД (нэйм-плашка журнала) ─── */
@@ -15,7 +15,7 @@
   display: grid;
   grid-template-columns: 56fr 44fr;
   border-bottom: 2px solid var(--ink);
-  max-width: 1080px;
+  max-width: none;
   margin: 0 auto;
   align-items: stretch;
 }
@@ -26,7 +26,7 @@
   line-height: .86;
   letter-spacing: -.05em;
   color: var(--ink);
-  padding: 22px 24px 18px 32px;
+  padding: 22px 24px 18px 0;
   display: flex;
   align-items: center;
 }
@@ -57,7 +57,7 @@
 .hero {
   position: relative;
   display: block;
-  max-width: 1080px;
+  max-width: none;
   margin: 0 auto;
   min-height: 560px;
   overflow: hidden;
@@ -77,7 +77,7 @@
   position: relative; z-index: 2;
   min-height: 560px;
   display: flex; flex-direction: column; justify-content: flex-end;
-  padding: 44px 36px 46px 32px;
+  padding: 44px 36px 46px 0;
   max-width: 760px;
 }
 .hero-kicker {
@@ -125,9 +125,9 @@
   display: flex;
   align-items: stretch;
   border-bottom: 1px solid var(--ink);
-  max-width: 1080px;
+  max-width: none;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -173,9 +173,9 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  max-width: 1080px;
+  max-width: none;
   margin: 0 auto;
-  padding: 10px 32px 8px;
+  padding: 10px 0 8px;
   border-bottom: 1px solid rgba(22,22,20,.12);
 }
 .art-header-label {
@@ -196,7 +196,7 @@
 .ed-grid {
   display: grid;
   grid-template-columns: 1.75fr 1fr;
-  max-width: 1080px;
+  max-width: none;
   margin: 0 auto;
   border-top: 2px solid var(--ink);
   border-bottom: 1px solid var(--ink);
@@ -310,7 +310,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   border-top: 2px solid var(--c-kobalt);
-  max-width: 1080px;
+  max-width: none;
   margin: 0 auto;
 }
 .ed-feat-left {
@@ -337,7 +337,7 @@
 .lenta-section {
   border-top: 2px solid var(--c-hvoya);
   border-bottom: 2px solid var(--ink);
-  max-width: 1080px;
+  max-width: none;
   margin: 0 auto;
   background: var(--paper);
 }
@@ -427,7 +427,7 @@
 /* ─── ВЫПУСКИ ─── */
 .issues-section {
   background: #E4E0DA;
-  max-width: 1080px;
+  max-width: none;
   margin: 0 auto;
   padding: 36px 32px 52px;
 }
@@ -511,7 +511,7 @@
 @media (max-width: 480px) {
   .lenta-list { grid-template-columns: 1fr; }
   .issues-grid { grid-template-columns: 1fr; }
-  .rubric-bar { padding: 0 16px; }
+  .rubric-bar { padding: 0; }
 }
 
 /* ═══ МАТЕРИАЛ (страница из блоков) ═══ */
@@ -557,7 +557,7 @@
 .pick-buy { font-family: var(--f-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; border-bottom: 1.5px solid var(--ink); padding-bottom: 1px; }
 
 /* ═══ ЛЕНТА «Все материалы» (ритм-модули) ═══ */
-.materials-page { max-width: 1080px; margin: 0 auto; padding: 0 32px 80px; }
+.materials-page { max-width: none; margin: 0 auto; padding: 0 0 80px; }
 .materials-head { padding: 46px 0 22px; border-bottom: 2px solid var(--ink); display: flex; justify-content: space-between; align-items: baseline; }
 .materials-head h1 { font-family: var(--f-display); font-weight: 900; font-size: clamp(30px,4vw,46px); letter-spacing: -.03em; margin: 0; }
 .materials-head h1 em { font-style: italic; color: var(--c-alyi); }

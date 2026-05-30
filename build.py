@@ -1510,7 +1510,7 @@ def render_journal_index():
 
     # ── СБОРКА ────────────────────────────────────────────────────────────
     raw = f'''{head(title, desc, canonical, extra_css="journal.css")}{HEADER}
-<div class="jn-wrap" style="padding:0;">
+<div class="jn-wrap">
 {masthead_html}
 {rubric_html}
 {hero_html}
@@ -1664,7 +1664,7 @@ def render_material_page(article):
 </article>'''
 
     return (f'{head(page_title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n'
-            f'<div class="jn-wrap" style="padding:0;">\n{body}\n</div>\n{FOOTER}')
+            f'<div class="jn-wrap">\n{body}\n</div>\n{FOOTER}')
 
 
 def _feed_meta(a):
@@ -1771,7 +1771,7 @@ def render_materials_index():
     desc = "Все материалы журнала ЁPRST: разговоры, техники, история, как смотреть графику."
     feed = _feed_rhythm(_materials_sorted())
     count_word = _plural(len(articles), "материал", "материала", "материалов")
-    body = f'''<div class="materials-page jn-wrap" style="padding:0;">
+    body = f'''<div class="materials-page jn-wrap">
   <div class="materials-head">
     <h1>Все <em>материалы</em></h1>
     <span class="materials-count">— {len(articles)} {count_word}</span>
@@ -1794,7 +1794,7 @@ def render_rubric_page(rubric):
     items = [a for a in _materials_sorted() if a.get("rubric") == rubric]
     feed = _feed_rhythm(items)
     count_word = _plural(len(items), "материал", "материала", "материалов")
-    body = f'''<div class="materials-page jn-wrap" style="padding:0;">
+    body = f'''<div class="materials-page jn-wrap">
   <div class="materials-head">
     <h1 class="rub-{color}">{label}</h1>
     <span class="materials-count">— {len(items)} {count_word}</span>
