@@ -207,13 +207,14 @@ def esc(s):
 
 
 # ─── Общие куски ───
-def head(title, description, canonical, og_type="website", extra_meta="", og_image=None, extra_css=""):
+def head(title, description, canonical, og_type="website", extra_meta="", og_image=None, extra_css="", base_href=""):
     img = og_image or f"{BASE_URL}/og-cover.svg"
+    base_tag = f'<base href="{base_href}"/>\n  ' if base_href else ""
     return f'''<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  {base_tag}<meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="theme-color" content="#F8F6F1"/>
   <title>{title}</title>
   <meta name="description" content="{esc(description)}"/>
@@ -1645,7 +1646,7 @@ def render_material_page(article):
   <a class="material-back" href="materials">← Все материалы</a>
 </article>'''
 
-    return (f'{head(page_title, desc, canonical, extra_css="journal.css")}{HEADER}\n'
+    return (f'{head(page_title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n'
             f'<div class="jn-wrap" style="padding:0;">\n{body}\n</div>\n{FOOTER}')
 
 
@@ -1786,7 +1787,7 @@ def render_rubric_page(rubric):
   </div>
   <a class="material-back" href="materials">← Все материалы</a>
 </div>'''
-    return (f'{head(title, desc, canonical, extra_css="journal.css")}{HEADER}\n'
+    return (f'{head(title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n'
             f'{body}\n{FOOTER}')
 
 
