@@ -1664,6 +1664,124 @@ def render_material_page(article):
             f'<div class="jn-wrap" style="padding:0;">\n{body}\n</div>\n{FOOTER}')
 
 
+def _feed_meta(a):
+    parts = []
+    if a.get("readMins"):
+        parts.append(f'{a["readMins"]} мин')
+    if a.get("date"):
+        parts.append(fmt_date_ru(a["date"]))
+    return " · ".join(parts)
+
+def _feed_url(a):
+    return f'journal/{a.get("slug", "")}'
+
+def _feed_rub(a):
+    rub = a.get("rubric", "")
+    return f'<div class="rub rub-{rubric_color(rub)}">{rubric_label(rub)}</div>'
+
+def _feed_img(a, label="фото"):
+    cover = esc(a.get("cover", ""))
+    if cover:
+        return f'<div class="feed-img"><img src="{cover}" loading="lazy" alt=""/></div>'
+    return f'<div class="feed-img feed-img--ph">{label}</div>'
+
+def _feed_hero(a):
+    return (f'<a class="feed-hero" href="{_feed_url(a)}">'
+            f'{_feed_img(a)}'
+            f'<div class="feed-hero-body">{_feed_rub(a)}'
+            f'<h2 class="feed-h2">{esc(a.get("title", ""))}</h2>'
+            f'<p class="feed-lead">{esc(a.get("lead", ""))}</p>'
+            f'<div class="feed-meta">{_feed_meta(a)}</div></div></a>')
+
+def _feed_card(a):
+    return (f'<a class="feed-card" href="{_feed_url(a)}">{_feed_img(a)}'
+            f'<div class="feed-card-body">{_feed_rub(a)}'
+            f'<h3 class="feed-h3">{esc(a.get("title", ""))}</h3>'
+            f'<div class="feed-meta">{_feed_meta(a)}</div></div></a>')
+
+def _feed_split(items):
+    cells = "".join(f'<div class="feed-half">{_feed_card(a)}</div>' for a in items)
+    return f'<div class="feed-split">{cells}</div>'
+
+def _feed_band(a):
+    return (f'<a class="feed-band" href="{_feed_url(a)}">'
+            f'<div class="feed-band-body">{_feed_rub(a)}'
+            f'<h2 class="feed-h2">{esc(a.get("title", ""))}</h2>'
+            f'<p class="feed-lead">{esc(a.get("lead", ""))}</p>'
+            f'<div class="feed-meta">{_feed_meta(a)}</div></div>'
+            f'{_feed_img(a, "панорама")}</a>')
+
+def _feed_split2(items):
+    feat = items[0]
+    rest = items[1:]
+    feat_html = (f'<a class="feed-feat" href="{_feed_url(feat)}">{_feed_img(feat)}'
+                 f'<div class="feed-feat-body">{_feed_rub(feat)}'
+                 f'<h3 class="feed-h3">{esc(feat.get("title", ""))}</h3>'
+                 f'<p class="feed-lead">{esc(feat.get("lead", ""))}</p>'
+                 f'<div class="feed-meta">{_feed_meta(feat)}</div></div></a>')
+    stack = ""
+    for a in rest:
+        stack += (f'<a class="feed-it" href="{_feed_url(a)}">{_feed_rub(a)}'
+                  f'<h4 class="feed-h4">{esc(a.get("title", ""))}</h4>'
+                  f'<div class="feed-meta">{_feed_meta(a)}</div></a>')
+    return f'<div class="feed-split2">{feat_html}<div class="feed-stack">{stack}</div></div>'
+
+def _feed_textband(items):
+    rows = ""
+    for n, a in enumerate(items, start=1):
+        rows += (f'<a class="feed-row" href="{_feed_url(a)}">'
+                 f'<span class="feed-n">{n:02d}</span>'
+                 f'<div><h3 class="feed-h3">{esc(a.get("title", ""))}</h3>{_feed_rub(a)}</div>'
+                 f'<span class="feed-mt">{_feed_meta(a)}</span></a>')
+    return f'<div class="feed-textband">{rows}</div>'
+
+def _feed_rhythm(items):
+    q = list(items)
+    out = []
+    cycle = [("hero", 1), ("split", 2), ("band", 1), ("split2", 4), ("textband", 3)]
+    ci = 0
+    while q:
+        mod, take = cycle[ci % len(cycle)]
+        ci += 1
+        chunk = q[:take]
+        del q[:take]
+        if not chunk:
+            continue
+        if mod == "hero":
+            out.append(_feed_hero(chunk[0]))
+        elif mod == "split":
+            out.append(_feed_split(chunk))
+        elif mod == "band":
+            out.append(_feed_band(chunk[0]))
+        elif mod == "split2":
+            out.append(_feed_split2(chunk))
+        elif mod == "textband":
+            out.append(_feed_textband(chunk))
+    return "\n".join(out)
+
+def _materials_sorted():
+    return sorted(articles, key=lambda a: a.get("date", ""), reverse=True)
+
+def render_materials_index():
+    canonical = f"{BASE_URL}/materials.html"
+    title = "Все материалы — Журнал ЁPRST · PRSTNK"
+    desc = "Все материалы журнала ЁPRST: разговоры, техники, история, как смотреть графику."
+    feed = _feed_rhythm(_materials_sorted())
+    count_word = _plural(len(articles), "материал", "материала", "материалов")
+    body = f'''<div class="materials-page jn-wrap" style="padding:0;">
+  <div class="materials-head">
+    <h1>Все <em>материалы</em></h1>
+    <span class="materials-count">— {len(articles)} {count_word}</span>
+  </div>
+  <div class="materials-feed">
+{feed}
+  </div>
+  <div class="materials-more"><button type="button" disabled>Загрузить ещё</button></div>
+</div>'''
+    return (f'{head(title, desc, canonical, extra_css="journal.css")}{HEADER}\n'
+            f'{body}\n{FOOTER}')
+
+
 def update_index_home():
     """Обновляет на главной (index.html) блок художников и число «N имён» из данных.
     Меняется только содержимое между HTML-маркерами — остальная вёрстка главной не трогается."""
@@ -1919,6 +2037,9 @@ if __name__ == "__main__":
     for a in articles:
         (ROOT / "journal" / f'{a["slug"]}.html').write_text(clean_links(render_material_page(a)))
     print(f"  ✓ {len(articles)} страниц материалов (journal/<slug>.html)")
+
+    (ROOT / "materials.html").write_text(clean_links(render_materials_index()))
+    print("  ✓ materials.html — все материалы")
 
     zn = 0
     for issue in issues:

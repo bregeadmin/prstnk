@@ -128,5 +128,30 @@ class TestMaterialPage(unittest.TestCase):
         self.assertIn("Все материалы", self.html)
 
 
+class TestFeed(unittest.TestCase):
+    def _arts(self, n):
+        return [{"slug": f"m{i}", "rubric": "razgovory", "title": f"Заголовок {i}",
+                 "lead": "лид", "readMins": 5, "date": "2026-05-10"} for i in range(n)]
+
+    def test_rhythm_starts_with_hero(self):
+        html = build._feed_rhythm(self._arts(1))
+        self.assertIn("feed-hero", html)
+
+    def test_rhythm_second_module_is_split(self):
+        html = build._feed_rhythm(self._arts(3))
+        self.assertIn("feed-split", html)
+
+    def test_rhythm_consumes_all_items(self):
+        html = build._feed_rhythm(self._arts(11))
+        for i in range(11):
+            self.assertIn(f"journal/m{i}", html)
+
+    def test_materials_index_structure(self):
+        html = build.render_materials_index()
+        self.assertIn("Все", html)
+        self.assertIn('href="journal.css"', html)
+        self.assertIn("materials-feed", html)
+
+
 if __name__ == "__main__":
     unittest.main()
