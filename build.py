@@ -1268,164 +1268,238 @@ def render_issue_page(issue):
 {FOOTER}'''
 
 
+def _jrn_rub_class(kicker: str) -> str:
+    """Возвращает CSS-класс цвета рубрики по тексту кикера."""
+    k = (kicker or "").lower()
+    if "куратор" in k or "подбор" in k: return "rub-alyi"
+    if "интервью" in k or "разговор" in k: return "rub-kobalt"
+    if "история" in k or "техник" in k: return "rub-hvoya"
+    if "репортаж" in k or "лента" in k: return "rub-fuxia"
+    return "rub-default"
+
+
+def _jrn_article_img(art: dict) -> str:
+    """Изображение статьи: загруженное фото или SVG-плейсхолдер."""
+    img = (art.get("image") or "").strip()
+    if img:
+        from urllib.parse import quote as _q
+        return (f'<img src="{_q(img.lstrip("/"), safe="/")}" '
+                f'alt="{esc(strip_tags(art.get("title", "")))}" '
+                f'loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/>')
+    rc = art.get("rubricColor", "#FA2A22")
+    return (f'<svg viewBox="0 0 800 540" xmlns="http://www.w3.org/2000/svg" '
+            f'style="width:100%;height:100%;display:block;" aria-hidden="true">'
+            f'<rect width="800" height="540" fill="#1a1614"/>'
+            f'<rect x="100" y="80" width="420" height="380" fill="{rc}" opacity=".18"/>'
+            f'<circle cx="400" cy="270" r="90" fill="{rc}" opacity=".3"/>'
+            f'</svg>')
+
+
 def render_journal_index():
     canonical = f"{BASE_URL}/journal.html"
     title = "Журнал «ЁPRST» — PRSTNK"
-    desc = ("Журнал PRSTNK «ЁPRST»: раз в квартал выходит полный выпуск, между выпусками — "
-            "короткие материалы в Telegram. Архив выпусков и лента постов.")
+    desc = ("Журнал PRSTNK про авторскую графику: разговоры с художниками, "
+            "техники, коллекции, репортажи из мастерских. Выходит ежемесячно.")
 
-    featured = next((i for i in issues if i.get("current") and issue_has_page(i)), None)
-    if not featured:
-        featured = next((i for i in issues if issue_has_page(i)), None)
+    # ── данные ─────────────────────────────────────────────────────────────
+    current = next((i for i in issues if i.get("current")), issues[0] if issues else {})
+    arts = current.get("articles", [])
+    hero_art     = arts[0] if arts else {}
+    other_arts   = arts[1:]
+    lead_art     = other_arts[0] if other_arts else {}
+    sec_arts     = other_arts[1:3]
+    feature_art  = other_arts[3] if len(other_arts) > 3 else (other_arts[-1] if other_arts else {})
+    lenta_items  = materials[:4]
+    recent_iss   = issues[:3]
 
+    issue_slug   = iss_slug(current)
+    issue_url    = f"zine-{issue_slug}.html" if issue_has_page(current) else ""
+
+    # ── HERO ───────────────────────────────────────────────────────────────
+    h_kicker  = hero_art.get("kicker", "Статья выпуска")
+    h_title   = hero_art.get("title", current.get("title", ""))
+    h_lead    = hero_art.get("lead", current.get("lead", ""))
+    h_img     = _jrn_article_img({**hero_art,
+                                   "rubricColor": PALETTE.get(current.get("coverColor","alyi"),"#FA2A22")})
+    h_cta     = f'<a class="hero-cta" href="{issue_url}#article-1">Читать →</a>' if issue_url else ""
+    h_stamp   = f'ЁPRST · Выпуск № {current.get("number","")} · {current.get("period","")} · Магазин PRSTNK'
+
+    hero_html = f'''<div class="hero">
+  <div class="hero-img">{h_img}</div>
+  <div class="hero-text">
+    <div class="hero-kicker">{h_kicker}</div>
+    <h1 class="hero-h1">{h_title}</h1>
+    <p class="hero-lead">{h_lead}</p>
+    {h_cta}
+    <div class="hero-stamp">{h_stamp}</div>
+  </div>
+</div>'''
+
+    # ── RUBRIC BAR ─────────────────────────────────────────────────────────
+    all_arts = [a for iss in issues for a in iss.get("articles", [])]
+    rub_counts: dict = {}
+    for a in all_arts:
+        k = (a.get("kicker") or "").split("·")[0].strip()
+        rub_counts[k] = rub_counts.get(k, 0) + 1
+    total_count = sum(rub_counts.values())
+
+    rub_links = [f'<a href="journal" class="on">Всё <sup>{total_count}</sup></a>']
+    shown_rubs = [("Кураторская", "kuratorskaya"), ("Интервью", "intervyu"),
+                  ("История", "istoriya"), ("Техники", "tekhniki"), ("Репортаж", "reportazh")]
+    for label, slug_r in shown_rubs:
+        cnt = sum(v for k, v in rub_counts.items() if label.lower() in k.lower())
+        if cnt:
+            rub_links.append(f'<a href="journal/{slug_r}"><sup class="rub-count">{cnt}</sup>{label}</a>')
+
+    rubric_html = f'''<nav class="rubric-bar" aria-label="Рубрики журнала">
+  <span class="rb-label">Рубрики</span>
+  {"".join(rub_links)}
+</nav>'''
+
+    # ── ART HEADER ─────────────────────────────────────────────────────────
+    art_header_html = f'''<div class="art-header">
+  <div class="art-header-label">— <b>Свежие материалы</b></div>
+  <div class="art-header-meta">Выпуск № {current.get("number","")} · {current.get("period","")}</div>
+</div>'''
+
+    # ── EDITORIAL GRID ─────────────────────────────────────────────────────
+    def _art_meta(a):
+        parts = []
+        if a.get("readMins"): parts.append(f'{a["readMins"]} мин')
+        if a.get("date"):     parts.append(fmt_date_ru(a["date"]))
+        return " · ".join(parts)
+
+    lead_rub_cls = _jrn_rub_class(lead_art.get("kicker",""))
+    lead_img     = _jrn_article_img({**lead_art, "rubricColor": PALETTE.get("kobalt")}) if lead_art else ""
+    lead_url     = f"{issue_url}#article-2" if issue_url and lead_art else ""
+
+    lead_html = ""
+    if lead_art:
+        lead_cta = f'<a class="ed-read-link" href="{lead_url}">Читать →</a>' if lead_url else ""
+        lead_html = f'''<article class="ed-lead">
+  <div class="ed-lead-img">{lead_img}</div>
+  <div class="ed-lead-body">
+    <div class="rub {lead_rub_cls}">{lead_art.get("kicker","")}</div>
+    <h2 class="ed-h2">{lead_art.get("title","")}</h2>
+    <p class="ed-lead-text">{lead_art.get("lead","")}</p>
+    <div class="ed-meta">{_art_meta(lead_art)}</div>
+    {lead_cta}
+  </div>
+</article>'''
+
+    sec_html = ""
+    for idx_s, sa in enumerate(sec_arts, start=3):
+        sec_rub_cls = _jrn_rub_class(sa.get("kicker",""))
+        sec_url = f"{issue_url}#article-{idx_s}" if issue_url else ""
+        sec_cta = f'<a class="ed-read-link" href="{sec_url}">Читать →</a>' if sec_url else ""
+        sec_html += f'''<article class="ed-sec">
+  <div class="rub {sec_rub_cls}">{sa.get("kicker","")}</div>
+  <h3 class="ed-h3">{sa.get("title","")}</h3>
+  <div class="ed-meta">{_art_meta(sa)}</div>
+  {sec_cta}
+</article>'''
+
+    grid_html = ""
+    if lead_art or sec_html:
+        grid_html = f'''<div class="ed-grid">
+  {lead_html}
+  <div class="ed-sec-stack">{sec_html}</div>
+</div>'''
+
+    # ── HORIZONTAL FEATURE ─────────────────────────────────────────────────
     feature_html = ""
-    if featured:
-        amc = featured.get("materialsCount") or len(featured.get("articles", []))
-        note = f'{amc} {_plural(amc, "материал", "материала", "материалов")}' if amc else ""
-        if featured.get("readingTime"):
-            note = (note + " · " if note else "") + featured["readingTime"]
-        feature_html = f'''    <section class="journal-feature">
-      <a class="journal-feature__cover" href="zine-{iss_slug(featured)}.html" data-analytics="journal-feature-cover" aria-label="Открыть выпуск {featured['number']}">
-          {issue_cover_visual(featured)}
-      </a>
-      <div class="journal-feature__info">
-        <div class="journal-feature__eyebrow">актуальный выпуск · {featured['period']}</div>
-        <h2>{featured.get('title', '')}</h2>
-        <p class="journal-feature__lead">
-          {featured.get('lead', '')}
-        </p>
-        <div class="journal-feature__cta-row">
-          <a class="btn btn--big btn--accent" href="zine-{iss_slug(featured)}.html" data-analytics="journal-feature-cta">
-            Открыть выпуск
-            {ARROW}
-          </a>
-          <span class="gifts__note">{note}</span>
-        </div>
-      </div>
-    </section>
-'''
+    if feature_art:
+        feat_rub_cls = _jrn_rub_class(feature_art.get("kicker",""))
+        feat_url  = f"{issue_url}#article-{len(other_arts)}" if issue_url else ""
+        feat_cta  = f'<a class="ed-read-link" href="{feat_url}">Читать →</a>' if feat_url else ""
+        pq = feature_art.get("pullquote") or {}
+        pull_html = (f'<p class="ed-feat-pull">{pq["text"]}</p>' if pq.get("text") else "")
+        feat_desc = feature_art.get("lead","")
+        creds = current.get("credits", [])
+        author = next((c["name"] for c in creds if c.get("role") in ("Гости","Автор")), "")
+        author_html = f'<p class="ed-lead-text">{esc(author)}</p>' if author else ""
+        feature_html = f'''<div class="ed-feature">
+  <div class="ed-feat-left">
+    <div class="rub {feat_rub_cls}">{feature_art.get("kicker","")}</div>
+    <h2 class="ed-h2">{feature_art.get("title","")}</h2>
+    <p class="ed-lead-text">{feat_desc}</p>
+    <div class="ed-meta">{_art_meta(feature_art)}</div>
+    {feat_cta}
+  </div>
+  <div class="ed-feat-right">
+    {pull_html}
+    {author_html}
+  </div>
+</div>'''
 
-    archive = [i for i in issues if i is not featured]
-    archive_html = ""
-    if archive:
-        cards = []
-        for it in archive:
-            meta = f'№ {it["number"]} · {it["period"]}'
-            if it.get("archiveNote"):
-                meta += f' · {it["archiveNote"]}'
-            amc = it.get("materialsCount") or len(it.get("articles", []))
-            if amc:
-                meta += f' · {amc} {_plural(amc, "материал", "материала", "материалов")}'
-            if issue_has_page(it):
-                link = f'href="zine-{iss_slug(it)}.html"'
-            elif it.get("tgText"):
-                link = f'data-tg-text="{esc(it["tgText"])}"'
-            else:
-                link = "data-tg-open"
-            cards.append(f'''<a class="journal-archive__card" {link} data-analytics="archive-card" data-issue="{it['number']}">
-          <div class="journal-archive__cover">
-            {issue_cover_svg(it)}
-          </div>
-          <div class="journal-archive__meta">{meta}</div>
-          <h3 class="journal-archive__title">{it.get("title", "")}</h3>
-        </a>''')
-        total_mat = sum((i2.get("materialsCount") or len(i2.get("articles", []))) for i2 in archive)
-        nnum = len(archive)
-        head_meta = (f'{nnum} {_plural(nnum, "номер", "номера", "номеров")} · '
-                     f'{total_mat} {_plural(total_mat, "материал", "материала", "материалов")}')
-        archive_html = f'''    <section class="journal-archive">
-      <div class="section-head" style="padding: 0 0 36px;">
-        <h2 class="stagger">Архив <em>выпусков</em>.</h2>
-        <div class="section-head__right">
-          <span>{head_meta}</span>
-        </div>
-      </div>
-      <div class="journal-archive__grid">
-        {"".join(chr(10) + "        " + c for c in cards)}
-      </div>
-    </section>
-'''
+    # ── ЛЕНТА ──────────────────────────────────────────────────────────────
+    lc_html = ""
+    for m in lenta_items:
+        date_s = fmt_date_ru(m.get("date",""))
+        tag_s  = m.get("tag","")
+        url_m  = (m.get("url") or "").strip()
+        if not url_m and m.get("tgText"):
+            url_m = "https://t.me/prstnk_store"
+        href_attr = f'href="{esc(url_m)}" target="_blank" rel="noopener"' if url_m else ""
+        lc_html += f'''<a class="lc" {href_attr} data-analytics="lenta-card">
+  <div class="lc-meta">
+    <span class="lc-date">{date_s}</span>
+    <span class="lc-tag">{esc(tag_s)}</span>
+  </div>
+  <div class="lc-title">{esc(m.get("title",""))}</div>
+  <span class="lc-cta">Читать в Telegram →</span>
+</a>'''
 
-    feed_html = ""
-    if materials:
-        fcards = []
-        for m in materials:
-            color = PALETTE.get(m.get("color", "alyi"), "#FA2A22")
-            img = (m.get("image") or "").strip()
-            if img:
-                from urllib.parse import quote
-                img_q = quote(img.lstrip("/"), safe="/")
-                cover = (f'<img src="{img_q}" alt="{esc(m.get("title", ""))}" '
-                         f'loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/>')
-            else:
-                cover = f'''<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-              <rect width="400" height="300" fill="#F0EEE8"/>
-              <circle cx="120" cy="150" r="74" fill="{color}"/>
-              <rect x="190" y="70" width="150" height="160" fill="{color}" opacity="0.55"/>
-            </svg>'''
-            meta = fmt_date_ru(m.get("date", ""))
-            if m.get("tag"):
-                meta = (meta + " · " if meta else "") + m["tag"]
-            excerpt = f'<p class="feed-card__excerpt">{m["excerpt"]}</p>' if m.get("excerpt") else ""
-            url = (m.get("url") or "").strip()
-            if url:
-                link = f'href="{esc(url)}" target="_blank" rel="noopener"'
-            elif m.get("tgText"):
-                link = f'data-tg-text="{esc(m["tgText"])}"'
-            else:
-                link = "data-tg-open"
-            fcards.append(f'''<a class="feed-card" {link} data-analytics="feed-card" data-material="{m.get("slug", "")}">
-          <div class="feed-card__cover">{cover}</div>
-          <div class="feed-card__meta">{meta}</div>
-          <h3 class="feed-card__title">{m.get("title", "")}</h3>
-          {excerpt}
-          <span class="feed-card__cta">Читать в Telegram →</span>
-        </a>''')
-        feed_html = f'''    <section class="journal-feed">
-      <div class="section-head" style="padding: 0 0 36px;">
-        <h2 class="stagger">Между выпусками. <em>Лента</em>.</h2>
-        <div class="section-head__right">
-          <span>Короткие материалы и репортажи</span>
-        </div>
+    lenta_html = f'''<div class="lenta-section">
+  <div class="lenta-inner">
+    <div class="lenta-label">
+      <div>
+        <div class="lenta-label-title">Лента.<br/><em>Каждый<br/>день.</em></div>
+        <div class="lenta-label-sub">из Telegram · между выпусками</div>
       </div>
-      <div class="feed-grid">
-        {"".join(chr(10) + "        " + c for c in fcards)}
-      </div>
-    </section>
-'''
-
-    return f'''{head(title, desc, canonical)}{HEADER}
-  <main class="wrap">
-    <nav class="crumbs" aria-label="Хлебные крошки">
-      <a href="index.html">Главная</a><span class="sep">/</span>
-      <span class="here">Журнал «ЁPRST»</span>
-    </nav>
-
-    <section class="page-hero" style="padding-bottom: 32px;">
-      <div class="eyebrow">№ 06 · <b>Журнал</b></div>
-      <h1>«<em>ЁPRST</em>».<br/>Журнал про авторскую графику.</h1>
-      <p class="page-hero__lead">
-        Раз в квартал собираем полный выпуск: интервью с художниками, репортажи из мастерских, кураторские разборы. Между выпусками — короткие посты в Telegram. Понятно и по-человечески, без снобизма.
-      </p>
-    </section>
-
-{feature_html}{archive_html}{feed_html}  </main>
-
-  <section class="journal-telegram">
-    <div class="journal-telegram__inner">
-      <div class="journal-telegram__text">
-        Между выпусками — короткие посты, анонсы тиражей и репортажи из мастерских <em>в Telegram-канале</em>.
-      </div>
-      <a class="btn btn--big btn--accent"
-         data-tg-text="Здравствуйте! Хочу подписаться на канал PRSTNK."
-         data-analytics="journal-telegram-cta">
-        Подписаться на канал
-        {ARROW}
-      </a>
+      <a class="lenta-label-tg" href="https://t.me/prstnk_store" target="_blank" rel="noopener">@prstnk_store →</a>
     </div>
-  </section>
+    <div class="lenta-list">{lc_html}</div>
+  </div>
+</div>'''
 
+    # ── ВЫПУСКИ ────────────────────────────────────────────────────────────
+    issue_cards = ""
+    for iss in recent_iss:
+        slug_i = iss_slug(iss)
+        href_i = f'href="zine-{slug_i}.html"' if issue_has_page(iss) else ""
+        n_i    = iss.get("number","")
+        p_i    = iss.get("period","")
+        mc_i   = iss.get("materialsCount") or len(iss.get("articles",[]))
+        im_i   = (f'№ {n_i} · {p_i} · {mc_i} {_plural(mc_i,"материал","материала","материалов")}'
+                  if mc_i else f'№ {n_i} · {p_i}')
+        issue_cards += f'''<a class="issue-card" {href_i} data-analytics="issues-card" data-issue="{n_i}">
+  <div class="cover">{issue_cover_svg(iss)}</div>
+  <div class="im">{im_i}</div>
+  <h4>{strip_tags(iss.get("title",""))}</h4>
+</a>'''
+
+    issues_html = f'''<div class="issues-section">
+  <div class="issues-head">
+    <h3>Выпуски <em>месяца</em>.</h3>
+    <a class="issues-head-link" href="issues.html">Все выпуски →</a>
+  </div>
+  <div class="issues-grid">{issue_cards}</div>
+</div>'''
+
+    # ── СБОРКА ────────────────────────────────────────────────────────────
+    raw = f'''{head(title, desc, canonical, extra_css="journal.css")}{HEADER}
+<div class="jn-wrap" style="padding:0;">
+{hero_html}
+{rubric_html}
+{art_header_html}
+{grid_html}
+{feature_html}
+{lenta_html}
+{issues_html}
+</div>
 {FOOTER}'''
+    return clean_links(raw)
 
 
 def update_index_home():
