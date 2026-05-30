@@ -1054,23 +1054,50 @@ def issue_has_page(issue):
 
 
 def issue_cover_svg(issue):
-    """Автообложка выпуска: чистая «печатная» композиция в выбранном цвете."""
-    c = PALETTE.get(issue.get("coverColor", "alyi"), "#FA2A22")
-    num = issue.get("number", "")
-    season = (issue.get("period", "") or "").upper()
-    return f'''<svg viewBox="0 0 400 530" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="400" height="530" fill="#F0EEE8"/>
-            <rect x="44" y="56" width="206" height="276" fill="{c}"/>
-            <g transform="translate(150,150)">
-              <rect width="206" height="276" fill="#F8F6F1" stroke="#141413" stroke-width="2"/>
-              <rect x="26" y="26" width="154" height="150" fill="{c}" opacity="0.16"/>
-              <circle cx="103" cy="101" r="34" fill="{c}"/>
-              <rect x="40" y="200" width="126" height="9" fill="#141413"/>
-              <rect x="40" y="220" width="84" height="9" fill="#9B9587"/>
-            </g>
-            <text x="40" y="498" font-family="serif" font-weight="800" font-size="40" fill="#141413" letter-spacing="-2">№ {num}</text>
-            <text x="148" y="498" font-family="monospace" font-size="12" fill="#6E6B61" letter-spacing="3">{season}</text>
-          </svg>'''
+    """Обложка выпуска: цветной фон из палитры PRSTNK + типографика."""
+    color_name = issue.get("coverColor", "alyi")
+    bg = PALETTE.get(color_name, "#FA2A22")
+    # Лимон — светлый фон, остальные тёмные → белый текст
+    light = (color_name == "limon")
+    fg      = "#161614"           if light else "#FCFCFB"
+    fg_mid  = "rgba(22,22,20,.55)" if light else "rgba(252,252,251,.6)"
+    fg_low  = "rgba(22,22,20,.35)" if light else "rgba(252,252,251,.45)"
+    sep     = "rgba(22,22,20,.25)" if light else "rgba(255,255,255,.35)"
+    ghost   = "rgba(22,22,20,.07)" if light else "rgba(255,255,255,.1)"
+    num     = str(issue.get("number", "")).zfill(2)
+    period  = (issue.get("period", "") or "").upper()
+    # Разбиваем title на 2 строки по первому пробелу (SVG не переносит сам)
+    raw_title = esc(strip_tags(issue.get("title", "")))
+    parts = raw_title.split(None, 1)
+    line1 = parts[0] if parts else ""
+    line2 = parts[1] if len(parts) > 1 else ""
+    # Вторая строка: обрезаем если длинная
+    if len(line2) > 18:
+        line2 = line2[:16] + "…"
+    sub = esc(strip_tags(issue.get("subtitle") or issue.get("period", "")))
+    y2 = "282" if line2 else "248"  # одна строка — ниже по центру
+    line2_el = (f'\n  <text x="20" y="282" style="font-family:var(--f-display);font-weight:700;"'
+                f' fill="{fg}" font-size="26" letter-spacing="-1">{line2}</text>') if line2 else ""
+    return (f'<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">'
+            f'<rect width="300" height="400" fill="{bg}"/>'
+            f'<text x="-12" y="385" style="font-family:var(--f-display);font-weight:900;"'
+            f' fill="{ghost}" font-size="240" letter-spacing="-14">{num}</text>'
+            f'<text x="20" y="34" style="font-family:var(--f-display);font-weight:700;"'
+            f' fill="{fg}" font-size="10" letter-spacing="5">ЁPRST</text>'
+            f'<rect x="20" y="40" width="260" height="1" fill="{sep}"/>'
+            f'<text x="20" y="56" style="font-family:var(--f-mono);"'
+            f' fill="{fg_mid}" font-size="8" letter-spacing="2">№ {num} · {period}</text>'
+            f'<text x="20" y="{y2}" style="font-family:var(--f-display);font-weight:700;"'
+            f' fill="{fg}" font-size="26" letter-spacing="-1">{line1}</text>'
+            f'{line2_el}'
+            f'<rect x="20" y="296" width="260" height="1" fill="{sep}"/>'
+            f'<text x="20" y="312" style="font-family:var(--f-mono);"'
+            f' fill="{fg_mid}" font-size="9" letter-spacing="1">{sub}</text>'
+            f'<rect x="20" y="358" width="260" height="1" fill="{sep}"/>'
+            f'<text x="20" y="372" style="font-family:var(--f-mono);"'
+            f' fill="{fg_low}" font-size="7" letter-spacing="1">'
+            f'PRSTNK · ПЕЧАТНАЯ ГРАФИКА СПБ</text>'
+            f'</svg>')
 
 
 def issue_cover_visual(issue):
