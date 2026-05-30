@@ -1611,7 +1611,7 @@ def check_article_slugs(items):
 
 def render_material_page(article):
     slug = article.get("slug", "")
-    canonical = f"{BASE_URL}/journal/{slug}.html"
+    canonical = f"{BASE_URL}/journal/{slug}"
     plain_title = strip_tags(article.get("title", ""))
     page_title = f"{plain_title} — Журнал ЁPRST · PRSTNK"
     desc = strip_tags(article.get("lead", ""))
@@ -1770,7 +1770,7 @@ def render_materials_index():
 def render_rubric_page(rubric):
     label = rubric_label(rubric)
     color = rubric_color(rubric)
-    canonical = f"{BASE_URL}/journal/{rubric}.html"
+    canonical = f"{BASE_URL}/journal/{rubric}"
     title = f"{label} — Журнал ЁPRST · PRSTNK"
     desc = f"Материалы рубрики «{label}» журнала ЁPRST."
     items = [a for a in _materials_sorted() if a.get("rubric") == rubric]
@@ -1999,6 +1999,11 @@ def render_sitemap():
         urls.append((f"collection-{c['slug']}.html", "0.7", "monthly"))
     for w in artworks:
         urls.append((f"work-{w['slug']}.html", "0.8", "weekly"))
+    urls.append(("materials.html", "0.7", "weekly"))
+    for a in articles:
+        urls.append((f"journal/{a['slug']}.html", "0.7", "weekly"))
+    for rub_slug in RUBRICS:
+        urls.append((f"journal/{rub_slug}.html", "0.6", "monthly"))
     body = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     for path, prio, freq in urls:
         loc = re.sub(r"\.html$", "", path)  # чистый адрес без .html
