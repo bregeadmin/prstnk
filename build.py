@@ -1286,8 +1286,8 @@ def render_issue_page(issue):
 
 
 def _jrn_article_img(art: dict) -> str:
-    """Изображение статьи: загруженное фото или SVG-плейсхолдер."""
-    img = (art.get("image") or "").strip()
+    """Изображение статьи: загруженное фото (image/cover) или SVG-плейсхолдер."""
+    img = (art.get("image") or art.get("cover") or "").strip()
     if img:
         from urllib.parse import quote as _q
         return (f'<img src="{_q(img.lstrip("/"), safe="/")}" '
@@ -1319,25 +1319,28 @@ def render_journal_index():
     lenta_items  = materials[:4]
     recent_iss   = issues[:3]
 
-    # ── HERO ───────────────────────────────────────────────────────────────
-    h_kicker  = rubric_label(hero_art.get("rubric", ""))
-    h_title   = hero_art.get("title", current.get("title", ""))
-    h_lead    = hero_art.get("lead", current.get("lead", ""))
-    h_img     = _jrn_article_img({**hero_art,
-                                   "rubricColor": PALETTE.get(rubric_color(hero_art.get("rubric","")), "#FA2A22")})
-    h_cta     = f'<a class="hero-cta" href="journal/{hero_art.get("slug", "")}">Читать →</a>' if hero_art else ""
-    h_stamp   = f'ЁPRST · Выпуск № {current.get("number","")} · {current.get("period","")} · Магазин PRSTNK'
+    # ── HERO (полноширинное фото + текст поверх) ────────────────────────────
+    _hk = rubric_label(hero_art.get("rubric", ""))
+    h_kicker = f'{_hk} · Статья недели' if _hk else 'Статья недели'
+    h_title = esc(hero_art.get("title", current.get("title", "")))
+    _hem = hero_art.get("titleEm", "")
+    if _hem:
+        h_title = h_title.replace(esc(_hem), f'<em>{esc(_hem)}</em>', 1)
+    h_lead = esc(hero_art.get("lead", current.get("lead", "")))
+    h_img = _jrn_article_img({**hero_art,
+                              "rubricColor": PALETTE.get(rubric_color(hero_art.get("rubric", "")), "#FA2A22")})
+    h_url = f'journal/{hero_art.get("slug", "")}' if hero_art else ""
 
-    hero_html = f'''<div class="hero">
-  <div class="hero-img">{h_img}</div>
-  <div class="hero-text">
+    hero_html = f'''<a class="hero" href="{h_url}">
+  <div class="hero-bg">{h_img}</div>
+  <div class="hero-shade"></div>
+  <div class="hero-overlay">
     <div class="hero-kicker">{h_kicker}</div>
     <h1 class="hero-h1">{h_title}</h1>
     <p class="hero-lead">{h_lead}</p>
-    {h_cta}
-    <div class="hero-stamp">{h_stamp}</div>
+    <span class="hero-cta">Читать →</span>
   </div>
-</div>'''
+</a>'''
 
     # ── RUBRIC BAR ─────────────────────────────────────────────────────────
     rub_counts = {}
@@ -1492,11 +1495,25 @@ def render_journal_index():
   <div class="issues-grid">{issue_cards}</div>
 </div>'''
 
+    # ── МАСТКЕД (нэйм-плашка журнала) ──────────────────────────────────────
+    _mast_period = (current.get("period", "") or "").upper()
+    _mast_num = current.get("number", "")
+    _mast_stamp = (f'№ {_mast_num} · {_mast_period} · ВЫХОДИТ РАЗ В МЕСЯЦ'
+                   if _mast_num else 'ВЫХОДИТ РАЗ В МЕСЯЦ')
+    masthead_html = f'''<div class="jn-masthead">
+  <div class="jn-mast-word">«<em>ЁPRST</em>»<em>.</em></div>
+  <div class="jn-mast-side">
+    <p class="jn-mast-desc">Журнал магазина про петербургскую печатную графику. Интервью, разборы по-человечески и история сцены.</p>
+    <div class="jn-mast-stamp">{_mast_stamp}</div>
+  </div>
+</div>'''
+
     # ── СБОРКА ────────────────────────────────────────────────────────────
     raw = f'''{head(title, desc, canonical, extra_css="journal.css")}{HEADER}
 <div class="jn-wrap" style="padding:0;">
-{hero_html}
+{masthead_html}
 {rubric_html}
+{hero_html}
 {art_header_html}
 {grid_html}
 {feature_html}
