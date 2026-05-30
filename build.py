@@ -1286,7 +1286,7 @@ def _jrn_article_img(art: dict) -> str:
         return (f'<img src="{_q(img.lstrip("/"), safe="/")}" '
                 f'alt="{esc(strip_tags(art.get("title", "")))}" '
                 f'loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/>')
-    rc = art.get("rubricColor", "#FA2A22")
+    rc = re.sub(r'[^#a-zA-Z0-9()., %]', '', art.get("rubricColor", "#FA2A22"))
     return (f'<svg viewBox="0 0 800 540" xmlns="http://www.w3.org/2000/svg" '
             f'style="width:100%;height:100%;display:block;" aria-hidden="true">'
             f'<rect width="800" height="540" fill="#1a1614"/>'
@@ -1308,7 +1308,7 @@ def render_journal_index():
     other_arts   = arts[1:]
     lead_art     = other_arts[0] if other_arts else {}
     sec_arts     = other_arts[1:3]
-    feature_art  = other_arts[3] if len(other_arts) > 3 else (other_arts[-1] if other_arts else {})
+    feature_art  = other_arts[3] if len(other_arts) > 3 else {}
     lenta_items  = materials[:4]
     recent_iss   = issues[:3]
 
@@ -1410,7 +1410,7 @@ def render_journal_index():
     feature_html = ""
     if feature_art:
         feat_rub_cls = _jrn_rub_class(feature_art.get("kicker",""))
-        feat_url  = f"{issue_url}#article-{len(other_arts)}" if issue_url else ""
+        feat_url  = f"{issue_url}#article-{len(other_arts) + 1}" if issue_url else ""
         feat_cta  = f'<a class="ed-read-link" href="{feat_url}">Читать →</a>' if feat_url else ""
         pq = feature_art.get("pullquote") or {}
         pull_html = (f'<p class="ed-feat-pull">{pq["text"]}</p>' if pq.get("text") else "")
@@ -1450,7 +1450,8 @@ def render_journal_index():
   <span class="lc-cta">Читать в Telegram →</span>
 </a>'''
 
-    lenta_html = f'''<div class="lenta-section">
+    if lenta_items:
+        lenta_html = f'''<div class="lenta-section">
   <div class="lenta-inner">
     <div class="lenta-label">
       <div>
@@ -1462,6 +1463,8 @@ def render_journal_index():
     <div class="lenta-list">{lc_html}</div>
   </div>
 </div>'''
+    else:
+        lenta_html = ""
 
     # ── ВЫПУСКИ ────────────────────────────────────────────────────────────
     issue_cards = ""
