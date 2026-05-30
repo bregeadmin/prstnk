@@ -325,10 +325,84 @@ collections:
       - { name: "order", widget: "hidden", required: false, default: 99 }
 
   # ─────────────────────────────────────────────
+  # МАТЕРИАЛЫ (коллекция блоков)
+  # ─────────────────────────────────────────────
+  - name: "articles"
+    label: "Материалы"
+    label_singular: "Материал"
+    folder: "data/articles"
+    extension: "json"
+    format: "json"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    fields:
+      - { name: "title", label: "Заголовок", widget: "string" }
+      - { name: "titleEm", label: "Курсивная часть заголовка (необяз.)", widget: "string", required: false }
+      - { name: "slug", label: "Адрес (slug, латиницей)", widget: "string" }
+      - name: "rubric"
+        label: "Рубрика"
+        widget: "select"
+        options:
+          - { label: "Разговоры", value: "razgovory" }
+          - { label: "На пальцах", value: "na-paltsakh" }
+          - { label: "История", value: "istoriya" }
+          - { label: "Как смотреть", value: "kak-smotret" }
+      - { name: "lead", label: "Лид", widget: "text" }
+      - { name: "cover", label: "Обложка (необяз.)", widget: "image", required: false }
+      - { name: "author", label: "Автор", widget: "string", default: "редакция ЁPRST" }
+      - { name: "date", label: "Дата", widget: "datetime" }
+      - { name: "readMins", label: "Время чтения (мин)", widget: "number", value_type: "int" }
+      - { name: "featured", label: "В герои витрины", widget: "boolean", default: false }
+      - { name: "order", label: "Порядок", widget: "number", required: false, value_type: "int" }
+      - name: "blocks"
+        label: "Блоки материала"
+        widget: "list"
+        types:
+          - { label: "Абзац", name: "text", widget: "object", fields: [ { name: "text", label: "Текст", widget: "markdown" } ] }
+          - { label: "Подзаголовок", name: "heading", widget: "object", fields: [ { name: "text", label: "Текст", widget: "string" } ] }
+          - label: "Фото на всю ширину"
+            name: "photo"
+            widget: "object"
+            fields:
+              - { name: "image", label: "Фото", widget: "image" }
+              - { name: "caption", label: "Подпись", widget: "string", required: false }
+          - label: "Текст + фото рядом"
+            name: "split"
+            widget: "object"
+            fields:
+              - { name: "text", label: "Текст", widget: "markdown" }
+              - { name: "image", label: "Фото", widget: "image" }
+              - { name: "imageSide", label: "Фото слева/справа", widget: "select", options: ["left", "right"], default: "right" }
+          - label: "Галерея"
+            name: "gallery"
+            widget: "object"
+            fields: [ { name: "images", label: "Фото", widget: "list", field: { name: "image", widget: "image" } } ]
+          - label: "Цитата"
+            name: "quote"
+            widget: "object"
+            fields:
+              - { name: "text", label: "Цитата", widget: "text" }
+              - { name: "cite", label: "Автор цитаты", widget: "string", required: false }
+          - label: "Подборка работ (магазин)"
+            name: "picks"
+            widget: "object"
+            fields:
+              - { name: "heading", label: "Заголовок подборки", widget: "string" }
+              - { name: "workIds", label: "ID работ из каталога", widget: "list", field: { name: "id", widget: "string" } }
+          - label: "Видео / встройка"
+            name: "embed"
+            widget: "object"
+            fields:
+              - { name: "provider", label: "Источник", widget: "select", options: ["youtube", "vimeo"] }
+              - { name: "url", label: "Ссылка", widget: "string" }
+              - { name: "caption", label: "Подпись", widget: "string", required: false }
+
+  # ─────────────────────────────────────────────
   # ЖУРНАЛ — ЛЕНТА ПОСТОВ (между выпусками)
   # ─────────────────────────────────────────────
   - name: "materials"
-    label: "Журнал — лента постов"
+    label: "Лента"
     label_singular: "Пост"
     folder: "data/materials"
     extension: "json"
