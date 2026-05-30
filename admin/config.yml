@@ -39,6 +39,15 @@ collections:
     fields:
       # ── Главное (то, что заполняет человек) ──
       - { name: "mainImage", label: "📷 Фото работы", widget: "image", required: false, hint: "Скан или фотография листа. Пока пусто — показывается графическая заглушка." }
+      - name: "orientation"
+        label: "Ориентация файла"
+        widget: "select"
+        required: false
+        default: "vertical"
+        hint: "Если фото горизонтальное — поставьте «горизонтальная», иначе края обрежутся."
+        options:
+          - { label: "Вертикальная", value: "vertical" }
+          - { label: "Горизонтальная", value: "horizontal" }
       - { name: "title", label: "Название", widget: "string" }
       - name: "artistId"
         label: "Художник"

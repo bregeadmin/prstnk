@@ -1047,6 +1047,12 @@ h1, h2, h3, h4 {
   padding: 12% 12% 16%;
 }
 
+/* Горизонтальные работы: «постер» вместо «портрета» — стейдж шире,
+   внутренняя плита тоже горизонтальная, изображение не обрезается. */
+.lot__stage--horizontal { aspect-ratio: 5 / 4; }
+.lot__stage--horizontal .sheet { padding: 8% 8% 12%; }
+.sheet__plate--horizontal { aspect-ratio: 4 / 3; }
+
 .lot__info { padding: 8px 0; }
 .lot__author {
   font-family: var(--f-display);

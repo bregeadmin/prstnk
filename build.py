@@ -350,14 +350,17 @@ ARROW = ('<svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidde
 def plate_visual(art):
     """Визуал работы: реальное фото (если загружено) или SVG-заглушка.
     Путь нормализуется: ведущий «/» убирается (относительный путь работает
-    и на github.io/prstnk/, и на prstnk.ru), пробелы и спецсимволы экранируются."""
+    и на github.io/prstnk/, и на prstnk.ru), пробелы и спецсимволы экранируются.
+    Для горизонтальных файлов (art.orientation == 'horizontal') — object-fit: contain,
+    чтобы изображение не обрезалось."""
     img = (art.get("mainImage") or "").strip()
     if img:
         from urllib.parse import quote
         img = quote(img.lstrip("/"), safe="/")  # «/images/works/a b.jpg» → «images/works/a%20b.jpg»
         alt = esc(art.get("alt") or art.get("title", ""))
+        fit = "contain" if art.get("orientation") == "horizontal" else "cover"
         return (f'<img src="{img}" alt="{alt}" loading="lazy" '
-                f'style="width:100%;height:100%;object-fit:cover;display:block;"/>')
+                f'style="width:100%;height:100%;object-fit:{fit};display:block;"/>')
     return svg_map.get(art["slug"], "")
 
 
@@ -605,9 +608,9 @@ def render_work_page(art):
     </nav>
 
     <section class="lot">
-      <div class="lot__stage stagger" data-stag-delay="0">
+      <div class="lot__stage{' lot__stage--horizontal' if art.get('orientation') == 'horizontal' else ''} stagger" data-stag-delay="0">
         <div class="sheet">
-          <div class="sheet__plate">
+          <div class="sheet__plate{' sheet__plate--horizontal' if art.get('orientation') == 'horizontal' else ''}">
             {svg}
           </div>
           <div class="sheet__sig">
