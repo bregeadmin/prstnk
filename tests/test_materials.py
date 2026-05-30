@@ -92,5 +92,17 @@ class TestPicksBlock(unittest.TestCase):
         self.assertNotIn("pick-title", html)
 
 
+class TestArticlesCollection(unittest.TestCase):
+    def test_articles_loaded(self):
+        self.assertTrue(any(a.get("slug") == "kak-travyat-tsink" for a in build.articles))
+
+    def test_reserved_slug_guard_raises(self):
+        with self.assertRaises(ValueError):
+            build.check_article_slugs([{"slug": "istoriya"}])
+
+    def test_reserved_slug_guard_ok(self):
+        build.check_article_slugs([{"slug": "normalnyy-slug"}])  # не должно бросать
+
+
 if __name__ == "__main__":
     unittest.main()

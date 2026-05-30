@@ -56,6 +56,7 @@ artists = load_collection("artists")
 collections = load_collection("collections")
 issues = load_collection("issues")        # выпуски журнала «ЁPRST»
 materials = load_collection("materials")  # лента коротких постов
+articles = load_collection("articles")    # материалы журнала (track A)
 
 
 def _slugify(s):
@@ -1614,6 +1615,13 @@ def render_block(block):
     """Диспетчер блока материала по полю type. Неизвестный тип → пустая строка."""
     fn = _BLOCK_RENDERERS.get(block.get("type", ""))
     return fn(block) if fn else ""
+
+
+def check_article_slugs(items):
+    """Slug материала не должен совпадать с зарезервированными (рубрики, all)."""
+    for a in items:
+        if a.get("slug") in RESERVED_SLUGS:
+            raise ValueError(f'Slug материала "{a.get("slug")}" зарезервирован под рубрику. Переименуйте.')
 
 
 def update_index_home():
