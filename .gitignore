@@ -10,3 +10,6 @@ Thumbs.db
 
 # локальное (не для репозитория)
 .claude/
+
+# brainstorm visual companion (local only)
+.superpowers/
