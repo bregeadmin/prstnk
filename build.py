@@ -1461,12 +1461,20 @@ def render_journal_index():
         if not url_m and m.get("tgText"):
             url_m = "https://t.me/prstnk_eprst"
         href_attr = f'href="{esc(url_m)}" target="_blank" rel="noopener"' if url_m else ""
+        photo_m = (m.get("photo") or "").strip()
+        img_html = (f'<div class="lc-img"><img src="{esc(photo_m)}" loading="lazy" alt=""/></div>'
+                    if photo_m else "")
+        excerpt_m = m.get("excerpt", "")
+        exc_html = f'<div class="lc-excerpt">{esc(excerpt_m)}</div>' if excerpt_m else ""
+        tag_html = f'<span class="lc-tag">{esc(tag_s)}</span>' if tag_s else ""
         lc_html += f'''<a class="lc" {href_attr} data-analytics="lenta-card">
+  {img_html}
   <div class="lc-meta">
     <span class="lc-date">{date_s}</span>
-    <span class="lc-tag">{esc(tag_s)}</span>
+    {tag_html}
   </div>
   <div class="lc-title">{esc(m.get("title",""))}</div>
+  {exc_html}
   <span class="lc-cta">Читать в Telegram →</span>
 </a>'''
 

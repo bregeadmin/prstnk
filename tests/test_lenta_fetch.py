@@ -15,7 +15,7 @@ class TestParse(unittest.TestCase):
         posts = fetch_lenta.parse_channel_html(FIX)
         self.assertTrue(posts, "ожидался хотя бы 1 пост в фикстуре")
         p = posts[0]
-        for k in ("title", "date", "url", "tag", "photo"):
+        for k in ("title", "excerpt", "date", "url", "tag", "photo"):
             self.assertIn(k, p)
         self.assertTrue(p["url"].startswith("https://t.me/"))
 

@@ -13,9 +13,13 @@ def _text(chunk):
     m = re.search(r'tgme_widget_message_text[^>]*>(.*?)</div>', chunk, re.S)
     if not m:
         return ""
-    t = re.sub(r'<br\s*/?>', ' ', m.group(1))
+    t = re.sub(r'<br\s*/?>', '\n', m.group(1))   # переносы строк сохраняем
     t = re.sub(r'<[^>]+>', '', t)
     return html.unescape(t).strip()
+
+def _clip(s, n):
+    s = s.strip()
+    return s if len(s) <= n else s[:n - 1].rstrip() + "…"
 
 def _attr(chunk, pattern):
     m = re.search(pattern, chunk, re.S)
@@ -32,11 +36,15 @@ def parse_channel_html(page_html, limit=LIMIT):
         text = _text(ch)
         date = _attr(ch, r'<time[^>]*datetime="([^"]+)"')
         photo = _attr(ch, r'tgme_widget_message_photo_wrap[^>]*style="[^"]*background-image:url\(.([^\')]+)')
+        # хэштег → тег/полка (берём первый), затем убираем хэштеги из текста
         tag_m = re.search(r'#([A-Za-zА-Яа-яЁё0-9_]+)', text)
         tag = f'#{tag_m.group(1)}' if tag_m else ""
-        title = text if len(text) <= 140 else text[:137].rstrip() + "…"
-        posts.append({"title": title, "date": date[:10], "url": url,
-                      "tag": tag, "photo": photo})
+        clean = re.sub(r'#[A-Za-zА-Яа-яЁё0-9_]+', '', text)
+        lines = [ln for ln in (x.strip() for x in clean.split("\n")) if ln]
+        title = _clip(lines[0], 90) if lines else ""        # 1-я строка → заголовок
+        excerpt = _clip(" ".join(lines[1:]), 180)            # остальное → описание
+        posts.append({"title": title, "excerpt": excerpt, "date": date[:10],
+                      "url": url, "tag": tag, "photo": photo})
     posts.reverse()  # новые сверху
     return posts[:limit]
 

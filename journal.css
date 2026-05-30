@@ -404,14 +404,24 @@
 }
 .lc-date { color: rgba(22,22,20,.4); }
 .lc-tag  { color: var(--c-alyi); font-weight: 500; }
+.lc-img { aspect-ratio: 16/10; overflow: hidden; border-radius: 3px; margin-bottom: 12px; background: #e8e4dc; }
+.lc-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .lc-title {
   font-family: var(--f-text);
-  font-weight: 300;
+  font-weight: 400;
   font-size: 13px;
-  line-height: 1.45;
+  line-height: 1.4;
   color: var(--ink);
-  margin: 0 0 auto;
+  margin: 0 0 6px;
   letter-spacing: -.01em;
+}
+.lc-excerpt {
+  font-family: var(--f-text);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(22,22,20,.55);
+  margin: 0 0 auto;
 }
 .lc-cta {
   font-family: var(--f-mono);
