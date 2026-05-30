@@ -171,6 +171,7 @@ export default {
         name: "Имя", contact: "Связь", phone: "Телефон", city: "Город",
         delivery: "Доставка", work: "Работа", price: "Цена", budget: "Бюджет",
         room: "Комната", size: "Размер стены", comment: "Комментарий", page: "Страница",
+        amount: "Сумма (₽)", recipient: "Кому", message: "Текст открытки",
       };
       const lines = [`🟥 ${type}`];
       for (const [k, v] of form.entries()) {

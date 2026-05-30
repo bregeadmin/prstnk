@@ -750,6 +750,53 @@ h1, h2, h3, h4 {
   text-transform: uppercase; color: var(--ink-3);
 }
 
+/* Подарочный сертификат */
+.gift-cert {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 56px;
+  align-items: center; padding: 36px 0 8px;
+}
+.gift-cert > * { min-width: 0; }
+.gift-cert__visual {
+  aspect-ratio: 10 / 7; background: var(--paper-2);
+  box-shadow: 0 28px 70px rgba(20,20,19,0.10);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.gift-cert__visual svg { width: 100%; height: 100%; display: block; }
+.gift-cert__lead {
+  font-family: var(--f-text); font-size: 18px; line-height: 1.5;
+  color: var(--ink-2); margin: 0 0 28px; max-width: 46ch;
+}
+.gift-cert__steps {
+  list-style: none; padding: 0; margin: 0 0 30px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.gift-cert__steps li {
+  display: grid; grid-template-columns: 36px 1fr; gap: 12px; align-items: baseline;
+  font-family: var(--f-text); font-size: 16px; color: var(--ink);
+}
+.gift-cert__steps .num {
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em;
+  color: var(--prstnk-color);
+}
+.gift-cert .gifts__note { display: block; margin-top: 18px; }
+
+/* Поле «сумма» в форме сертификата */
+.cert-amounts {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
+}
+.cert-amounts button {
+  padding: 8px 12px; border: 1px solid var(--rule);
+  background: var(--paper); cursor: pointer;
+  font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.06em;
+  color: var(--ink-2); transition: background .15s, color .15s, border-color .15s;
+}
+.cert-amounts button:hover { color: var(--ink); border-color: var(--ink); }
+.cert-amounts button.is-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+@media (max-width: 900px) {
+  .gift-cert { grid-template-columns: 1fr; gap: 28px; }
+}
+
 /* ───────── Подборки / lifestyle plates ───────── */
 .plates {
   display: grid;

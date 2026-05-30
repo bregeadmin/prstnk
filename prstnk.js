@@ -196,6 +196,21 @@
     <label class="field"><span>Про комнату и пожелания</span><textarea name="room" rows="2"></textarea></label>
     <label class="field"><span>Имя *</span><input name="name" required></label>
     <label class="field"><span>Телефон или Telegram *</span><input name="phone" required placeholder="+7… или @ник"></label>`;
+  const CERT_FIELDS = `
+    <div class="field">
+      <span>Сумма сертификата (₽) *</span>
+      <div class="cert-amounts">
+        <button type="button" data-amount="5000">5 000</button>
+        <button type="button" data-amount="10000">10 000</button>
+        <button type="button" data-amount="20000">20 000</button>
+        <button type="button" data-amount="50000">50 000</button>
+      </div>
+      <input name="amount" type="number" min="1000" step="500" placeholder="или впишите свою сумму" required inputmode="numeric">
+    </div>
+    <label class="field"><span>Кому (имя получателя)</span><input name="recipient" autocomplete="off"></label>
+    <label class="field"><span>Текст для открытки</span><textarea name="message" rows="2" placeholder="напр. С днём рождения!"></textarea></label>
+    <label class="field"><span>Ваше имя *</span><input name="name" required autocomplete="name"></label>
+    <label class="field"><span>Телефон или Telegram *</span><input name="phone" required placeholder="+7… или @ник"></label>`;
 
   let modal;
   function ensureModal() {
@@ -223,7 +238,16 @@
         </div>
       </div>`;
     document.body.appendChild(modal);
-    modal.addEventListener('click', (e) => { if (e.target.hasAttribute('data-close')) closeModal(); });
+    modal.addEventListener('click', (e) => {
+      if (e.target.hasAttribute('data-close')) { closeModal(); return; }
+      const ab = e.target.closest('button[data-amount]');
+      if (ab) {
+        e.preventDefault();
+        const input = modal.querySelector('input[name=amount]');
+        if (input) input.value = ab.dataset.amount;
+        modal.querySelectorAll('.cert-amounts button').forEach(b => b.classList.toggle('is-active', b === ab));
+      }
+    });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
     modal.querySelector('#orderForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -253,10 +277,14 @@
   function openOrder(opts) {
     ensureModal();
     const fit = opts.mode === 'fit';
-    modal.querySelector('#orderEyebrow').textContent = fit ? 'Подбор куратора' : 'Заявка';
-    modal.querySelector('#orderTitle').textContent = fit ? 'Подбор по фото стены' : 'Оформить заявку';
+    const cert = opts.mode === 'cert';
+    modal.querySelector('#orderEyebrow').textContent = cert ? 'Подарочный сертификат' : (fit ? 'Подбор куратора' : 'Заявка');
+    modal.querySelector('#orderTitle').textContent = cert ? 'Оформить сертификат' : (fit ? 'Подбор по фото стены' : 'Оформить заявку');
     const sub = modal.querySelector('#orderSub');
-    if (fit) {
+    if (cert) {
+      sub.hidden = false;
+      sub.textContent = 'Сертификат на любую сумму. Получатель сам выбирает работу из каталога. Срок действия — год.';
+    } else if (fit) {
       sub.hidden = false;
       sub.textContent = 'Пришлите фото стены — куратор подберёт 3–5 листов по размеру, цвету и настроению. Бесплатно.';
     } else if (opts.work) {
@@ -267,7 +295,7 @@
       + (opts.work ? `<input type="hidden" name="work" value="${escAttr(opts.work)}">` : '')
       + (opts.price ? `<input type="hidden" name="price" value="${escAttr(opts.price)}">` : '')
       + (opts.slug ? `<input type="hidden" name="slug" value="${escAttr(opts.slug)}">` : '');
-    modal.querySelector('#orderFields').innerHTML = hidden + (fit ? FIT_FIELDS : PURCHASE_FIELDS);
+    modal.querySelector('#orderFields').innerHTML = hidden + (cert ? CERT_FIELDS : (fit ? FIT_FIELDS : PURCHASE_FIELDS));
     const form = modal.querySelector('#orderForm');
     form.hidden = false;
     modal.querySelector('#orderDone').hidden = true;
@@ -284,7 +312,9 @@
     const ob = e.target.closest('[data-buy]');
     if (ob) { e.preventDefault(); openOrder({ mode: 'purchase', type: ob.dataset.buyType || 'Заявка на покупку', work: ob.dataset.work, price: ob.dataset.price, slug: ob.dataset.lotSlug, tgText: ob.dataset.tgText }); return; }
     const fb = e.target.closest('[data-fit]');
-    if (fb) { e.preventDefault(); openOrder({ mode: 'fit', type: 'Подбор по фото стены', tgText: fb.dataset.tgText }); }
+    if (fb) { e.preventDefault(); openOrder({ mode: 'fit', type: 'Подбор по фото стены', tgText: fb.dataset.tgText }); return; }
+    const cb = e.target.closest('[data-cert]');
+    if (cb) { e.preventDefault(); openOrder({ mode: 'cert', type: 'Подарочный сертификат', tgText: cb.dataset.tgText }); }
   });
 
   /* --- Избранное (♡): хранится в памяти браузера (localStorage) --- */
