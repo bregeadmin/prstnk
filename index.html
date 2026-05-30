@@ -539,13 +539,18 @@
           <text x="32" y="270" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#FCFCFB" opacity="0.9">НА ЛЮБУЮ РАБОТУ ИЗ КАТАЛОГА</text>
           <text x="368" y="270" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" text-anchor="end" fill="#FCFCFB" opacity="0.9">СРОК · 1 ГОД</text>
 
-          <!-- печатницкий контрольный бар: все фирменные цвета -->
+          <!-- печатницкий контрольный бар: вся палитра, алый — первым (основной) -->
           <g>
-            <rect x="0"   y="290" width="80" height="10" fill="#FFCC00"/>
-            <rect x="80"  y="290" width="80" height="10" fill="#2A4BFF"/>
-            <rect x="160" y="290" width="80" height="10" fill="#2E5A2A"/>
-            <rect x="240" y="290" width="80" height="10" fill="#FF3DA0"/>
-            <rect x="320" y="290" width="80" height="10" fill="#161614"/>
+            <rect x="0"     y="290" width="66.67" height="10" fill="#FA2A22"/>
+            <rect x="66.67" y="290" width="66.67" height="10" fill="#FFCC00"/>
+            <rect x="133.33" y="290" width="66.67" height="10" fill="#2A4BFF"/>
+            <rect x="200"   y="290" width="66.67" height="10" fill="#2E5A2A"/>
+            <rect x="266.67" y="290" width="66.67" height="10" fill="#FF3DA0"/>
+            <rect x="333.33" y="290" width="66.67" height="10" fill="#161614"/>
+            <!-- тонкая бумажная окантовка сверху и слева — чтобы алый сегмент читался на красном фоне -->
+            <line x1="0" y1="290" x2="400" y2="290" stroke="#FCFCFB" stroke-width="0.6" opacity="0.55"/>
+            <line x1="0" y1="290" x2="0" y2="300" stroke="#FCFCFB" stroke-width="0.6" opacity="0.55"/>
+            <line x1="66.67" y1="290" x2="66.67" y2="300" stroke="#FCFCFB" stroke-width="0.5" opacity="0.4"/>
           </g>
         </svg>
       </div>
