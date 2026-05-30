@@ -1064,7 +1064,7 @@ def issue_cover_svg(issue):
     fg_low  = "rgba(22,22,20,.35)" if light else "rgba(252,252,251,.45)"
     sep     = "rgba(22,22,20,.25)" if light else "rgba(255,255,255,.35)"
     ghost   = "rgba(22,22,20,.07)" if light else "rgba(255,255,255,.1)"
-    num     = str(issue.get("number", "")).zfill(2)
+    num     = str(issue.get("number") or "").zfill(2)
     period  = (issue.get("period", "") or "").upper()
     # Разбиваем title на 2 строки по первому пробелу (SVG не переносит сам)
     raw_title = esc(strip_tags(issue.get("title", "")))
@@ -1075,7 +1075,7 @@ def issue_cover_svg(issue):
     if len(line2) > 18:
         line2 = line2[:16] + "…"
     sub = esc(strip_tags(issue.get("subtitle") or issue.get("period", "")))
-    y2 = "282" if line2 else "248"  # одна строка — ниже по центру
+    y2 = "248" if line2 else "264"  # две строки: line1 на 248; одна строка: на 264 (центр)
     line2_el = (f'\n  <text x="20" y="282" style="font-family:var(--f-display);font-weight:700;"'
                 f' fill="{fg}" font-size="26" letter-spacing="-1">{line2}</text>') if line2 else ""
     return (f'<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">'
