@@ -948,6 +948,21 @@ PALETTE = {
     "alyi": "#FA2A22", "limon": "#FFCC00", "kobalt": "#2A4BFF",
     "hvoya": "#2E5A2A", "fuxia": "#FF3DA0", "ugol": "#161614",
 }
+
+RUBRICS = {
+    "razgovory":   {"label": "Разговоры",    "color": "alyi"},
+    "na-paltsakh": {"label": "На пальцах",   "color": "kobalt"},
+    "istoriya":    {"label": "История",      "color": "hvoya"},
+    "kak-smotret": {"label": "Как смотреть", "color": "fuxia"},
+}
+RESERVED_SLUGS = set(RUBRICS) | {"all"}
+
+def rubric_label(slug):
+    return RUBRICS.get(slug, {}).get("label", "")
+
+def rubric_color(slug):
+    return RUBRICS.get(slug, {}).get("color", "default")
+
 _MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня",
            "июля", "августа", "сентября", "октября", "ноября", "декабря"]
 
