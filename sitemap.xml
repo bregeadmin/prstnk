@@ -116,6 +116,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://prstnk.ru/work-madonna-v-lesu</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://prstnk.ru/work-more-pasmurniy</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -167,11 +172,6 @@
   </url>
   <url>
     <loc>https://prstnk.ru/work-kupchino</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-madonna-v-lesu</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
