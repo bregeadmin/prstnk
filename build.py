@@ -1580,6 +1580,25 @@ def _blk_embed(b):
             f'<iframe src="{src}" loading="lazy" allowfullscreen '
             f'referrerpolicy="strict-origin-when-cross-origin"></iframe></div>{cap_html}</div>')
 
+def _blk_picks(b):
+    heading = esc(b.get("heading", ""))
+    by_id = {w.get("id"): w for w in artworks}
+    cards = ""
+    for wid in (b.get("workIds") or []):
+        w = by_id.get(wid)
+        if not w:
+            continue
+        price = w.get("priceFormatted") or (str(w.get("price", "")) + " ₽")
+        img = esc(w.get("mainImage", ""))
+        cards += (f'<a class="pick" href="work-{w.get("slug", "")}.html" data-analytics="material-pick">'
+                  f'<div class="pick-img"><img src="{img}" loading="lazy" alt="{esc(w.get("title", ""))}"/></div>'
+                  f'<div class="pick-title">{esc(w.get("title", ""))}</div>'
+                  f'<div class="pick-artist">{esc(w.get("artistName", ""))}</div>'
+                  f'<div class="pick-row"><span class="pick-price">{esc(price)}</span>'
+                  f'<span class="pick-buy">в магазин →</span></div></a>')
+    head_html = f'<div class="picks-head">{heading}</div>' if heading else ""
+    return f'<div class="bl bl-picks">{head_html}<div class="picks-grid">{cards}</div></div>'
+
 _BLOCK_RENDERERS = {
     "text": _blk_text,
     "heading": _blk_heading,
@@ -1588,6 +1607,7 @@ _BLOCK_RENDERERS = {
     "split": _blk_split,
     "gallery": _blk_gallery,
     "embed": _blk_embed,
+    "picks": _blk_picks,
 }
 
 def render_block(block):

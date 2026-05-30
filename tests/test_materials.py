@@ -76,5 +76,21 @@ class TestMediaBlocks(unittest.TestCase):
         self.assertEqual(build.render_block({"type": "embed", "provider": "youtube", "url": "x"}), "")
 
 
+class TestPicksBlock(unittest.TestCase):
+    def test_picks_renders_known_work(self):
+        first = build.artworks[0]
+        html = build.render_block({"type": "picks", "heading": "В продаже",
+                                   "workIds": [first["id"]]})
+        self.assertIn("bl-picks", html)
+        self.assertIn("В продаже", html)
+        self.assertIn(f'work-{first["slug"]}', html)
+        self.assertIn(build.esc(first["title"]), html)
+
+    def test_picks_skips_unknown_id(self):
+        html = build.render_block({"type": "picks", "heading": "X", "workIds": ["no-such-id-xyz"]})
+        self.assertIn("bl-picks", html)
+        self.assertNotIn("pick-title", html)
+
+
 if __name__ == "__main__":
     unittest.main()
