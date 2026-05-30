@@ -206,7 +206,7 @@ def esc(s):
 
 
 # ─── Общие куски ───
-def head(title, description, canonical, og_type="website", extra_meta="", og_image=None):
+def head(title, description, canonical, og_type="website", extra_meta="", og_image=None, extra_css=""):
     img = og_image or f"{BASE_URL}/og-cover.svg"
     return f'''<!doctype html>
 <html lang="ru">
@@ -233,6 +233,7 @@ def head(title, description, canonical, og_type="website", extra_meta="", og_ima
   <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
   <link rel="stylesheet" href="fonts.css"/>
   <link rel="stylesheet" href="prstnk.css"/>
+  {f'<link rel="stylesheet" href="{extra_css}"/>' if extra_css else ""}
   <script src="gate.js"></script>
 </head>
 <body>
