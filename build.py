@@ -1467,6 +1467,53 @@ def update_index_home():
     home_block = "<!--HOME-WORKS-->\n" + "\n".join(home_cards) + "\n      <!--/HOME-WORKS-->"
     html = re.sub(r"<!--HOME-WORKS-->.*?<!--/HOME-WORKS-->", lambda m: home_block, html, flags=re.DOTALL)
 
+    # Большая работа в hero — берём первую из featured (та же, что и первая карточка в подборке)
+    if featured:
+        art = featured[0]
+        svg = plate_visual(art)
+        aname_short = (art["artistName"].split()[0][0] + ". " + art["artistName"].split()[-1]
+                       if len(art["artistName"].split()) >= 2 else art["artistName"])
+        ed = (f'{art["editionNumber"]}/{art["editionTotal"]}'
+              if art["workType"] == "editioned" else "1/1")
+        size = art["sheetSize"].replace(" см", "").replace(" × ", "×")
+        if art["workType"] == "editioned":
+            meta_size = f'<b>{size}</b> см · тираж {art["editionTotal"]}'
+        else:
+            meta_size = f'<b>{size}</b> см · <b>уникальная</b>'
+        hero_block = (
+            f'<!--HERO-WORK-->\n'
+            f'          <div class="hero__art stagger" data-stag-delay="0.12">\n'
+            f'            <a class="sheet sheet--hero" href="work-{art["slug"]}.html" '
+            f'data-work-color="{art["dominantColor"]}" data-analytics="hero-work">\n'
+            f'              <div class="sheet__plate">\n'
+            f'                {svg}\n'
+            f'              </div>\n'
+            f'              <div class="sheet__sig">\n'
+            f'                <span>{aname_short}, {art["year"]}</span>\n'
+            f'                <span>{ed}</span>\n'
+            f'              </div>\n'
+            f'            </a>\n'
+            f'          </div>\n'
+            f'          <div class="hero__meta stagger" data-stag-delay="0.30">\n'
+            f'            <span><b>«{art["title"]}»</b> · {art["technique"]}</span>\n'
+            f'            <span>{meta_size}</span>\n'
+            f'            <span class="price">{art["priceFormatted"]}</span>\n'
+            f'          </div>\n'
+            f'          <!--/HERO-WORK-->')
+        html = re.sub(r"<!--HERO-WORK-->.*?<!--/HERO-WORK-->",
+                      lambda m: hero_block, html, flags=re.DOTALL)
+
+    # Текущий выпуск журнала — eyebrow на главной + тикер
+    if issues:
+        cur = next((i for i in issues if i.get("current")), issues[0])
+        n = cur.get("number", "")
+        html = re.sub(r"<!--ISSUE-EYEBROW-->.*?<!--/ISSUE-EYEBROW-->",
+                      lambda m: f'<!--ISSUE-EYEBROW-->Журнал «<b>ЁPRST</b>» · выпуск {n}<!--/ISSUE-EYEBROW-->',
+                      html, flags=re.DOTALL)
+        html = re.sub(r"<!--RIBBON-ISSUE-->.*?<!--/RIBBON-ISSUE-->",
+                      lambda m: f'<!--RIBBON-ISSUE-->Журнал «ЁPRST» · выпуск {n} в печати<!--/RIBBON-ISSUE-->',
+                      html, flags=re.DOTALL)
+
     path.write_text(clean_links(html))
     return True
 

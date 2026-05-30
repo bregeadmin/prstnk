@@ -372,6 +372,7 @@ h1, h2, h3, h4 {
   width: 100%;
 }
 .sheet--hero { width: 85%; }
+a.sheet { color: inherit; text-decoration: none; display: block; cursor: pointer; }
 .sheet:hover { transform: translateY(-6px) rotate(-0.4deg); box-shadow: var(--shadow-sheet-hover); }
 .sheet__plate {
   aspect-ratio: 3 / 4;
