@@ -164,5 +164,19 @@ class TestRubricPage(unittest.TestCase):
         self.assertIn('href="journal.css"', html)
 
 
+class TestJournalIndexUsesArticles(unittest.TestCase):
+    def setUp(self):
+        self.html = build.render_journal_index()
+
+    def test_rubricator_links_to_rubric_pages(self):
+        self.assertIn('href="journal/na-paltsakh"', self.html)
+
+    def test_rubricator_uses_rubric_labels(self):
+        self.assertIn("На пальцах", self.html)
+
+    def test_all_materials_link_present(self):
+        self.assertIn('href="materials"', self.html)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1319,12 +1319,12 @@ def render_journal_index():
 
     # ── данные ─────────────────────────────────────────────────────────────
     current = next((i for i in issues if i.get("current")), issues[0] if issues else {})
-    arts = current.get("articles", [])
-    hero_art     = arts[0] if arts else {}
-    other_arts   = arts[1:]
-    lead_art     = other_arts[0] if other_arts else {}
-    sec_arts     = other_arts[1:3]
-    feature_art  = other_arts[3] if len(other_arts) > 3 else {}
+    fresh        = sorted(articles, key=lambda a: a.get("date", ""), reverse=True)
+    hero_art     = next((a for a in fresh if a.get("featured")), fresh[0] if fresh else {})
+    rest         = [a for a in fresh if a is not hero_art]
+    lead_art     = rest[0] if rest else {}
+    sec_arts     = rest[1:3]
+    feature_art  = rest[3] if len(rest) > 3 else {}
     lenta_items  = materials[:4]
     recent_iss   = issues[:3]
 
@@ -1332,12 +1332,12 @@ def render_journal_index():
     issue_url    = f"zine-{issue_slug}.html" if issue_has_page(current) else ""
 
     # ── HERO ───────────────────────────────────────────────────────────────
-    h_kicker  = hero_art.get("kicker", "Статья выпуска")
+    h_kicker  = rubric_label(hero_art.get("rubric", ""))
     h_title   = hero_art.get("title", current.get("title", ""))
     h_lead    = hero_art.get("lead", current.get("lead", ""))
     h_img     = _jrn_article_img({**hero_art,
-                                   "rubricColor": PALETTE.get(current.get("coverColor","alyi"),"#FA2A22")})
-    h_cta     = f'<a class="hero-cta" href="{issue_url}#article-1">Читать →</a>' if issue_url else ""
+                                   "rubricColor": PALETTE.get(rubric_color(hero_art.get("rubric","")), "#FA2A22")})
+    h_cta     = f'<a class="hero-cta" href="journal/{hero_art.get("slug", "")}">Читать →</a>' if hero_art else ""
     h_stamp   = f'ЁPRST · Выпуск № {current.get("number","")} · {current.get("period","")} · Магазин PRSTNK'
 
     hero_html = f'''<div class="hero">
@@ -1352,20 +1352,18 @@ def render_journal_index():
 </div>'''
 
     # ── RUBRIC BAR ─────────────────────────────────────────────────────────
-    all_arts = [a for iss in issues for a in iss.get("articles", [])]
-    rub_counts: dict = {}
-    for a in all_arts:
-        k = (a.get("kicker") or "").split("·")[0].strip()
-        rub_counts[k] = rub_counts.get(k, 0) + 1
-    total_count = sum(rub_counts.values())
+    rub_counts = {}
+    for a in articles:
+        r = a.get("rubric", "")
+        if r in RUBRICS:
+            rub_counts[r] = rub_counts.get(r, 0) + 1
+    total_count = len(articles)
 
-    rub_links = [f'<a href="journal" class="on">Всё <sup>{total_count}</sup></a>']
-    shown_rubs = [("Кураторская", "kuratorskaya"), ("Интервью", "intervyu"),
-                  ("История", "istoriya"), ("Техники", "tekhniki"), ("Репортаж", "reportazh")]
-    for label, slug_r in shown_rubs:
-        cnt = sum(v for k, v in rub_counts.items() if label.lower() in k.lower())
+    rub_links = [f'<a href="materials" class="on">Всё <sup>{total_count}</sup></a>']
+    for rub_slug, info in RUBRICS.items():
+        cnt = rub_counts.get(rub_slug, 0)
         if cnt:
-            rub_links.append(f'<a href="journal/{slug_r}"><sup class="rub-count">{cnt}</sup>{label}</a>')
+            rub_links.append(f'<a href="journal/{rub_slug}">{info["label"]} <sup>{cnt}</sup></a>')
 
     rubric_html = f'''<nav class="rubric-bar" aria-label="Рубрики журнала">
   <span class="rb-label">Рубрики</span>
@@ -1373,9 +1371,9 @@ def render_journal_index():
 </nav>'''
 
     # ── ART HEADER ─────────────────────────────────────────────────────────
-    art_header_html = f'''<div class="art-header">
+    art_header_html = '''<div class="art-header">
   <div class="art-header-label">— <b>Свежие материалы</b></div>
-  <div class="art-header-meta">Выпуск № {current.get("number","")} · {current.get("period","")}</div>
+  <a class="art-header-meta" href="materials">Все материалы →</a>
 </div>'''
 
     # ── EDITORIAL GRID ─────────────────────────────────────────────────────
@@ -1385,9 +1383,9 @@ def render_journal_index():
         if a.get("date"):     parts.append(fmt_date_ru(a["date"]))
         return " · ".join(parts)
 
-    lead_rub_cls = _jrn_rub_class(lead_art.get("kicker",""))
-    lead_img     = _jrn_article_img({**lead_art, "rubricColor": PALETTE.get("kobalt")}) if lead_art else ""
-    lead_url     = f"{issue_url}#article-2" if issue_url and lead_art else ""
+    lead_rub_cls = "rub-" + rubric_color(lead_art.get("rubric",""))
+    lead_img     = _jrn_article_img({**lead_art, "rubricColor": PALETTE.get(rubric_color(lead_art.get("rubric","")), "#FA2A22")}) if lead_art else ""
+    lead_url     = f'journal/{lead_art.get("slug","")}' if lead_art else ""
 
     lead_html = ""
     if lead_art:
@@ -1395,7 +1393,7 @@ def render_journal_index():
         lead_html = f'''<article class="ed-lead">
   <div class="ed-lead-img">{lead_img}</div>
   <div class="ed-lead-body">
-    <div class="rub {lead_rub_cls}">{lead_art.get("kicker","")}</div>
+    <div class="rub {lead_rub_cls}">{rubric_label(lead_art.get("rubric",""))}</div>
     <h2 class="ed-h2">{lead_art.get("title","")}</h2>
     <p class="ed-lead-text">{lead_art.get("lead","")}</p>
     <div class="ed-meta">{_art_meta(lead_art)}</div>
@@ -1405,11 +1403,11 @@ def render_journal_index():
 
     sec_html = ""
     for idx_s, sa in enumerate(sec_arts, start=3):
-        sec_rub_cls = _jrn_rub_class(sa.get("kicker",""))
-        sec_url = f"{issue_url}#article-{idx_s}" if issue_url else ""
-        sec_cta = f'<a class="ed-read-link" href="{sec_url}">Читать →</a>' if sec_url else ""
+        sec_rub_cls = "rub-" + rubric_color(sa.get("rubric",""))
+        sec_url = f'journal/{sa.get("slug","")}'
+        sec_cta = f'<a class="ed-read-link" href="{sec_url}">Читать →</a>'
         sec_html += f'''<article class="ed-sec">
-  <div class="rub {sec_rub_cls}">{sa.get("kicker","")}</div>
+  <div class="rub {sec_rub_cls}">{rubric_label(sa.get("rubric",""))}</div>
   <h3 class="ed-h3">{sa.get("title","")}</h3>
   <div class="ed-meta">{_art_meta(sa)}</div>
   {sec_cta}
@@ -1425,9 +1423,9 @@ def render_journal_index():
     # ── HORIZONTAL FEATURE ─────────────────────────────────────────────────
     feature_html = ""
     if feature_art:
-        feat_rub_cls = _jrn_rub_class(feature_art.get("kicker",""))
-        feat_url  = f"{issue_url}#article-{len(other_arts) + 1}" if issue_url else ""
-        feat_cta  = f'<a class="ed-read-link" href="{feat_url}">Читать →</a>' if feat_url else ""
+        feat_rub_cls = "rub-" + rubric_color(feature_art.get("rubric",""))
+        feat_url  = f'journal/{feature_art.get("slug","")}'
+        feat_cta  = f'<a class="ed-read-link" href="{feat_url}">Читать →</a>'
         pq = feature_art.get("pullquote") or {}
         pull_html = (f'<p class="ed-feat-pull">{pq["text"]}</p>' if pq.get("text") else "")
         feat_desc = feature_art.get("lead","")
@@ -1436,7 +1434,7 @@ def render_journal_index():
         author_html = f'<p class="ed-lead-text">{esc(author)}</p>' if author else ""
         feature_html = f'''<div class="ed-feature">
   <div class="ed-feat-left">
-    <div class="rub {feat_rub_cls}">{feature_art.get("kicker","")}</div>
+    <div class="rub {feat_rub_cls}">{rubric_label(feature_art.get("rubric",""))}</div>
     <h2 class="ed-h2">{feature_art.get("title","")}</h2>
     <p class="ed-lead-text">{feat_desc}</p>
     <div class="ed-meta">{_art_meta(feature_art)}</div>
