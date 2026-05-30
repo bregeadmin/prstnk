@@ -153,5 +153,16 @@ class TestFeed(unittest.TestCase):
         self.assertIn("materials-feed", html)
 
 
+class TestRubricPage(unittest.TestCase):
+    def test_rubric_page_lists_only_its_rubric(self):
+        html = build.render_rubric_page("na-paltsakh")
+        self.assertIn("На пальцах", html)
+        self.assertIn("journal/kak-travyat-tsink", html)  # этот материал — na-paltsakh
+
+    def test_rubric_page_links_css(self):
+        html = build.render_rubric_page("razgovory")
+        self.assertIn('href="journal.css"', html)
+
+
 if __name__ == "__main__":
     unittest.main()

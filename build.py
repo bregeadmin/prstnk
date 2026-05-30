@@ -1782,6 +1782,29 @@ def render_materials_index():
             f'{body}\n{FOOTER}')
 
 
+def render_rubric_page(rubric):
+    label = rubric_label(rubric)
+    color = rubric_color(rubric)
+    canonical = f"{BASE_URL}/journal/{rubric}.html"
+    title = f"{label} — Журнал ЁPRST · PRSTNK"
+    desc = f"Материалы рубрики «{label}» журнала ЁPRST."
+    items = [a for a in _materials_sorted() if a.get("rubric") == rubric]
+    feed = _feed_rhythm(items)
+    count_word = _plural(len(items), "материал", "материала", "материалов")
+    body = f'''<div class="materials-page jn-wrap" style="padding:0;">
+  <div class="materials-head">
+    <h1 class="rub-{color}">{label}</h1>
+    <span class="materials-count">— {len(items)} {count_word}</span>
+  </div>
+  <div class="materials-feed">
+{feed}
+  </div>
+  <a class="material-back" href="materials">← Все материалы</a>
+</div>'''
+    return (f'{head(title, desc, canonical, extra_css="journal.css")}{HEADER}\n'
+            f'{body}\n{FOOTER}')
+
+
 def update_index_home():
     """Обновляет на главной (index.html) блок художников и число «N имён» из данных.
     Меняется только содержимое между HTML-маркерами — остальная вёрстка главной не трогается."""
@@ -2040,6 +2063,10 @@ if __name__ == "__main__":
 
     (ROOT / "materials.html").write_text(clean_links(render_materials_index()))
     print("  ✓ materials.html — все материалы")
+
+    for rub_slug in RUBRICS:
+        (ROOT / "journal" / f"{rub_slug}.html").write_text(clean_links(render_rubric_page(rub_slug)))
+    print(f"  ✓ {len(RUBRICS)} страниц рубрик (journal/<rubric>.html)")
 
     zn = 0
     for issue in issues:
