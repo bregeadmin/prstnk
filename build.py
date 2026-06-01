@@ -470,6 +470,7 @@ def cta_block(art):
 def work_card(art, stagger=False, delay=None):
     """Карточка работы для каталога / блоков «ещё у автора»."""
     svg = plate_visual(art)
+    plate_h = ' work__plate--horizontal' if art.get("orientation") == "horizontal" else ''
     aname = art["artistName"]
     initials = aname.split()[0][0] + ". " + aname.split()[-1] if len(aname.split()) >= 2 else aname
     ed = (f'{art["editionNumber"]}/{art["editionTotal"]}'
@@ -506,7 +507,7 @@ def work_card(art, stagger=False, delay=None):
           {badge}
           <button class="work__fav" data-fav-toggle data-fav-slug="{art['slug']}" aria-label="В избранное" aria-pressed="false">♡</button>
           <div class="work__sheet">
-            <div class="work__plate">
+            <div class="work__plate{plate_h}">
               {svg}
             </div>
             <div class="work__sig"><span>{initials}</span><span>{ed}</span></div>

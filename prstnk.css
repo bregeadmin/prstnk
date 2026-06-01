@@ -472,6 +472,7 @@ a.sheet { color: inherit; text-decoration: none; display: block; cursor: pointer
   overflow: hidden;
   position: relative;
 }
+.work__plate--horizontal { aspect-ratio: 4 / 3; }
 .work__sig {
   position: absolute;
   left: 0; right: 0; bottom: 5%;
