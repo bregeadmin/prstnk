@@ -206,6 +206,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://prstnk.ru/work-tribunal-24</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://prstnk.ru/materials</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
