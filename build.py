@@ -144,8 +144,6 @@ def enrich_artwork(w):
 
     # Тип-зависимое
     if w.get("workType") == "unique":
-        if not w.get("uniquenessNote"):
-            w["uniquenessNote"] = "Повторов и допечаток не будет."
         w["availableCount"] = 1
     else:
         w["workType"] = "editioned"
@@ -401,9 +399,8 @@ def status_block(art):
         return f'''        <div class="lot__status lot__status--unique">
           <div class="lot__status__label"><b>Уникальная работа</b></div>
           <div class="lot__status__big"><span class="num">1</span><span class="of">из 1 · единственный экземпляр</span></div>
-          <div class="lot__status__note">Повторов и допечаток не будет</div>
         </div>
-        <p class="lot__trust-note">Это уникальная авторская работа. Экземпляр существует в одном варианте, повторов и допечаток не будет.</p>'''
+        <p class="lot__trust-note">Это уникальная авторская работа. Экземпляр существует в одном варианте.</p>'''
     # editioned
     total = art["editionTotal"]
     num = art["editionNumber"]
