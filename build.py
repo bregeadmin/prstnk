@@ -139,14 +139,8 @@ def enrich_artwork(w):
     w.setdefault("order", 99)
     if not w.get("dominantColor"):
         w["dominantColor"] = "#FA2A22"
-    if not w.get("paper"):
-        w["paper"] = "Hahnemühle 300 г/м², фактурная"
-    if not w.get("signature"):
-        w["signature"] = "карандашом, нижнее поле, справа"
-    if not w.get("condition"):
-        w["condition"] = "Mint, не оформлено в раму"
-    if not w.get("certificate"):
-        w["certificate"] = "сертификат подлинности от издательства PRSTNK"
+    # paper/signature/condition/certificate больше не получают авто-дефолтов:
+    # пустое поле не показывается на странице (управляется из админки).
 
     # Тип-зависимое
     if w.get("workType") == "unique":
@@ -540,25 +534,35 @@ def render_work_page(art):
     parts = a["name"].split(" ", 1)
     author_h1 = f'{parts[0]}<br/>{parts[1]}.' if len(parts) == 2 else f'{a["name"]}.'
 
-    # атрибуты
+    # атрибуты — пустые строки скрываются; доп. характеристики из списка specs
     attrib_rows = [
-        ("Техника", art["technique"]),
-        ("Размер листа", art["sheetSize"]),
+        ("Техника", art.get("technique", "")),
+        ("Размер листа", art.get("sheetSize", "")),
     ]
     if art.get("imageSize"):
         attrib_rows.append(("Размер изображения", art["imageSize"]))
-    attrib_rows.append(("Бумага", art["paper"]))
+    if art.get("paper"):
+        attrib_rows.append(("Бумага", art["paper"]))
     if art["workType"] == "editioned":
         ap = art.get("artistProofs") or 0
         ed_str = f'<b>{art["editionTotal"]} экз.</b>' + (f' + {ap} авторских (a.p.)' if ap else '')
         attrib_rows.append(("Тираж", ed_str))
     else:
         attrib_rows.append(("Тираж", "<b>уникальная работа · 1/1</b>"))
-    attrib_rows += [
-        ("Подпись", art["signature"]),
-        ("Состояние", art["condition"]),
-        ("Сертификат", art["certificate"]),
-    ]
+    if art.get("signature"):
+        attrib_rows.append(("Подпись", art["signature"]))
+    if art.get("condition"):
+        attrib_rows.append(("Состояние", art["condition"]))
+    if art.get("certificate"):
+        attrib_rows.append(("Сертификат", art["certificate"]))
+    # свободные характеристики из админки (название + значение)
+    for spec in (art.get("specs") or []):
+        label = (spec.get("label") or "").strip()
+        value = (spec.get("value") or "").strip()
+        if label and value:
+            attrib_rows.append((esc(label), esc(value)))
+    # на всякий случай прячем строки с пустым значением
+    attrib_rows = [(k, v) for k, v in attrib_rows if str(v).strip()]
     attrib_html = "\n          ".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in attrib_rows)
 
     # цена-строка

@@ -105,11 +105,20 @@ collections:
       - { name: "galleryImages", label: "Доп. фото (необязательно)", widget: "list", required: false, field: { name: "image", label: "Фото", widget: "image" } }
       - { name: "uniquenessNote", widget: "hidden", required: false }
       - { name: "artistProofs", widget: "hidden", required: false, default: 0 }
-      - { name: "imageSize", widget: "hidden", required: false }
-      - { name: "paper", widget: "hidden", required: false }
-      - { name: "signature", widget: "hidden", required: false }
-      - { name: "condition", widget: "hidden", required: false }
-      - { name: "certificate", widget: "hidden", required: false }
+      - { name: "imageSize", label: "Размер изображения", widget: "string", required: false, hint: "Пусто — не показываем" }
+      - { name: "paper", label: "Бумага", widget: "string", required: false, hint: "Напр. Hahnemühle 300 г/м². Пусто — не показываем" }
+      - { name: "signature", label: "Подпись", widget: "string", required: false, hint: "Пусто — не показываем" }
+      - { name: "condition", label: "Состояние", widget: "string", required: false, hint: "Пусто — не показываем" }
+      - { name: "certificate", label: "Сертификат", widget: "string", required: false, hint: "Пусто — не показываем" }
+      - name: "specs"
+        label: "Доп. характеристики (свои строки)"
+        widget: "list"
+        required: false
+        label_singular: "характеристика"
+        summary: "{{fields.label}}: {{fields.value}}"
+        fields:
+          - { name: "label", label: "Название", widget: "string" }
+          - { name: "value", label: "Значение", widget: "string" }
       - { name: "dominantColor", widget: "hidden", required: false }
       - { name: "alt", widget: "hidden", required: false }
       - { name: "placeholderSvg", widget: "hidden", required: false }
