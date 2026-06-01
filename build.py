@@ -114,6 +114,13 @@ def _fmt_price(n):
         return ""
 
 
+def fmt_size(s):
+    """Разделитель размеров → красивый знак умножения: 46x60 / 46х60 / 46*60 → 46 × 60."""
+    if not s:
+        return s or ""
+    return re.sub(r"(\d)\s*[xXхХ*×]\s*(\d)", r"\1 × \2", s.strip())
+
+
 def enrich_artwork(w):
     """Автозаполнение служебных полей, чтобы в админке их можно было не показывать.
     Смысловые поля (название, цена, год…) задаёт человек; всё техническое —
@@ -129,6 +136,10 @@ def enrich_artwork(w):
     # id = slug
     if not w.get("id"):
         w["id"] = w.get("slug", "")
+
+    # Размеры: разделитель «x/х/*» → красивый «×» (везде: карточка, страница, рама, SEO)
+    w["sheetSize"] = fmt_size(w.get("sheetSize", ""))
+    w["imageSize"] = fmt_size(w.get("imageSize", ""))
 
     # Дефолты-реквизиты (партнёр может переопределить через JSON, но в форме не нужны)
     w.setdefault("imageSize", "")
