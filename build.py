@@ -712,8 +712,7 @@ def render_catalog():
     # Чипсы техник (выбор один из) + чипсы-переключатели
     tech_chips = ['<button class="catalog-filter__chip is-active" data-group="tech" data-filter="all" data-analytics="catalog-filter">Все техники</button>']
     for gid, label in groups:
-        if any(w["techniqueGroup"] == gid for w in artworks):
-            tech_chips.append(f'<button class="catalog-filter__chip" data-group="tech" data-filter="{gid}" data-analytics="catalog-filter">{label}</button>')
+        tech_chips.append(f'<button class="catalog-filter__chip" data-group="tech" data-filter="{gid}" data-analytics="catalog-filter">{label}</button>')
     toggle_chips = [
         '<button class="catalog-filter__chip" data-toggle="available" data-analytics="catalog-toggle">В наличии</button>',
         '<button class="catalog-filter__chip" data-toggle="under10k" data-analytics="catalog-toggle">До 10 000 ₽</button>',
