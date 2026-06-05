@@ -1,7 +1,7 @@
 {
   "mainImage": "/images/works/на сайте_IMG_6282.jpeg",
   "orientation": "horizontal",
-  "title": "Без названия 1",
+  "title": "Без названия - 1",
   "artistId": "kazimov",
   "price": 25900,
   "status": "available",
@@ -37,6 +37,6 @@
   "seoTitle": "Станислав Казимов. «Соседский этюд», 2024 — шелкография 14/30 — PRSTNK",
   "seoDescription": "«Соседский этюд» — шелкография, Станислав Казимов, 2024. Тираж 30, лист 14/30, 50 × 70 см. Подпись и нумерация автора, сертификат. 9 800 ₽.",
   "order": 4,
-  "artistSlug": "kazimov",
-  "artistName": "Станислав Казимов"
+  "artistName": "Станислав Казимов",
+  "artistSlug": "kazimov"
 }
