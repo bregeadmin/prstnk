@@ -92,6 +92,9 @@ collections:
           - { label: "Линогравюра / ксилография", value: "linocut" }
           - { label: "Офорт", value: "etching" }
           - { label: "Графика и монотипия", value: "graphics" }
+          - { label: "Живопись", value: "painting" }
+          - { label: "Объект", value: "object" }
+          - { label: "Авторская техника", value: "author-tech" }
       - { name: "sheetSize", label: "Размер листа", widget: "string", hint: "Напр. 40 × 56 см" }
       - { name: "description", label: "Описание работы", widget: "text", required: false, hint: "Пара абзацев для страницы работы. Можно оставить пустым." }
       - { name: "featuredOnHome", label: "Показать на главной странице", widget: "boolean", required: false, default: false }

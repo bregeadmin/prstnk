@@ -700,6 +700,9 @@ def render_catalog():
         ("linocut", "Линогравюра"),
         ("etching", "Офорт"),
         ("graphics", "Графика и монотипия"),
+        ("painting", "Живопись"),
+        ("object", "Объект"),
+        ("author-tech", "Авторская техника"),
     ]
     total = len(artworks)
     avail = sum(1 for w in artworks if w["status"] == "available")
