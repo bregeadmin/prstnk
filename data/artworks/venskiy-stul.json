@@ -11,7 +11,7 @@
   "availableCount": null,
   "editionClosed": false,
   "year": 2025,
-  "technique": "Бумага, линогравюра, монотипия, смешанная техника",
+  "technique": "Бумага, монотипия, линогравюра, смешанная техника",
   "techniqueGroup": "graphics",
   "sheetSize": "60 × 80 см",
   "description": "",
@@ -37,6 +37,6 @@
   "seoTitle": "Станислав Казимов. «Венский стул», 2021 — линогравюра 22/60 — PRSTNK",
   "seoDescription": "«Венский стул» — линогравюра, Станислав Казимов, 2021. Тираж 60, лист 22/60, 28 × 40 см. Подпись и нумерация автора, сертификат. 5 400 ₽.",
   "order": 10,
-  "artistSlug": "kazimov",
-  "artistName": "Станислав Казимов"
+  "artistName": "Станислав Казимов",
+  "artistSlug": "kazimov"
 }
