@@ -231,6 +231,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-5</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://prstnk.ru/work-lost-package-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
