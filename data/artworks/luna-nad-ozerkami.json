@@ -15,7 +15,7 @@
   "techniqueGroup": "graphics",
   "sheetSize": "60 × 80 см",
   "description": "",
-  "featuredOnHome": true,
+  "featuredOnHome": false,
   "slug": "stalker",
   "id": "luna-nad-ozerkami",
   "shortDescription": "",
@@ -37,6 +37,6 @@
   "seoTitle": "Станислав Казимов. «Луна над Озерками», 2023 — линогравюра 5/45 — PRSTNK",
   "seoDescription": "«Луна над Озерками» — линогравюра, Станислав Казимов, 2023. Тираж 45, лист 5/45, 38 × 54 см. Подпись и нумерация автора, сертификат. 7 200 ₽.",
   "order": 9,
-  "artistName": "Станислав Казимов",
-  "artistSlug": "kazimov"
+  "artistSlug": "kazimov",
+  "artistName": "Станислав Казимов"
 }
