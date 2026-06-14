@@ -1,0 +1,32 @@
+{
+  "mainImage": "/images/works/Крым - 14. 2026 г. Кровельное железо на подрамнике, строительная эмаль. 41х57,5 см. 60000.IMG_1872.jpeg",
+  "orientation": "horizontal",
+  "title": "Крым - 14",
+  "artistId": "shtapakov",
+  "price": 60000,
+  "status": "available",
+  "workType": "unique",
+  "editionTotal": null,
+  "editionNumber": null,
+  "availableCount": null,
+  "editionClosed": false,
+  "year": 2026,
+  "technique": "Кровельное железо на подрамнике, строительная эмаль",
+  "techniqueGroup": "author-tech",
+  "sheetSize": "41 х 57,5",
+  "description": "",
+  "featuredOnHome": false,
+  "slug": "krym-14",
+  "galleryImages": [
+    "/images/works/Крым - 14. 2026 г. Кровельное железо на подрамнике, строительная эмаль. 41х57,5 см. 60000.IMG_1872.jpegIMG_1876.jpeg"
+  ],
+  "artistProofs": 0,
+  "imageSize": "",
+  "paper": "",
+  "signature": "в правом нижнем углу",
+  "condition": "",
+  "certificate": "",
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
