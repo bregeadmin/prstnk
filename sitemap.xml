@@ -206,37 +206,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-devushka-legkogo-povedeniia</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-2</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-tri-limona</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://prstnk.ru/work-bez-nazvaniia-3</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-5</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-lost-package-3</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-krym-14</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -246,7 +216,37 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-2</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-krym-14</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-5</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://prstnk.ru/work-bez-nazvaniia-4</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-tri-limona</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-lost-package-3</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-devushka-legkogo-povedeniia</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -256,12 +256,12 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/journal/kak-travyat-tsink</loc>
+    <loc>https://prstnk.ru/journal/kollektsiya-pervye-pyat</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/journal/kollektsiya-pervye-pyat</loc>
+    <loc>https://prstnk.ru/journal/kak-travyat-tsink</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
