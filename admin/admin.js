@@ -147,7 +147,7 @@
       let m = ""; try { m = (await r.clone().json()).message || ""; } catch (e) {}
       // «Bad credentials» — это GitHub отказал ключу воркера, а не наш пропуск
       if (viaPass && /bad credentials/i.test(m)) logout("Пароль верный, но ключ GitHub в воркере (GH_TOKEN) не работает — скорее всего, истёк. Нужно выпустить новый.");
-      else logout(viaPass ? "Пропуск истёк или пароль сменили — введите пароль ещё раз." : "Сессия истекла — войдите ещё раз.");
+      else logout((viaPass ? "Пропуск истёк или пароль сменили — введите пароль ещё раз." : "Сессия истекла — войдите ещё раз.") + (m ? ` [${m}; ${path.split("?")[0].slice(0, 40)}]` : ""));
       throw new Error("401");
     }
     if (!r.ok) {
