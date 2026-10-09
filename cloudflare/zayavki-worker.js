@@ -14,6 +14,11 @@
 //   GH_TOKEN        — GitHub token (Contents: read/write)      (Secret)
 //   GH_REPO         — bregeadmin/prstnk (по умолчанию)         (необязательно)
 //   GH_BRANCH       — main (по умолчанию)                      (необязательно)
+//   ADMIN_PASSWORD  — пароль входа в админку prstnk.ru/admin   (Secret)
+//
+// 3) /admin-api/* — вход в админку по паролю. Воркер проверяет пароль, выдаёт
+//    пропуск на 30 дней и сам ходит в GitHub своим GH_TOKEN — только в репозиторий
+//    сайта и только по нужным админке адресам. Смена пароля обнуляет все пропуски.
 //
 // Один раз после деплоя открыть: <адрес воркера>/set-webhook
 // ============================================================
@@ -82,6 +87,76 @@ async function setArtworkStatus(env, slug, status) {
   return { ok: true };
 }
 
+// ── Админка: вход по паролю + узкий прокси к GitHub ──────────────
+const enc = new TextEncoder();
+const b64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+function safeEq(a, b) {
+  if (a.length !== b.length) return false;
+  let r = 0;
+  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return r === 0;
+}
+async function sessionKey(env) {
+  const raw = await crypto.subtle.digest("SHA-256", enc.encode(`prstnk-admin|${env.ADMIN_PASSWORD}|${env.GH_TOKEN || env.gh_token || ""}`));
+  return crypto.subtle.importKey("raw", raw, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+}
+async function sign(env, exp) {
+  return b64u(await crypto.subtle.sign("HMAC", await sessionKey(env), enc.encode(String(exp))));
+}
+async function sessionOk(env, s) {
+  const [exp, sig] = String(s || "").split(".");
+  if (!exp || !sig || !(Number(exp) > Date.now())) return false;
+  return safeEq(await sign(env, exp), sig);
+}
+
+// Что админке можно делать в GitHub (всё остальное — 403)
+function ghAllowed(method, path, body, repo) {
+  const R = `repos/${repo}`;
+  if (method === "GET") {
+    return path === R || /^(contents|actions\/workflows|actions\/runs|git\/ref\/heads|git\/commits)\//.test(path.slice(R.length + 1)) && path.startsWith(R + "/");
+  }
+  if (method === "POST") {
+    if (path === "graphql") return !/\bmutation\b/i.test(body || "");
+    return [`${R}/git/blobs`, `${R}/git/trees`, `${R}/git/commits`].includes(path);
+  }
+  if (method === "PATCH") return path.startsWith(`${R}/git/refs/heads/`);
+  return false;
+}
+
+async function adminApi(request, env, url, cors) {
+  const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...cors, "Content-Type": "application/json" } });
+  const ghToken = env.GH_TOKEN || env.gh_token;
+  if (!env.ADMIN_PASSWORD || !ghToken) return json({ message: "Вход по паролю не настроен (нужны ADMIN_PASSWORD и GH_TOKEN в воркере)" }, 503);
+
+  if (url.pathname === "/admin-api/login" && request.method === "POST") {
+    const { password } = await request.json().catch(() => ({}));
+    const [a, b] = await Promise.all([crypto.subtle.digest("SHA-256", enc.encode(String(password || ""))), crypto.subtle.digest("SHA-256", enc.encode(env.ADMIN_PASSWORD))]);
+    if (!safeEq(b64u(a), b64u(b))) {
+      await new Promise((r) => setTimeout(r, 1500)); // от перебора
+      return json({ message: "Неверный пароль" }, 401);
+    }
+    const exp = Date.now() + 30 * 864e5;
+    return json({ session: `${exp}.${await sign(env, exp)}`, expires: exp });
+  }
+
+  if (!(await sessionOk(env, request.headers.get("X-Admin-Session")))) return json({ message: "Нужно войти заново" }, 401);
+
+  const prefix = "/admin-api/gh/";
+  if (!url.pathname.startsWith(prefix)) return json({ message: "Not found" }, 404);
+  const path = decodeURIComponent(url.pathname.slice(prefix.length)).replace(/^\/+/, "");
+  const repo = env.GH_REPO || "bregeadmin/prstnk";
+  const body = request.method === "GET" ? null : await request.text();
+  if (path.includes("..") || !ghAllowed(request.method, path, body, repo)) return json({ message: "Админке сюда нельзя" }, 403);
+
+  const target = "https://api.github.com/" + url.pathname.slice(prefix.length) + url.search;
+  const r = await fetch(target, {
+    method: request.method,
+    headers: { Authorization: `Bearer ${ghToken}`, Accept: "application/vnd.github+json", "Content-Type": "application/json", "User-Agent": "prstnk-admin" },
+    body,
+  });
+  return new Response(r.body, { status: r.status, headers: { ...cors, "Content-Type": "application/json" } });
+}
+
 export default {
   async fetch(request, env) {
     const TOKEN = env.BOT_TOKEN || env.bot_token;
@@ -89,12 +164,14 @@ export default {
     const origin = env.ALLOWED_ORIGIN || env.allowed_origin || "*";
     const cors = {
       "Access-Control-Allow-Origin": origin,
-      "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Methods": "POST, GET, PATCH, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, X-Admin-Session",
+      "Access-Control-Max-Age": "86400",
     };
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
 
     const url = new URL(request.url);
+    if (url.pathname.startsWith("/admin-api/")) return adminApi(request, env, url, cors);
     const api = `https://api.telegram.org/bot${TOKEN}`;
     const jsonResp = (o, status = 200) =>
       new Response(JSON.stringify(o), { status, headers: { ...cors, "Content-Type": "application/json" } });

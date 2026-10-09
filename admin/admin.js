@@ -9,12 +9,15 @@
   "use strict";
 
   const API = "https://api.github.com";
-  const TOKEN_KEY = "prstnk-admin.token";
+  const TOKEN_KEY = "prstnk-admin.token";      // вход через GitHub (запасной)
+  const SESSION_KEY = "prstnk-admin.session";  // вход по паролю (основной)
+  // Воркер Cloudflare (тот же, что принимает заявки): проверяет пароль и сам ходит в GitHub
+  const ADMIN_API = "https://prstnk-orders.grinbergartgroup.workers.dev/admin-api";
   const qs = new URLSearchParams(location.search);
 
   const S = {
     cfg: null, repo: "", branch: "main",
-    token: null, user: null,
+    token: null, session: null, user: null,
     data: {},            // name -> [{file, path, sha, data}]
     media: {},           // value-путь -> {path, b64, url}  (фото, ещё не сохранённые)
     build: null, lastSaveAt: 0,
@@ -59,6 +62,8 @@
     alert: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
     upload: '<path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/>',
     back: '<path d="M15 6l-6 6 6 6"/>',
+    eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    eyeOff: '<path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.4 5.2A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.9 8.3 2 12 2 12s3.5 7 10 7c1.6 0 3-.4 4.3-1"/>',
     gh: '<path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/>',
   };
   const icon = (n, cls = "") => {
@@ -128,13 +133,17 @@
 
   /* ── GitHub ──────────────────────────────────── */
   async function gh(path, opts = {}) {
-    const r = await fetch(path.startsWith("http") ? path : API + path, {
+    const viaPass = !!S.session;
+    const r = await fetch(viaPass ? ADMIN_API + "/gh" + path : API + path, {
       ...opts,
-      headers: { Authorization: "Bearer " + S.token, Accept: "application/vnd.github+json", ...(opts.body ? { "Content-Type": "application/json" } : {}) },
+      headers: {
+        ...(viaPass ? { "X-Admin-Session": S.session } : { Authorization: "Bearer " + S.token, Accept: "application/vnd.github+json" }),
+        ...(opts.body ? { "Content-Type": "application/json" } : {}),
+      },
       body: opts.body ? JSON.stringify(opts.body) : undefined,
       cache: "no-store",
     });
-    if (r.status === 401) { logout("Сессия истекла — войдите ещё раз."); throw new Error("401"); }
+    if (r.status === 401) { logout(viaPass ? "Пропуск истёк или пароль сменили — введите пароль ещё раз." : "Сессия истекла — войдите ещё раз."); throw new Error("401"); }
     if (!r.ok) {
       let msg = r.status + ""; try { msg = (await r.json()).message || msg; } catch (e) {}
       const err = new Error(msg); err.status = r.status; throw err;
@@ -193,7 +202,9 @@
   async function pollBuild() {
     clearTimeout(buildTimer);
     try {
-      const r = await gh(`/repos/${S.repo}/actions/workflows/build.yml/runs?branch=${S.branch}&per_page=1`);
+      const q = `/repos/${S.repo}/actions/workflows/build.yml/runs?branch=${S.branch}&per_page=1`;
+      // статус сборки публичный — если у ключа воркера нет права на Actions, спросим GitHub напрямую
+      const r = await gh(q).catch(async () => { const x = await fetch(API + q, { cache: "no-store" }); if (!x.ok) throw new Error(x.status); return x.json(); });
       S.build = (r.workflow_runs || [])[0] || null;
       renderBuild();
     } catch (e) { /* статус — не критично */ }
@@ -214,14 +225,40 @@
 
   /* ── Вход ────────────────────────────────────── */
   function loginScreen(err) {
+    const pass = h("input", { id: "pass", class: "inp", type: "password", autocomplete: "current-password", required: true, autofocus: true });
+    const eye = h("button", { type: "button", class: "btn btn--ghost btn--icon pass__eye", "aria-label": "Показать пароль", onclick: () => {
+      const show = pass.type === "password"; pass.type = show ? "text" : "password";
+      eye.setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль"); eye.replaceChildren(icon(show ? "eyeOff" : "eye")); pass.focus();
+    } }, icon("eye"));
+    const btn = h("button", { class: "btn btn--primary btn--block", type: "submit" }, "Войти");
+    const errEl = h("div", { class: "login__err", role: "alert", hidden: !err }, err || "");
+    const form = h("form", { class: "login__form", onsubmit: async (e) => {
+      e.preventDefault();
+      if (!pass.value) { pass.focus(); return; }
+      btn.disabled = true; btn.replaceChildren(h("i", { class: "spin" }), "Проверяем…"); errEl.hidden = true;
+      try {
+        const r = await fetch(ADMIN_API + "/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: pass.value }) });
+        const d = await r.json().catch(() => ({}));
+        if (r.ok && !d.session) throw new Error("Вход по паролю ещё не включён на сервере. Пока можно войти через GitHub (ссылка ниже).");
+        if (!r.ok || !d.session) throw new Error(d.message || "Не получилось войти (" + r.status + ")");
+        S.session = d.session; S.token = null;
+        try { localStorage.setItem(SESSION_KEY, d.session); } catch (er) {}
+        boot();
+      } catch (er) {
+        errEl.textContent = er.message === "Failed to fetch" ? "Нет связи с сервером входа — проверьте интернет и попробуйте ещё раз." : er.message;
+        errEl.hidden = false; btn.disabled = false; btn.replaceChildren("Войти"); pass.select();
+      }
+    } },
+      h("label", { class: "f__label", for: "pass" }, "Пароль"),
+      h("div", { class: "pass" }, pass, eye), errEl, btn);
     $("#app").replaceChildren(h("main", { class: "login" },
       h("div", { class: "login__card" },
         h("div", { class: "mark" }, h("i", { class: "mark__plate" }), h("div", {}, h("div", { class: "mark__word" }, "PRSTNK"), h("div", { class: "mark__sub" }, "админка"))),
         h("h1", {}, "Вход в админку"),
-        h("p", {}, "Работы, художники, подборки и журнал. Войдите через GitHub-аккаунт, у которого есть доступ к сайту."),
-        err ? h("div", { class: "login__err", role: "alert" }, err) : null,
-        h("button", { class: "btn btn--primary btn--block", onclick: login }, icon("gh"), "Войти через GitHub"),
-        h("div", { class: "login__foot" }, "Что-то не так? ", h("a", { href: "/admin/old/" }, "Старая админка")))));
+        h("p", {}, "Работы, художники, подборки и журнал."),
+        form,
+        h("div", { class: "login__foot" }, "Запасной вход: ", h("a", { href: "#", onclick: (e) => { e.preventDefault(); login(); } }, "через GitHub"), " · ", h("a", { href: "/admin/old/" }, "старая админка")))));
+    pass.focus();
   }
   function login() {
     const base = (S.cfg.backend.base_url || "").replace(/\/$/, "");
@@ -236,14 +273,14 @@
       window.removeEventListener("message", onMsg);
       try { popup.close(); } catch (er) {}
       let payload = {}; try { payload = JSON.parse(m[2]); } catch (er) {}
-      if (m[1] === "success" && payload.token) { S.token = payload.token; try { localStorage.setItem(TOKEN_KEY, S.token); } catch (er) {} boot(); }
+      if (m[1] === "success" && payload.token) { S.token = payload.token; S.session = null; try { localStorage.setItem(TOKEN_KEY, S.token); } catch (er) {} boot(); }
       else loginScreen("GitHub не пустил: " + (payload.message || payload.error || "попробуйте ещё раз"));
     };
     window.addEventListener("message", onMsg);
   }
   function logout(msg) {
-    try { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem("sveltia-cms.user"); } catch (e) {}
-    S.token = null; S.dirty = false; clearTimeout(buildTimer);
+    try { [TOKEN_KEY, SESSION_KEY, "sveltia-cms.user"].forEach((k) => localStorage.removeItem(k)); } catch (e) {}
+    S.token = null; S.session = null; S.dirty = false; clearTimeout(buildTimer);
     loginScreen(msg);
   }
   function savedToken() {
@@ -332,7 +369,7 @@
       h("nav", { class: "nav", "aria-label": "Разделы" }, h("div", { class: "nav__group" }, "Магазин"), shop.map((c) => navLink(c)), h("div", { class: "nav__group" }, "Журнал"), mag.map((c) => navLink(c))),
       h("div", { class: "side__foot" },
         h("div", { "data-build": "" }, buildEl()),
-        h("div", { class: "user" }, S.user ? h("img", { src: S.user.avatar_url, alt: "" }) : null,
+        h("div", { class: "user" }, S.user && S.user.avatar_url ? h("img", { src: S.user.avatar_url, alt: "" }) : null,
           h("div", { class: "user__name" }, S.user ? (S.user.name || S.user.login) : ""),
           h("button", { class: "btn btn--ghost btn--icon", title: "Выйти", "aria-label": "Выйти", onclick: () => logout() }, icon("out")))));
     const top = h("header", { class: "topbar" },
@@ -924,7 +961,7 @@
   document.addEventListener("keydown", (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s" && S.ctx) { e.preventDefault(); save(S.ctx); }
   });
-  document.addEventListener("visibilitychange", () => { if (!document.hidden && S.token) pollBuild(); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && (S.token || S.session)) pollBuild(); });
 
   /* ── Старт ──────────────────────────────────── */
   async function boot() {
@@ -934,14 +971,21 @@
       S.repo = S.cfg.backend.repo;
       S.branch = qs.get("branch") || S.cfg.backend.branch || "main"; // ?branch=… — для проверок на тестовой ветке
     }
-    S.token = S.token || savedToken();
-    if (!S.token) return loginScreen();
+    if (!S.token && !S.session) {
+      try { S.session = localStorage.getItem(SESSION_KEY); } catch (e) {}
+      if (!S.session) S.token = savedToken();
+    }
+    if (!S.token && !S.session) return loginScreen();
     $("#app").replaceChildren(h("div", { class: "login" }, h("div", { class: "mark" }, h("i", { class: "mark__plate" }), h("div", {}, h("div", { class: "mark__word" }, "PRSTNK"), h("div", { class: "mark__sub" }, "загружаем каталог…")))));
     busy(true);
     try {
-      const [user, repo] = await Promise.all([gh("/user"), gh(`/repos/${S.repo}`)]);
-      S.user = user;
-      if (!repo.permissions || !repo.permissions.push) return logout(`У аккаунта ${user.login} нет права изменять сайт. Попросите владельца добавить его в репозиторий.`);
+      if (S.session) {
+        S.user = { name: "Вход по паролю" };
+      } else {
+        const [user, repo] = await Promise.all([gh("/user"), gh(`/repos/${S.repo}`)]);
+        S.user = user;
+        if (!repo.permissions || !repo.permissions.push) return logout(`У аккаунта ${user.login} нет права изменять сайт. Попросите владельца добавить его в репозиторий.`);
+      }
       await loadAll();
     } catch (e) {
       if (e.message === "401") return;

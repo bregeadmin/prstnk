@@ -68,6 +68,13 @@ svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none;
 .login__card h1 { font: 600 26px/1.15 var(--f-display); margin: 28px 0 10px; letter-spacing: -.01em; }
 .login__card p { color: var(--ink-3); margin: 0 0 24px; font-size: 15px; }
 .login__err { background: var(--bad-bg); color: var(--bad); padding: 10px 12px; border-radius: var(--r-sm); font-size: 14px; margin-bottom: 16px; }
+.login__form { display: flex; flex-direction: column; gap: 8px; }
+.login__form .btn { margin-top: 8px; }
+.login__err[hidden] { display: none; }
+.login__err { margin-bottom: 0; }
+.pass { position: relative; }
+.pass .inp { padding-right: 52px; font-size: 16px; }
+.pass__eye { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); color: var(--ink-3); }
 .login__foot { margin-top: 18px; font-size: 13px; color: var(--ink-3); }
 
 /* ── Кнопки ───────────────────────────────────── */
