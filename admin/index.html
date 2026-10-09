@@ -4,12 +4,20 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="robots" content="noindex"/>
-  <title>PRSTNK — админка каталога</title>
+  <title>PRSTNK — админка</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+  <!-- Шрифты сайта (локальные, без Google Fonts — работает в РФ) -->
+  <link rel="stylesheet" href="/fonts.css"/>
+  <link rel="stylesheet" href="admin.css"/>
 </head>
 <body>
-  <!-- Sveltia CMS — лёгкая визуальная админка поверх GitHub.
-       Движок скачан локально (sveltia-cms.js) — никаких внешних CDN,
-       работает в РФ без зависимости от unpkg. -->
-  <script src="sveltia-cms.js"></script>
+  <!-- Своя админка PRSTNK. Поля и разделы берутся из config.yml —
+       добавили поле там, оно появится и здесь. Данные хранятся в том же
+       GitHub-репозитории, сайт после сохранения пересобирается сам.
+       Старая админка (Sveltia) на всякий случай: /admin/old/ -->
+  <div id="app" aria-live="polite"></div>
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+  <script src="vendor/js-yaml.min.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
