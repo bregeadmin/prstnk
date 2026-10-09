@@ -106,6 +106,13 @@ for _a in artists:
 
 artists_by_id = {a["id"]: a for a in artists}
 
+# Если у художника из админки не было id, админка кладёт в работу его имя
+# вместо id («Гарт Штапаков»). Приводим такие ссылки к настоящему id.
+_artists_by_name = {a["name"]: a for a in artists}
+for _w in artworks:
+    if _w.get("artistId") not in artists_by_id and _w.get("artistId") in _artists_by_name:
+        _w["artistId"] = _artists_by_name[_w["artistId"]]["id"]
+
 
 def _fmt_price(n):
     try:
@@ -121,10 +128,23 @@ def fmt_size(s):
     return re.sub(r"(\d)\s*[xXхХ*×]\s*(\d)", r"\1 × \2", s.strip())
 
 
+def ed_label(art):
+    """«14/30», если номер и тираж заполнены; иначе то, что известно."""
+    if art.get("workType") == "unique":
+        return "1/1"
+    n, t = art.get("editionNumber"), art.get("editionTotal")
+    if n and t:
+        return f"{n}/{t}"
+    return f"тираж {t}" if t else "тираж"
+
+
 def enrich_artwork(w):
     """Автозаполнение служебных полей, чтобы в админке их можно было не показывать.
     Смысловые поля (название, цена, год…) задаёт человек; всё техническое —
     SEO, текст брони, alt, цена прописью, реквизиты — генерится здесь при сборке."""
+    # Админка сохраняет незаполненные поля как null — считаем их просто пустыми
+    for _k in [k for k, v in w.items() if v is None]:
+        del w[_k]
     if not w.get("slug"):
         w["slug"] = _slugify(w.get("title", ""))
     a = artists_by_id.get(w.get("artistId"))
@@ -166,13 +186,12 @@ def enrich_artwork(w):
     # Всегда пересчитываем (зависят от смысловых полей) — чтобы были актуальны
     w["priceFormatted"] = _fmt_price(w.get("price"))
     w["alt"] = f"{w.get('technique','')}, {w.get('title','')}, {aname}"
-    ed = (f"{w.get('editionNumber','')}/{w.get('editionTotal','')}"
-          if w.get("workType") == "editioned" else "1/1")
+    ed = ed_label(w)
     if w.get("workType") == "unique":
         w["telegramReserveText"] = (f"Хочу забронировать уникальную работу «{w.get('title','')}» — "
                                     f"{aname}, {w.get('year','')}. Цена {w['priceFormatted']}.")
     else:
-        w["telegramReserveText"] = (f"Хочу забронировать экземпляр №{ed} работы «{w.get('title','')}» — "
+        w["telegramReserveText"] = (f"Хочу забронировать экземпляр {'№' + ed if '/' in ed else ''} работы «{w.get('title','')}» — "
                                     f"{aname}, {w.get('year','')}. Цена {w['priceFormatted']}.")
     w["seoTitle"] = f"{aname}. «{w.get('title','')}», {w.get('year','')} — {w.get('technique','')} {ed} — PRSTNK"
     w["seoDescription"] = (f"«{w.get('title','')}» — {w.get('technique','')}, {aname}, {w.get('year','')}, "
@@ -388,9 +407,9 @@ def plate_visual(art):
 
 def edition_dots(art):
     """Точки тиража: проданные (sold) + текущий (current) + доступные."""
-    total = art["editionTotal"]
-    num = art["editionNumber"]
-    if not total:
+    total = art.get("editionTotal")
+    num = art.get("editionNumber")
+    if not total or not num:
         return ""
     dots = []
     for i in range(1, total + 1):
@@ -413,9 +432,16 @@ def status_block(art):
         </div>
         <p class="lot__trust-note">Это уникальная авторская работа. Экземпляр существует в одном варианте.</p>'''
     # editioned
-    total = art["editionTotal"]
-    num = art["editionNumber"]
-    avail = art["availableCount"]
+    total = art.get("editionTotal")
+    num = art.get("editionNumber")
+    avail = art.get("availableCount")
+    if not (total and num):
+        # тираж в админке не заполнен — показываем без номеров
+        label = f"Тираж · <b>{total} экз.</b>" if total else "Тиражная работа"
+        return f'''        <div class="lot__status">
+          <div class="lot__status__label">{label}</div>
+        </div>
+        <p class="lot__trust-note">Это авторский оттиск из ограниченного тиража. Каждый экземпляр подписан художником.</p>'''
     closed = art.get("editionClosed")
     if closed:
         note = '<div class="lot__status__note lot__status__note--alert">Тираж закрыт · больше не будет</div>'
@@ -475,8 +501,7 @@ def work_card(art, stagger=False, delay=None):
     plate_h = ' work__plate--horizontal' if art.get("orientation") == "horizontal" else ''
     aname = art["artistName"]
     initials = aname.split()[0][0] + ". " + aname.split()[-1] if len(aname.split()) >= 2 else aname
-    ed = (f'{art["editionNumber"]}/{art["editionTotal"]}'
-          if art["workType"] == "editioned" else "1/1")
+    ed = ed_label(art)
     # бейдж
     badge = ""
     cls = "work"
@@ -490,14 +515,16 @@ def work_card(art, stagger=False, delay=None):
         badge = '<span class="work__badge work__badge--unique">1/1 · уникальная</span>'
     elif art.get("editionClosed"):
         badge = '<span class="work__badge work__badge--last">Тираж закрыт</span>'
-    elif art["availableCount"] == 1:
+    elif art.get("availableCount") == 1:
         badge = '<span class="work__badge work__badge--last">Последний экз.</span>'
-    elif art["availableCount"] <= 4:
+    elif art.get("availableCount") and art["availableCount"] <= 4:
         badge = f'<span class="work__badge work__badge--last">Осталось {art["availableCount"]}</span>'
     stag = ' stagger' if stagger else ''
     stag_attr = f' data-stag-delay="{delay}"' if delay else ''
     href = f'work-{art["slug"]}.html'
     sub = (f'{art["technique"]} · {art["sheetSize"].replace(" см","").replace(" × ","×")} · тираж <b>{art["editionTotal"]}</b>'
+           if art["workType"] == "editioned" and art.get("editionTotal")
+           else f'{art["technique"]} · {art["sheetSize"].replace(" см","").replace(" × ","×")} · тираж'
            if art["workType"] == "editioned"
            else f'{art["technique"]} · {art["sheetSize"].replace(" см","").replace(" × ","×")} · <b>1/1</b>')
     search_blob = esc(f"{art.get('title','')} {aname} {art.get('technique','')}".lower())
@@ -536,7 +563,10 @@ def render_work_page(art):
     if art["workType"] == "unique":
         eyebrow = f'Уникальная работа · {art["technique"]} · {art["year"]}'
     else:
-        eyebrow = f'№ {art["editionNumber"]} из {art["editionTotal"]} · {art["technique"]} · {art["year"]}'
+        if art.get("editionNumber") and art.get("editionTotal"):
+            eyebrow = f'№ {art["editionNumber"]} из {art["editionTotal"]} · {art["technique"]} · {art["year"]}'
+        else:
+            eyebrow = f'Тиражная работа · {art["technique"]} · {art["year"]}'
 
     # имя на 2 строки
     parts = a["name"].split(" ", 1)
@@ -553,7 +583,7 @@ def render_work_page(art):
         attrib_rows.append(("Бумага", art["paper"]))
     if art["workType"] == "editioned":
         ap = art.get("artistProofs") or 0
-        ed_str = f'<b>{art["editionTotal"]} экз.</b>' + (f' + {ap} авторских (a.p.)' if ap else '')
+        ed_str = (f'<b>{art["editionTotal"]} экз.</b>' if art.get("editionTotal") else '<b>тиражная</b>') + (f' + {ap} авторских (a.p.)' if ap else '')
         attrib_rows.append(("Тираж", ed_str))
     else:
         attrib_rows.append(("Тираж", "<b>уникальная работа · 1/1</b>"))
@@ -581,7 +611,7 @@ def render_work_page(art):
     elif art["workType"] == "unique":
         avail_html = '<div class="eyebrow" style="margin-bottom: 4px;">в наличии</div><div style="font-family: var(--f-mono); font-size: 13px; color: var(--ink-2);">1 экз. · отправим за 1–2 дня</div>'
     else:
-        avail_html = f'<div class="eyebrow" style="margin-bottom: 4px;">в наличии</div><div style="font-family: var(--f-mono); font-size: 13px; color: var(--ink-2);">{art["availableCount"]} экз. · отправим за 1–2 дня</div>'
+        avail_html = f'<div class="eyebrow" style="margin-bottom: 4px;">в наличии</div><div style="font-family: var(--f-mono); font-size: 13px; color: var(--ink-2);">{str(art["availableCount"]) + " экз. · " if art.get("availableCount") else ""}отправим за 1–2 дня</div>'
 
     # описание (если есть) — иначе нейтральный текст
     desc = art.get("description") or (
@@ -647,7 +677,7 @@ def render_work_page(art):
           </div>
           <div class="sheet__sig">
             <span>{art['artistName'].split()[0][0]}. {art['artistName'].split()[-1]}, {art['year']}</span>
-            <span>{(str(art['editionNumber'])+'/'+str(art['editionTotal'])) if art['workType']=='editioned' else '1/1'}</span>
+            <span>{ed_label(art)}</span>
           </div>
         </div>
       </div>
@@ -1921,11 +1951,10 @@ def update_index_home():
         svg = plate_visual(art)
         aname_short = (art["artistName"].split()[0][0] + ". " + art["artistName"].split()[-1]
                        if len(art["artistName"].split()) >= 2 else art["artistName"])
-        ed = (f'{art["editionNumber"]}/{art["editionTotal"]}'
-              if art["workType"] == "editioned" else "1/1")
+        ed = ed_label(art)
         size = art["sheetSize"].replace(" см", "").replace(" × ", "×")
         if art["workType"] == "editioned":
-            meta_size = f'<b>{size}</b> см · тираж {art["editionTotal"]}'
+            meta_size = f'<b>{size}</b> см · ' + (f'тираж {art["editionTotal"]}' if art.get("editionTotal") else 'тираж')
         else:
             meta_size = f'<b>{size}</b> см · <b>уникальная</b>'
         hero_block = (
