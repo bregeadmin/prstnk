@@ -1,0 +1,23 @@
+{
+  "mainImage": "/images/works/shtapakov-gart-sumerki-2026-g-bumaga-suhaia-igla-2-mv2f0vak.jpg",
+  "orientation": "horizontal",
+  "title": "Сумерки",
+  "artistId": "gartshtapakov",
+  "price": 10000,
+  "status": "available",
+  "workType": "editioned",
+  "editionClosed": false,
+  "year": 2026,
+  "technique": "Бумага, сухая игла",
+  "techniqueGroup": "etching",
+  "sheetSize": "29,7х37,6 см",
+  "featuredOnHome": false,
+  "slug": "sumerki",
+  "id": "sumerki",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "imageSize": "20,1х28,1 см",
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
