@@ -1,0 +1,22 @@
+{
+  "mainImage": "/images/works/gart-43f83cda-063a-4d01-9da9-70844abdd801-mv2hon2d.jpg",
+  "orientation": "horizontal",
+  "title": "Канал Грибоедова",
+  "artistId": "gartshtapakov",
+  "price": 24000,
+  "status": "available",
+  "workType": "unique",
+  "editionClosed": false,
+  "year": 2026,
+  "technique": "Географические карты на бумаге, тушь",
+  "techniqueGroup": "graphics",
+  "sheetSize": "43 х 55",
+  "featuredOnHome": false,
+  "slug": "kanal-griboedova",
+  "id": "kanal-griboedova",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
