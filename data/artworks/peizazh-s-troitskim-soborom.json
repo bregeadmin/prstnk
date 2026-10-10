@@ -1,0 +1,22 @@
+{
+  "mainImage": "/images/works/gart-8181eb29-5e3c-4278-964f-f6369fc47732-mv2hxp9b.jpg",
+  "orientation": "horizontal",
+  "title": "Пейзаж с Троицким собором",
+  "artistId": "gartshtapakov",
+  "price": 24000,
+  "status": "available",
+  "workType": "unique",
+  "editionClosed": false,
+  "year": 2026,
+  "technique": "Географические карты на бумаге, тушь",
+  "techniqueGroup": "graphics",
+  "sheetSize": "43 х 55",
+  "featuredOnHome": false,
+  "slug": "peizazh-s-troitskim-soborom",
+  "id": "fontanka",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
