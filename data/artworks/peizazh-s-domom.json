@@ -1,0 +1,22 @@
+{
+  "mainImage": "/images/works/gart-f34ef52d-3cd4-4769-9ac2-44a04a77497e-mv2i0y0f.jpg",
+  "orientation": "horizontal",
+  "title": "Пейзаж с домом",
+  "artistId": "gartshtapakov",
+  "price": 24000,
+  "status": "available",
+  "workType": "unique",
+  "editionClosed": false,
+  "year": 2026,
+  "technique": "Географические карты на бумаге, тушь",
+  "techniqueGroup": "graphics",
+  "sheetSize": "43 х 55",
+  "featuredOnHome": false,
+  "slug": "peizazh-s-domom",
+  "id": "peizazh-s-domom",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
