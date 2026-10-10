@@ -281,6 +281,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://prstnk.ru/work-kanal-griboedova</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://prstnk.ru/work-derevenskii-naturmort-5</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
