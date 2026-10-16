@@ -51,8 +51,9 @@ def load_collection(name):
     items = [json.loads(p.read_text()) for p in folder.glob("*.json")]
     return sorted(items, key=lambda x: x.get("order", 0))
 
-artworks = load_collection("artworks")
-artists = load_collection("artists")
+# hidden: true — запись остаётся в базе (и в админке), но на сайт не попадает
+artworks = [w for w in load_collection("artworks") if not w.get("hidden")]
+artists = [a for a in load_collection("artists") if not a.get("hidden")]
 collections = load_collection("collections")
 issues = load_collection("issues")        # выпуски журнала «ЁPRST»
 materials = load_collection("materials")  # лента коротких постов
@@ -923,8 +924,7 @@ def render_artists_index():
     word_cap = num2word_ru(nvis)
     noun = _plural(nvis, "имя", "имени", "имён")
     title = f"Художники PRSTNK — {word_cap.lower()} {noun} ленинградской школы"
-    desc = (f"{word_cap} петербургских художников: Юрий Штапаков, "
-            f"Пётр Швецов, Валерий Гриковский, Станислав Казимов, Нестор Энгельке и другие.")
+    desc = "Петербургские художники PRSTNK: " + ", ".join(a["name"] for a in vis) + "."
 
     cards = []
     for idx, a in enumerate(vis, start=1):
@@ -1243,7 +1243,7 @@ def render_article(issue, art, idx):
         </a>
       </div>''')
     al = art.get("artistLink") or {}
-    if al.get("slug"):
+    if al.get("slug") and any(a["slug"] == al["slug"] for a in artists):
         parts.append(f'''      <div style="margin-top: 32px;">
         <a class="btn btn--ghost" href="artist-{al["slug"]}.html" data-analytics="zine-{iss_slug(issue)}-artist-{al["slug"]}">
           {al.get("label", "На страницу художника")} →
@@ -1911,6 +1911,8 @@ def update_index_home():
     plates = []
     for i, c in enumerate(collections, start=1):
         cn = len([s for s in c.get("works", []) if s in artworks_by_slug])
+        if not cn:
+            continue
         word = _plural(cn, "лист", "листа", "листов")
         plates.append(
             f'      <a class="plate plate--{c.get("color", "alyi")}" href="collection-{c["slug"]}.html" data-analytics="plate" data-plate-id="{c["slug"]}">\n'
@@ -1918,6 +1920,9 @@ def update_index_home():
             f'        <span class="plate__title">{c["title"]}</span>\n'
             f'        <span class="plate__meta">{c.get("subtitle", "")}</span>\n'
             f'      </a>')
+    # Нет ни одной непустой подборки — прячем весь блок (вернётся сам, когда в подборках появятся работы)
+    html = re.sub(r'<section class="wrap" id="plates"( hidden)?>',
+                  '<section class="wrap" id="plates">' if plates else '<section class="wrap" id="plates" hidden>', html)
     plates_block = "<!--PLATES-START-->\n" + "\n".join(plates) + "\n      <!--PLATES-END-->"
     html = re.sub(r"<!--PLATES-START-->.*?<!--PLATES-END-->", lambda m: plates_block, html, flags=re.DOTALL)
 
@@ -2097,6 +2102,16 @@ def render_sitemap():
 
 # ─── Сборка ───
 if __name__ == "__main__":
+    # Убираем страницы работ/художников/статей, которых больше нет в данных или они скрыты
+    keep = {f"work-{w['slug']}.html" for w in artworks} | {f"artist-{a['slug']}.html" for a in artists}
+    stale = [p for p in list(ROOT.glob("work-*.html")) + list(ROOT.glob("artist-*.html")) if p.name not in keep]
+    keep_j = {f"{a['slug']}.html" for a in articles} | {f"{r}.html" for r in RUBRICS}
+    stale += [p for p in (ROOT / "journal").glob("*.html") if p.name not in keep_j]
+    for p in stale:
+        p.unlink()
+    if stale:
+        print(f"  ✓ удалено старых страниц: {len(stale)} ({', '.join(p.name for p in stale)})")
+
     n = 0
     for art in artworks:
         (ROOT / f"work-{art['slug']}.html").write_text(clean_links(render_work_page(art)))

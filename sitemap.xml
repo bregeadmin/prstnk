@@ -31,57 +31,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/artist-shvetsov</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-grikovsky</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://prstnk.ru/artist-kazimov</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-engelke</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-ichitovkin</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-isaeva</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-kosinskaya</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-dyakov</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-mikhailov</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-agaltsov</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/artist-khorst</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -116,47 +66,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-finskiy-zaliv</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-more-pasmurniy</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-severnyi-gost</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-dvorik</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://prstnk.ru/work-bez-nazvaniia-1</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-portret-soseda</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-budniy-den</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-tsvety-na-chernom</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-valentina</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -171,72 +81,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-dk-gaza</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-kupchino</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://prstnk.ru/work-schastlivoe-detstvo</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-dvor-kolodets</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-kuhnya-v-neone</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-lestnitsa</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-pustaya-komnata</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-okno-s-dozhdyom</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-krym-14</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-sumerki</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-2</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-gde-to-na-vo</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-3</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-lost-package-3</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -246,37 +91,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-5</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-tribunal-24</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-devushka-legkogo-povedeniia</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-peizazh-s-troitskim-soborom</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-promzona</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-4</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-most-u-gorohovoi</loc>
+    <loc>https://prstnk.ru/work-lost-package-3</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -286,7 +101,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-tri-limona</loc>
+    <loc>https://prstnk.ru/work-devushka-legkogo-povedeniia</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -296,7 +111,67 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-2</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-tri-limona</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-sumerki</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-4</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-promzona</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-tribunal-24</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-most-u-gorohovoi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-peizazh-s-troitskim-soborom</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-3</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-gde-to-na-vo</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://prstnk.ru/work-derevenskii-naturmort-5</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-krym-14</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-5</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

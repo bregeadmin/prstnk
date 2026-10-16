@@ -97,6 +97,7 @@ collections:
           - { label: "Авторская техника", value: "author-tech" }
       - { name: "sheetSize", label: "Размер листа", widget: "string", hint: "Напр. 40 × 56 см" }
       - { name: "description", label: "Описание работы", widget: "text", required: false, hint: "Пара абзацев для страницы работы. Можно оставить пустым." }
+      - { name: "hidden", label: "Скрыть с сайта (остаётся в базе)", widget: "boolean", required: false, default: false, hint: "Включите — работа пропадёт с сайта и из подборок, но останется здесь. Выключите — вернётся." }
       - { name: "featuredOnHome", label: "Показать на главной странице", widget: "boolean", required: false, default: false }
 
       # ── Адрес страницы (заполнить латиницей при создании новой работы) ──
@@ -154,6 +155,7 @@ collections:
       - { name: "techniques", label: "Техники", widget: "list", field: { name: "t", label: "Техника", widget: "string" } }
       - { name: "oneLiner", label: "Девиз (одна фраза)", widget: "string", hint: "Короткий портрет автора. Слово можно выделить так: <em>главное</em>" }
       # ── Размещение ──
+      - { name: "hidden", label: "Скрыть с сайта (остаётся в базе)", widget: "boolean", required: false, default: false, hint: "Включите — художник и его страница пропадут с сайта, но запись останется здесь." }
       - { name: "showInArtists", label: "Показывать в разделе «Художники»", widget: "boolean", default: true, hint: "Включено — художник в общем списке на странице «Художники». Выключите, чтобы временно скрыть черновик." }
       - { name: "featured", label: "Показать на главной странице", widget: "boolean", required: false, default: false, hint: "Включите, чтобы автор попал в блок художников на главной." }
       - { name: "bio", label: "Биография (по абзацу)", widget: "list", field: { name: "p", label: "Абзац", widget: "text" } }
