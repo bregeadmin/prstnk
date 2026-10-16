@@ -112,7 +112,6 @@ collections:
       - { name: "paper", label: "Бумага", widget: "string", required: false, hint: "Напр. Hahnemühle 300 г/м². Пусто — не показываем" }
       - { name: "signature", label: "Подпись", widget: "string", required: false, hint: "Пусто — не показываем" }
       - { name: "condition", label: "Состояние", widget: "string", required: false, hint: "Пусто — не показываем" }
-      - { name: "certificate", label: "Сертификат", widget: "string", required: false, hint: "Пусто — не показываем" }
       - name: "specs"
         label: "Доп. характеристики (свои строки)"
         widget: "list"

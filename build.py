@@ -195,7 +195,7 @@ def enrich_artwork(w):
                                     f"{aname}, {w.get('year','')}. Цена {w['priceFormatted']}.")
     w["seoTitle"] = f"{aname}. «{w.get('title','')}», {w.get('year','')} — {w.get('technique','')} {ed} — PRSTNK"
     w["seoDescription"] = (f"«{w.get('title','')}» — {w.get('technique','')}, {aname}, {w.get('year','')}, "
-                           f"{w.get('sheetSize','')}. Подпись автора, сертификат. {w['priceFormatted']}.")
+                           f"{w.get('sheetSize','')}. Оригинал, подпись автора. {w['priceFormatted']}.")
 
 
 for _w in artworks:
@@ -331,7 +331,7 @@ FOOTER = '''  <footer class="site-footer">
         <div>
           <h4>Гарантия</h4>
           <p style="font-family: var(--f-text); font-size: 15px; color: var(--on-dark-2); line-height: 1.5; max-width: 44ch;">
-            Каждый лист подписан и пронумерован автором. В заказе — сертификат подлинности от издательства. Если что-то не так — забираем обратно в течение 14 дней.
+            Только оригиналы, никаких репродукций. Каждую работу подписывает автор, а оттиски из тиража ещё и нумерует. Если что-то не так — забираем обратно в течение 14 дней.
           </p>
         </div>
         <div>
@@ -365,7 +365,7 @@ FOOTER = '''  <footer class="site-footer">
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2019—2026 PRSTNK · сделано в Санкт-Петербурге</span>
+        <span>© 2026 PRSTNK · сделано в Санкт-Петербурге</span>
         <span class="domain">prstnk.ru</span>
         <span class="footer-social">
           <a data-tg-open data-analytics="social-tg">Telegram</a>
@@ -591,8 +591,6 @@ def render_work_page(art):
         attrib_rows.append(("Подпись", art["signature"]))
     if art.get("condition"):
         attrib_rows.append(("Состояние", art["condition"]))
-    if art.get("certificate"):
-        attrib_rows.append(("Сертификат", art["certificate"]))
     # свободные характеристики из админки (название + значение)
     for spec in (art.get("specs") or []):
         label = (spec.get("label") or "").strip()
@@ -704,8 +702,8 @@ def render_work_page(art):
           <h4>Подлинность</h4>
           <ul>
             <li>Подпись карандашом{" и нумерация автора" if art["workType"]=="editioned" else " автора"}</li>
-            <li>Сертификат подлинности от издательства PRSTNK</li>
-            <li>Архивный тубус + картон + открытка от куратора</li>
+            <li>Оригинал — не репродукция и не постер</li>
+            <li>{"Бережная упаковка в короб" if art.get("techniqueGroup") in ("painting", "object", "author-tech") else "Архивный тубус + картон"} + открытка от куратора</li>
             <li>Возврат в течение 14 дней без вопросов</li>
           </ul>
         </div>
@@ -756,8 +754,8 @@ def render_catalog():
     cards = "\n        ".join(work_card(w) for w in artworks)
 
     canonical = f"{BASE_URL}/works.html"
-    title = "Каталог авторской графики — PRSTNK"
-    desc = f"{total} работ авторской графики петербургских художников: офорт, литография, линогравюра, шелкография, монотипия. Подписано автором, от {min_price_str} ₽."
+    title = "Каталог оригинальных работ — PRSTNK"
+    desc = f"Оригинальные работы петербургских художников: живопись, графика, авторская печать и объекты. Уникальные работы и небольшие тиражи, от {min_price_str} ₽."
 
     return f'''{head(title, desc, canonical)}{HEADER}
   <main class="wrap">
@@ -770,7 +768,7 @@ def render_catalog():
       <div class="eyebrow">№ 04 · <b>Каталог</b></div>
       <h1>Все <em>{total} {"работа" if total==1 else ("работы" if total<5 else "работ")}</em>.<br/>Подписано автором.</h1>
       <p class="page-hero__lead">
-        Полный каталог авторской графики PRSTNK: тиражные оттиски и уникальные работы. Каждый лист — оригинал, подписанный автором. В заказе — сертификат подлинности и архивный тубус.
+        Полный каталог PRSTNK: живопись, графика, авторская печать и объекты. Уникальные работы и оттиски из небольших тиражей — только оригиналы, никаких репродукций.
       </p>
       <div class="page-hero__stats">
         <div><b>{total}</b>работ в каталоге</div>
@@ -848,7 +846,7 @@ def render_artist_page(a, idx):
     canonical = f"{BASE_URL}/artist-{a['slug']}.html"
     title = f"{a['name']}. Художник PRSTNK"
     one_clean = re.sub(r"<[^>]+>", "", a["oneLiner"])
-    desc = f"{a['name']} — петербургский художник авторской графики. {', '.join(a['techniques'][:3])}. {one_clean}"
+    desc = f"{a['name']} — петербургский художник. {', '.join(a['techniques'][:3])}. {one_clean}"
     parts = a["name"].split(" ", 1)
     h1 = f'{parts[0]}<br/>{parts[1]}.' if len(parts) == 2 else f'{a["name"]}.'
 
@@ -925,7 +923,7 @@ def render_artists_index():
     word_cap = num2word_ru(nvis)
     noun = _plural(nvis, "имя", "имени", "имён")
     title = f"Художники PRSTNK — {word_cap.lower()} {noun} ленинградской школы"
-    desc = (f"{word_cap} петербургских художников авторской графики: Юрий Штапаков, "
+    desc = (f"{word_cap} петербургских художников: Юрий Штапаков, "
             f"Пётр Швецов, Валерий Гриковский, Станислав Казимов, Нестор Энгельке и другие.")
 
     cards = []
@@ -967,7 +965,6 @@ def render_artists_index():
       <div class="page-hero__stats">
         <div><b>{nvis}</b>художников</div>
         <div><b>{len(artworks)}</b>работ в каталоге</div>
-        <div><b>с&nbsp;2019</b>работаем с авторами</div>
       </div>
     </section>
 
@@ -2001,7 +1998,7 @@ def render_collection(coll):
     works = [artworks_by_slug[s] for s in coll.get("works", []) if s in artworks_by_slug]
     n = len(works)
     title = f"{coll['title']} — подборка PRSTNK"
-    desc = coll.get("description") or f"Кураторская подборка «{coll['title']}»: {n} работ авторской графики PRSTNK."
+    desc = coll.get("description") or f"Кураторская подборка «{coll['title']}»: {n} оригинальных работ петербургских художников."
     eyebrow = "Подборка" + (f" · {coll['subtitle']}" if coll.get("subtitle") else "")
     if works:
         cards = "\n        ".join(work_card(w) for w in works)
