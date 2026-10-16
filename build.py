@@ -345,9 +345,9 @@ FOOTER = '''  <footer class="site-footer">
           </ul>
         </div>
         <div>
-          <h4>Издательство</h4>
+          <h4>О нас</h4>
           <ul>
-            <li><a data-tg-text="Здравствуйте! Расскажите про издательство PRSTNK." data-analytics="footer-about">О проекте</a></li>
+            <li><a data-tg-text="Здравствуйте! Расскажите про PRSTNK." data-analytics="footer-about">О проекте</a></li>
             <li><a href="index.html#how">Как купить</a></li>
             <li><a href="journal.html">Журнал «ЁPRST»</a></li>
             <li><a href="index.html#faq">FAQ</a></li>
