@@ -235,6 +235,7 @@ collections:
     summary: "№ {{number}} · {{period}}"
     sortable_fields: ["order", "number"]
     fields:
+      - { name: "hidden", label: "Скрыть с сайта (остаётся в базе)", widget: "boolean", required: false, default: false, hint: "Включите — материал пропадёт с сайта, но останется здесь." }
       - { name: "number", label: "Номер выпуска", widget: "string", hint: "Шаг 1: заполните номер, период, заголовок и краткое описание. Шаг 2: ниже в блоке «Материалы выпуска» нажмите «Add Статья» и напишите текст. Поля с пометкой «можно пропустить» заполнять не нужно. Напр. номер: 05" }
       - { name: "period", label: "Период", widget: "string", hint: "Напр. лето 2026" }
       - { name: "current", label: "Это текущий выпуск (большой блок наверху журнала)", widget: "boolean", default: false }
@@ -350,6 +351,7 @@ collections:
     slug: "{{slug}}"
     identifier_field: "title"
     fields:
+      - { name: "hidden", label: "Скрыть с сайта (остаётся в базе)", widget: "boolean", required: false, default: false, hint: "Включите — материал пропадёт с сайта, но останется здесь." }
       - { name: "title", label: "Заголовок", widget: "string" }
       - { name: "titleEm", label: "Курсивная часть заголовка (необяз.)", widget: "string", required: false }
       - { name: "slug", label: "Адрес (slug, латиницей)", widget: "string" }
@@ -426,6 +428,7 @@ collections:
     summary: "{{title}} · {{date}}"
     sortable_fields: ["order", "date"]
     fields:
+      - { name: "hidden", label: "Скрыть с сайта (остаётся в базе)", widget: "boolean", required: false, default: false, hint: "Включите — материал пропадёт с сайта, но останется здесь." }
       - { name: "title", label: "Заголовок", widget: "string" }
       - { name: "excerpt", label: "Короткий текст", widget: "text", required: false, hint: "1–2 строки анонса." }
       - { name: "image", label: "📷 Картинка (необязательно)", widget: "image", required: false, hint: "Если пусто — будет цветная плашка." }

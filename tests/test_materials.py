@@ -118,8 +118,11 @@ class TestMaterialPage(unittest.TestCase):
         self.assertIn("rub-kobalt", self.html)
 
     def test_renders_blocks(self):
-        self.assertIn("bl-quote", self.html)
-        self.assertIn("Пётр Швецов", self.html)
+        art = dict(self.art, blocks=list(self.art["blocks"]) + [
+            {"type": "quote", "text": "Тестовая цитата.", "cite": "Тестовый автор"}])
+        html = build.render_material_page(art)
+        self.assertIn("bl-quote", html)
+        self.assertIn("Тестовый автор", html)
 
     def test_links_journal_css(self):
         self.assertIn('href="journal.css"', self.html)

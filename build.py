@@ -55,9 +55,9 @@ def load_collection(name):
 artworks = [w for w in load_collection("artworks") if not w.get("hidden")]
 artists = [a for a in load_collection("artists") if not a.get("hidden")]
 collections = load_collection("collections")
-issues = load_collection("issues")        # выпуски журнала «ЁPRST»
-materials = load_collection("materials")  # лента коротких постов
-articles = load_collection("articles")    # материалы журнала (track A)
+issues = [x for x in load_collection("issues") if not x.get("hidden")]        # выпуски журнала «ЁPRST»
+materials = [x for x in load_collection("materials") if not x.get("hidden")]  # лента коротких постов
+articles = [x for x in load_collection("articles") if not x.get("hidden")]    # материалы журнала (track A)
 
 
 def load_lenta():
@@ -1982,6 +1982,16 @@ def update_index_home():
         html = re.sub(r"<!--HERO-WORK-->.*?<!--/HERO-WORK-->",
                       lambda m: hero_block, html, flags=re.DOTALL)
 
+    # Анонсы журнала на главной — последние три видимые статьи (скрытые не попадают)
+    latest = sorted(articles, key=lambda a: a.get("date", ""), reverse=True)[:3]
+    teasers = "".join(
+        f'        <article class="journal__article">\n'
+        f'          <div class="eyebrow">{RUBRICS.get(a.get("rubric"), {}).get("label", "журнал").lower()}</div>\n'
+        f'          <h3><a href="journal/{a["slug"]}.html" style="color: inherit;">{esc(a.get("title", ""))}</a></h3>\n'
+        f'        </article>\n' for a in latest)
+    html = re.sub(r"<!--JOURNAL-ARTICLES-->.*?<!--/JOURNAL-ARTICLES-->",
+                  lambda m: f"<!--JOURNAL-ARTICLES-->\n{teasers}        <!--/JOURNAL-ARTICLES-->", html, flags=re.DOTALL)
+
     # Текущий выпуск журнала — eyebrow на главной + тикер
     if issues:
         cur = next((i for i in issues if i.get("current")), issues[0])
@@ -1990,7 +2000,7 @@ def update_index_home():
                       lambda m: f'<!--ISSUE-EYEBROW-->Журнал «<b>ЁPRST</b>» · выпуск {n}<!--/ISSUE-EYEBROW-->',
                       html, flags=re.DOTALL)
         html = re.sub(r"<!--RIBBON-ISSUE-->.*?<!--/RIBBON-ISSUE-->",
-                      lambda m: f'<!--RIBBON-ISSUE-->Журнал «ЁPRST» · выпуск {n} в печати<!--/RIBBON-ISSUE-->',
+                      lambda m: f'<!--RIBBON-ISSUE-->Журнал «ЁPRST» · выпуск {n}<!--/RIBBON-ISSUE-->',
                       html, flags=re.DOTALL)
 
     path.write_text(clean_links(html))
@@ -2105,6 +2115,8 @@ if __name__ == "__main__":
     # Убираем страницы работ/художников/статей, которых больше нет в данных или они скрыты
     keep = {f"work-{w['slug']}.html" for w in artworks} | {f"artist-{a['slug']}.html" for a in artists}
     stale = [p for p in list(ROOT.glob("work-*.html")) + list(ROOT.glob("artist-*.html")) if p.name not in keep]
+    keep |= {f"zine-{iss_slug(i)}.html" for i in issues if issue_has_page(i)}
+    stale += [p for p in ROOT.glob("zine-*.html") if p.name not in keep]
     keep_j = {f"{a['slug']}.html" for a in articles} | {f"{r}.html" for r in RUBRICS}
     stale += [p for p in (ROOT / "journal").glob("*.html") if p.name not in keep_j]
     for p in stale:
