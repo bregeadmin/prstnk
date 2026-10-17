@@ -741,3 +741,89 @@
 
 /* у кадров теперь есть width/height (место резервируется заранее) — высоту считает браузер */
 .material .bl-photo img, .material .bl-split img, .material .cl-item img, .material .cl-item video, .material .bl-loop, .material .bl-gallery:not([data-fit="natural"]) img { height: auto; }
+
+/* ═══ ДОРОЖНАЯ СТАТЬЯ: журнальная раскладка (по мотивам печатных журналов) ═══
+   Огромный заголовок, обложка с цветной «вырезкой», слева «паспорт» за жирной
+   вертикальной линией, текст в колонке, кадры уходят до правого края экрана. */
+.mz-hero { border-top: 12px solid var(--c-alyi); padding: 18px 0 0 24px; overflow: clip; }
+.mz-hero-top { display: flex; justify-content: space-between; gap: 16px; padding-right: 24px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.mz-back { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); }
+.mz-rub { color: rgba(20,20,19,.6); }
+.mz-title { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-size: clamp(40px, 7.4vw, 104px); line-height: .9; letter-spacing: -.035em; margin: 34px 24px 34px 0; max-width: 14ch; text-wrap: balance; }
+.mz-title em { font-style: normal; color: var(--c-alyi); }
+.mz-cover { position: relative; isolation: isolate; margin: 0 0 0 clamp(0px, 14vw, 260px); }
+.mz-cover img { display: block; width: 100%; height: min(78vh, 780px); object-fit: cover; object-position: 50% 62%; }
+
+/* цветные фигуры-вырезки за кадрами (палитра Простенка) */
+[data-shape] { position: relative; }
+.mz-grid { isolation: isolate; } /* фигуры уходят под весь текст и кадры, а не только под свой блок */
+[data-shape]::before { content: ""; position: absolute; z-index: -1; width: clamp(140px, 22vw, 320px); aspect-ratio: 1; border-radius: 50%; pointer-events: none; }
+[data-shape="alyi"]::before { background: var(--c-alyi); }
+[data-shape="limon"]::before { background: var(--c-limon); }
+[data-shape="kobalt"]::before { background: var(--c-kobalt); }
+[data-shape="fuxia"]::before { background: var(--c-fuxia); }
+[data-shape-pos="tr"]::before { top: -9%; right: 4%; }
+[data-shape-pos="tl"]::before { top: -9%; left: -6%; }
+[data-shape-pos="br"]::before { bottom: -8%; right: 6%; }
+[data-shape-pos="bl"]::before { bottom: -8%; left: -6%; }
+.mz-cover[data-shape]::before { left: clamp(-120px, -9vw, -40px); bottom: -10%; width: clamp(160px, 26vw, 380px); }
+
+/* сетка: паспорт | колонка текста | поле до края экрана */
+.material.mz { max-width: none; margin: 0; padding: 0 0 80px; }
+.mz-grid { display: grid; grid-template-columns: clamp(200px, 18vw, 280px) minmax(0, 760px) minmax(0, 1fr); margin-top: 48px; }
+.mz-grid > * { grid-column: 2; padding-left: clamp(28px, 4vw, 64px); padding-right: 24px; }
+.mz-side { grid-column: 1; grid-row: 1 / span 400; padding: 0 24px; border-right: 2px solid var(--ink); }
+.mz-side-in { position: sticky; top: 92px; padding-bottom: 24px; }
+.mz-issue { font-family: var(--f-mono); font-size: 12px; letter-spacing: .04em; border: 2px solid var(--ink); padding: 8px 10px; margin-bottom: 18px; }
+.mz-meta { margin: 0 0 22px; font-family: var(--f-mono); font-size: 11px; line-height: 1.5; }
+.mz-meta dt { color: rgba(20,20,19,.55); }
+.mz-meta dd { margin: 0 0 12px; color: var(--ink); }
+.mz-route { list-style: none; margin: 0; padding: 14px 0 0; border-top: 1px solid var(--ink); font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: -.01em; display: flex; flex-direction: column; gap: 6px; }
+.mz-route li { color: rgba(20,20,19,.4); }
+.mz-route li.is-here { color: var(--ink); }
+.mz-route li.is-here::after { content: " ●"; color: var(--c-alyi); }
+.mz-lead { font-family: var(--f-text); font-weight: 600; font-size: clamp(19px, 1.6vw, 22px); line-height: 1.5; margin: 0 0 36px; }
+
+/* текст как в печатном журнале: по ширине с переносами (на широком экране) */
+.mz .bl-text p { font-size: 19px; line-height: 1.66; }
+@media (min-width: 900px) { .mz .bl-text p, .mz .bl-split-text p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; } }
+
+/* широкие блоки выходят до правого края экрана */
+.mz-grid > .bl--wide, .mz-grid > .bl-fullbleed, .mz-grid > .bl-split, .mz-grid > .bl-pull, .mz-grid > .bl-picks { grid-column: 2 / 4; width: auto; margin-left: 0; margin-right: 0; }
+.mz-grid > .bl-collage, .mz-grid > .bl-fullbleed, .mz-grid > .bl-gallery[data-fit="natural"] { padding-right: 0; }
+.mz-grid > .bl-fullbleed { margin-top: 48px; margin-bottom: 48px; }
+.mz-grid > .bl-fullbleed .bl-cap { max-width: none; margin: 10px 0 0; padding: 0; }
+.mz .fb-frame { height: min(82vh, 820px); }
+.mz .bl-collage { column-gap: 22px; }
+.mz-grid > .bl-split { max-width: 1100px; }
+.mz-grid > .bl-route { max-width: 1100px; }
+.mz-grid > .bl-gallery[data-fit="natural"] { justify-content: flex-start; }
+.mz-grid > .bl-gallery[data-fit="natural"] + .bl-cap { text-align: left; }
+.mz-end { justify-self: start; }
+
+/* заголовки глав и цитата вразрядку */
+.mz .bl-heading { margin-top: 56px; padding-top: 16px; }
+.bl-pull { margin: 40px 0 44px; }
+.bl-pull p { margin: 0; max-width: 24ch; padding-left: clamp(0px, 8vw, 140px); font-family: var(--f-display); font-weight: 700; font-size: clamp(22px, 2.4vw, 32px); line-height: 1.32; letter-spacing: .09em; text-transform: uppercase; text-wrap: balance; }
+
+@media (max-width: 899px) {
+  .mz-hero { padding: 14px 16px 0; }
+  .mz-hero-top { padding-right: 0; }
+  .mz-title { margin: 26px 0 24px; }
+  .mz-cover { margin: 0 -16px; }
+  .mz-cover img { height: 62vh; min-height: 360px; }
+  .mz-cover[data-shape]::before { left: auto; right: -40px; bottom: -48px; width: 170px; }
+  .mz-grid { grid-template-columns: minmax(0, 1fr); margin-top: 40px; }
+  .mz-grid > * { grid-column: 1 !important; padding-left: 16px; padding-right: 16px; }
+  .mz-side { grid-row: auto; border-right: none; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding: 14px 16px 4px; margin: 0 16px 28px; }
+  .mz-side-in { position: static; display: flex; flex-wrap: wrap; gap: 4px 22px; align-items: baseline; }
+  .mz-issue { margin-bottom: 10px; }
+  .mz-meta { display: flex; gap: 18px; margin: 0 0 10px; }
+  .mz-route { flex-direction: row; gap: 10px; border-top: none; padding: 0 0 10px; }
+  .mz-grid > .bl-collage, .mz-grid > .bl-fullbleed, .mz-grid > .bl-gallery[data-fit="natural"] { padding-left: 0; padding-right: 0; }
+  .mz-grid > .bl-collage .cl-item .bl-cap, .mz-grid > .bl-fullbleed .bl-cap { padding: 0 16px; }
+  .mz-grid > .bl-gallery[data-fit="natural"] + .bl-cap { padding: 0 16px; }
+  .mz .fb-frame { height: 68vh; }
+  .bl-pull p { padding-left: 0; }
+  .mz-grid [data-shape]::before { display: none; } /* на телефоне фигуры наезжали бы на текст — оставляем только у обложки */
+}

@@ -1650,7 +1650,7 @@ def _media_html(b):
 
 def _blk_photo(b):
     wide = " bl--wide" if b.get("wide") else ""
-    return f'<figure class="bl bl-photo{wide}">{_media_html(b)}{_cap_html(b)}</figure>'
+    return f'<figure class="bl bl-photo{wide}"{_shape_attr(b)}>{_media_html(b)}{_cap_html(b)}</figure>'
 
 def _blk_split(b):
     side = "left" if b.get("imageSide") == "left" else "right"
@@ -1658,7 +1658,7 @@ def _blk_split(b):
                 f'alt="{esc(b.get("caption", ""))}"/>{_cap_html(b, "div")}</div>')
     txt_html = f'<div class="bl-split-text">{md_to_html(b.get("text", ""))}</div>'
     inner = (img_html + txt_html) if side == "left" else (txt_html + img_html)
-    return f'<div class="bl bl-split bl-split--{side}"><div class="bl-split-grid">{inner}</div></div>'
+    return f'<div class="bl bl-split bl-split--{side}"{_shape_attr(b)}><div class="bl-split-grid">{inner}</div></div>'
 
 def _blk_gallery(b):
     imgs = b.get("images") or []
@@ -1671,12 +1671,22 @@ def _blk_collage(b):
     """Свободная раскладка 2–3 кадров (фото и видеопетли) со смещением, на ширину шире текста."""
     items = b.get("items") or []
     cells = "".join(f'<figure class="cl-item">{_media_html(it)}{_cap_html(it)}</figure>' for it in items)
-    return f'<div class="bl bl-collage bl--wide" data-count="{len(items)}" data-variant="{esc(b.get("variant", "a"))}">{cells}</div>'
+    return f'<div class="bl bl-collage bl--wide" data-count="{len(items)}" data-variant="{esc(b.get("variant", "a"))}"{_shape_attr(b)}>{cells}</div>'
 
 def _blk_fullbleed(b):
     """Кадр на всю ширину экрана между главами (фото или видеопетля), с лёгким параллаксом."""
     return (f'<figure class="bl bl-fullbleed"><div class="fb-frame">{_media_html(b)}</div>'
             f'{_cap_html(b)}</figure>')
+
+def _blk_pull(b):
+    """Крупная цитата вразрядку, как в печатном журнале."""
+    return f'<blockquote class="bl bl-pull"><p>{esc(b.get("text", ""))}</p></blockquote>'
+
+def _shape_attr(b):
+    """Цветная фигура-«вырезка» за кадром: shape = alyi|limon|kobalt|fuxia, shapePos = tl|tr|bl|br."""
+    if not b.get("shape"):
+        return ""
+    return f' data-shape="{esc(b["shape"])}" data-shape-pos="{esc(b.get("shapePos", "tr"))}"'
 
 def _blk_daymark(b):
     """Отметка дня/времени в дорожном дневнике."""
@@ -1753,6 +1763,7 @@ _BLOCK_RENDERERS = {
     "collage": _blk_collage,
     "daymark": _blk_daymark,
     "fullbleed": _blk_fullbleed,
+    "pull": _blk_pull,
     "route": _blk_route,
 }
 
@@ -1851,36 +1862,17 @@ def render_material_page(article):
     blocks_html = "\n".join(render_block(b) for b in article.get("blocks", []))
 
     travel = article.get("layout") == "travel" and article.get("cover")
-    hero = ""
     if travel:
-        route = ""
-        for st in article.get("route") or []:
-            cls = " is-here" if st.get("here") else ""
-            route += (f'<li class="tr-stop{cls}"><span class="tr-city">{esc(st.get("city", ""))}</span>'
-                      + (f'<span class="tr-when">{esc(st["when"])}</span>' if st.get("when") else "") + '</li>')
-        hero = f'''<header class="tr-hero">
-  <img class="tr-hero-img" src="{esc(article["cover"])}" alt="{esc(article.get("coverAlt", ""))}"/>
-  <div class="tr-hero-in">
-    <a class="tr-back" href="journal">← В журнал</a>
-    <div class="material-kicker tr-kicker">{rubric_label(rub)}</div>
-    <h1 class="material-title tr-title">{h1}</h1>
-    {f'<ol class="tr-route" aria-label="Маршрут">{route}</ol>' if route else ""}
-  </div>
-</header>'''
+        return render_travel_page(article, h1, blocks_html, page_title, desc, canonical, rub)
 
-    head_html = (f'''  <header class="material-head tr-head">
-    <p class="material-lead">{esc(article.get("lead", ""))}</p>
-    <div class="material-meta">{" · ".join(meta_parts)}</div>
-  </header>''' if travel else f'''  <header class="material-head">
+    body = f'''<article class="material">
+  <header class="material-head">
     <a class="material-back material-back--top" href="journal">← В журнал</a>
     <div class="material-kicker {rub_cls}">{rubric_label(rub)}</div>
     <h1 class="material-title">{h1}</h1>
     <p class="material-lead">{esc(article.get("lead", ""))}</p>
     <div class="material-meta">{" · ".join(meta_parts)}</div>
-  </header>''')
-
-    body = f'''<article class="material{' material--travel' if travel else ''}">
-{head_html}
+  </header>
   <div class="material-body">
 {blocks_html}
   </div>
@@ -1888,8 +1880,39 @@ def render_material_page(article):
 </article>'''
 
     return (f'{head(page_title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n'
-            f'{hero}<div class="jn-wrap">\n{body}\n</div>\n'
-            f'{TRAVEL_JS if travel else ""}{FOOTER}')
+            f'<div class="jn-wrap">\n{body}\n</div>\n{FOOTER}')
+
+
+def render_travel_page(article, h1, blocks_html, page_title, desc, canonical, rub):
+    """Дорожная статья в журнальной раскладке: огромный заголовок, обложка-коллаж,
+    слева «паспорт» материала с жирной вертикальной линией, фото выходят до правого края экрана."""
+    route = "".join(
+        f'<li class="{"is-here" if st.get("here") else ""}">{esc(st.get("city", ""))}</li>'
+        for st in article.get("route") or [])
+    shape = esc(article.get("coverShape", "limon"))
+    hero = f'''<header class="mz-hero">
+  <div class="mz-hero-top"><a class="mz-back" href="journal">← Журнал ЁPRST</a><span class="mz-rub">{rubric_label(rub)}</span></div>
+  <h1 class="mz-title">{h1}</h1>
+  <figure class="mz-cover" data-shape="{shape}"><img src="{esc(article["cover"])}"{_wh(article["cover"])} alt="{esc(article.get("coverAlt", ""))}"/></figure>
+</header>'''
+    side = f'''<aside class="mz-side"><div class="mz-side-in">
+    <div class="mz-issue">{esc(article.get("issueLabel", "Журнал ЁPRST"))}</div>
+    <dl class="mz-meta">
+      <dt>Текст и фото</dt><dd>{esc(article.get("author", "редакция ЁPRST"))}</dd>
+      {f'<dt>Читать</dt><dd>{article["readMins"]} минут</dd>' if article.get("readMins") else ""}
+    </dl>
+    {f'<ol class="mz-route" aria-label="Маршрут">{route}</ol>' if route else ""}
+  </div></aside>'''
+    body = f'''<article class="material material--travel mz">
+  <div class="mz-grid">
+  {side}
+  <p class="mz-lead">{esc(article.get("lead", ""))}</p>
+{blocks_html}
+  <a class="material-back mz-end" href="materials">← Все материалы</a>
+  </div>
+</article>'''
+    return (f'{head(page_title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n'
+            f'{hero}\n{body}\n{TRAVEL_JS}{FOOTER}')
 
 
 def _feed_meta(a):
