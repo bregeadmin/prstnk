@@ -1680,7 +1680,8 @@ def _blk_fullbleed(b):
 
 def _blk_pull(b):
     """Крупная цитата вразрядку, как в печатном журнале."""
-    return f'<blockquote class="bl bl-pull"><p>{esc(b.get("text", ""))}</p></blockquote>'
+    tone = f' data-tone="{esc(b["tone"])}"' if b.get("tone") else ""
+    return f'<blockquote class="bl bl-pull"{tone}><p>{esc(b.get("text", ""))}</p></blockquote>'
 
 def _shape_attr(b):
     """Цветная фигура-«вырезка» за кадром: shape = alyi|limon|kobalt|fuxia, shapePos = tl|tr|bl|br."""
@@ -1890,9 +1891,15 @@ def render_travel_page(article, h1, blocks_html, page_title, desc, canonical, ru
         f'<li class="{"is-here" if st.get("here") else ""}">{esc(st.get("city", ""))}</li>'
         for st in article.get("route") or [])
     shape = esc(article.get("coverShape", "limon"))
-    hero = f'''<header class="mz-hero">
+    # Цвет статьи из палитры Простенка: им же красится столбик логотипа в шапке
+    acc = article.get("accent", "alyi")
+    acc = acc if acc in ("alyi", "limon", "kobalt", "hvoya", "fuxia", "ugol") else "alyi"
+    accent_css = f'<style>:root{{--mz-accent:var(--c-{acc});--prstnk-color:var(--c-{acc})}}</style>'
+    mark = ('<svg class="mz-mark" viewBox="0 0 60 80" aria-hidden="true"><rect class="w" x="2" y="2" width="9" height="76"/>'
+            '<rect class="p" x="13" y="0" width="34" height="80"/><rect class="w" x="49" y="2" width="9" height="76"/></svg>')
+    hero = f'''{accent_css}<header class="mz-hero">
   <div class="mz-hero-top"><a class="mz-back" href="journal">← Журнал ЁPRST</a><span class="mz-rub">{rubric_label(rub)}</span></div>
-  <h1 class="mz-title">{h1}</h1>
+  <div class="mz-title-row"><h1 class="mz-title">{h1}</h1>{mark}</div>
   <figure class="mz-cover" data-shape="{shape}"><img src="{esc(article["cover"])}"{_wh(article["cover"])} alt="{esc(article.get("coverAlt", ""))}"/></figure>
 </header>'''
     side = f'''<aside class="mz-side"><div class="mz-side-in">

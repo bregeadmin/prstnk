@@ -827,3 +827,47 @@
   .bl-pull p { padding-left: 0; }
   .mz-grid [data-shape]::before { display: none; } /* на телефоне фигуры наезжали бы на текст — оставляем только у обложки */
 }
+
+/* цитата на тёмно-бордовой полосе — цвета «Сиграмских» полотен Ротко */
+.bl-pull[data-tone="seagram"] { background: #3a0e11; color: #f0d5c1; padding: clamp(48px, 7vw, 96px) 24px; margin: 56px 0; }
+.bl-pull[data-tone="seagram"] p { max-width: 20ch; }
+.mz-grid > .bl-pull[data-tone="seagram"] { padding-left: clamp(28px, 4vw, 64px); }
+
+/* выделенная часть заголовка — всегда с новой строки и с воздухом над ней */
+.mz-title em { display: block; margin-top: .14em; }
+
+/* видео в кадре на весь экран занимает кадр целиком (иначе снизу торчал тёмный фон) */
+.material .fb-frame .bl-loop, .material .fb-frame img { height: 100%; }
+
+/* ═══ цвет статьи (accent) и знак Простенка в обложке ═══ */
+.mz-hero { border-top-color: var(--mz-accent, var(--c-alyi)); }
+.mz-title em { color: var(--mz-accent, var(--c-alyi)); }
+.mz-route li.is-here::after, .rt-n { color: var(--mz-accent, var(--c-alyi)); }
+.tr-progress span { background: var(--mz-accent, var(--c-alyi)); }
+.mz-title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-right: 24px; }
+.mz-title-row .mz-title { margin-right: 0; }
+.mz-mark { flex: 0 0 auto; width: clamp(54px, 7vw, 96px); height: auto; margin: 0 0 40px; }
+.mz-mark .w { fill: none; stroke: var(--ink); stroke-width: 2.4; }
+.mz-mark .p { fill: var(--mz-accent, var(--c-alyi)); animation: mz-cycle 14s ease-in-out infinite; }
+@keyframes mz-cycle {
+  0%, 100% { fill: var(--mz-accent, var(--c-alyi)); }
+  17% { fill: var(--c-limon); } 34% { fill: var(--c-fuxia); } 51% { fill: var(--c-hvoya); } 68% { fill: var(--c-alyi); } 85% { fill: var(--c-ugol); }
+}
+@media (prefers-reduced-motion: reduce) { .mz-mark .p { animation: none; } }
+
+/* ═══ видео лентой, как сторис ═══ */
+.bl-collage[data-variant="reel"] { display: flex; gap: 18px; align-items: flex-start; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 10px; }
+.bl-collage[data-variant="reel"]::-webkit-scrollbar { display: none; }
+.bl-collage[data-variant="reel"] .cl-item { flex: 0 0 min(31%, 360px); scroll-snap-align: start; margin: 0; }
+.bl-collage[data-variant="reel"] .cl-item:nth-child(3n+2) { margin-top: 72px; }
+.bl-collage[data-variant="reel"] .cl-item:nth-child(3n) { margin-top: 28px; }
+.bl-collage[data-variant="reel"] img, .bl-collage[data-variant="reel"] video { border-radius: 18px; aspect-ratio: 9 / 16; object-fit: cover; }
+@media (max-width: 899px) {
+  .mz-title-row { padding-right: 0; }
+  .mz-mark { width: 44px; margin-bottom: 26px; }
+  .mz-grid > .bl-collage[data-variant="reel"] { flex-direction: row; padding-left: 16px; padding-right: 16px; scroll-padding-left: 16px; }
+  .bl-collage[data-variant="reel"] .cl-item, .bl-collage[data-variant="reel"] .cl-item:nth-child(even) { flex: 0 0 72vw; width: auto; align-self: flex-start; }
+  .bl-collage[data-variant="reel"] .cl-item:nth-child(3n+2) { margin-top: 36px !important; }
+  .bl-collage[data-variant="reel"] .cl-item:nth-child(3n) { margin-top: 14px !important; }
+  .mz-grid > .bl-collage[data-variant="reel"] .cl-item .bl-cap { padding: 0; }
+}

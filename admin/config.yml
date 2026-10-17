@@ -374,6 +374,7 @@ collections:
         hint: "Дорожная — огромный заголовок, обложка на всю ширину, слева колонка с автором и маршрутом, фото до края экрана. Нужна обложка."
       - { name: "coverAlt", label: "Что на обложке (для незрячих и поиска)", widget: "string", required: false }
       - { name: "coverShape", label: "Цветной круг у обложки", widget: "select", required: false, options: [ { label: "Алый", value: "alyi" }, { label: "Лимон", value: "limon" }, { label: "Кобальт", value: "kobalt" }, { label: "Фуксия", value: "fuxia" } ] }
+      - { name: "accent", label: "Цвет статьи (дорожная раскладка)", widget: "select", required: false, options: [ { label: "Алый", value: "alyi" }, { label: "Лимон", value: "limon" }, { label: "Кобальт", value: "kobalt" }, { label: "Хвоя", value: "hvoya" }, { label: "Фуксия", value: "fuxia" }, { label: "Уголь", value: "ugol" } ], hint: "Полоса сверху, выделение в заголовке, маршрут и логотип в шапке." }
       - { name: "issueLabel", label: "Метка выпуска в левой колонке", widget: "string", required: false, hint: "Напр. ЁPRST · Сентябрь" }
       - name: "route"
         label: "Маршрут (дорожная раскладка)"
@@ -456,7 +457,7 @@ collections:
                   - { name: "video", label: "Видео вместо фото (необяз.)", widget: "video", required: false, hint: "MP4 до 20 МБ, 5–10 секунд. Играет само без звука, когда до него долистали." }
                   - { name: "poster", label: "Кадр-заставка для видео (необяз.)", widget: "image", required: false }
                   - { name: "caption", label: "Подпись", widget: "string", required: false }
-              - { name: "variant", label: "Раскладка двух кадров", widget: "select", required: false, options: [ { label: "большой слева", value: "a" }, { label: "большой справа", value: "b" } ] }
+              - { name: "variant", label: "Раскладка двух кадров", widget: "select", required: false, options: [ { label: "большой слева", value: "a" }, { label: "большой справа", value: "b" }, { label: "лентой, как сторис", value: "reel" } ] }
               - { name: "shape", label: "Цветной круг за кадром", widget: "select", required: false, options: [ { label: "Алый", value: "alyi" }, { label: "Лимон", value: "limon" }, { label: "Кобальт", value: "kobalt" }, { label: "Фуксия", value: "fuxia" } ], hint: "Только в дорожной раскладке. Можно не выбирать." }
               - { name: "shapePos", label: "Где круг", widget: "select", required: false, options: [ { label: "сверху справа", value: "tr" }, { label: "сверху слева", value: "tl" }, { label: "снизу справа", value: "br" }, { label: "снизу слева", value: "bl" } ] }
           - label: "Кадр на весь экран"
@@ -472,6 +473,7 @@ collections:
             widget: "object"
             fields:
               - { name: "text", label: "Фраза", widget: "string", hint: "Короткая, до 8 слов. Обычно повтор строки из текста." }
+              - { name: "tone", label: "Фон", widget: "select", required: false, options: [ { label: "Без фона", value: "" }, { label: "Тёмно-бордовая полоса (как у Ротко)", value: "seagram" } ] }
           - label: "Маршрут дальше («билет»)"
             name: "route"
             widget: "object"
