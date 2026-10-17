@@ -366,6 +366,23 @@ collections:
           - { label: "Как смотреть", value: "kak-smotret" }
       - { name: "lead", label: "Лид", widget: "text" }
       - { name: "cover", label: "Обложка (необяз.)", widget: "image", required: false }
+      - name: "layout"
+        label: "Раскладка"
+        widget: "select"
+        required: false
+        options: [ { label: "Обычная", value: "" }, { label: "Дорожная (журнальная)", value: "travel" } ]
+        hint: "Дорожная — огромный заголовок, обложка на всю ширину, слева колонка с автором и маршрутом, фото до края экрана. Нужна обложка."
+      - { name: "coverAlt", label: "Что на обложке (для незрячих и поиска)", widget: "string", required: false }
+      - { name: "coverShape", label: "Цветной круг у обложки", widget: "select", required: false, options: [ { label: "Алый", value: "alyi" }, { label: "Лимон", value: "limon" }, { label: "Кобальт", value: "kobalt" }, { label: "Фуксия", value: "fuxia" } ] }
+      - { name: "issueLabel", label: "Метка выпуска в левой колонке", widget: "string", required: false, hint: "Напр. ЁPRST · Сентябрь" }
+      - name: "route"
+        label: "Маршрут (дорожная раскладка)"
+        widget: "list"
+        required: false
+        summary: "{{fields.city}}"
+        fields:
+          - { name: "city", label: "Город", widget: "string" }
+          - { name: "here", label: "Эта статья про этот город", widget: "boolean", required: false, default: false }
       - { name: "author", label: "Автор", widget: "string", default: "редакция ЁPRST" }
       - { name: "date", label: "Дата", widget: "datetime" }
       - { name: "readMins", label: "Время чтения (мин)", widget: "number", value_type: "int" }
@@ -381,8 +398,13 @@ collections:
             name: "photo"
             widget: "object"
             fields:
-              - { name: "image", label: "Фото", widget: "image" }
+              - { name: "image", label: "Фото", widget: "image", required: false }
+              - { name: "video", label: "Видео вместо фото (необяз.)", widget: "video", required: false, hint: "MP4 до 20 МБ, 5–10 секунд. Играет само без звука, когда до него долистали." }
+              - { name: "poster", label: "Кадр-заставка для видео (необяз.)", widget: "image", required: false }
               - { name: "caption", label: "Подпись", widget: "string", required: false }
+              - { name: "wide", label: "Шире текста", widget: "boolean", required: false, default: false }
+              - { name: "shape", label: "Цветной круг за кадром", widget: "select", required: false, options: [ { label: "Алый", value: "alyi" }, { label: "Лимон", value: "limon" }, { label: "Кобальт", value: "kobalt" }, { label: "Фуксия", value: "fuxia" } ], hint: "Только в дорожной раскладке. Можно не выбирать." }
+              - { name: "shapePos", label: "Где круг", widget: "select", required: false, options: [ { label: "сверху справа", value: "tr" }, { label: "сверху слева", value: "tl" }, { label: "снизу справа", value: "br" }, { label: "снизу слева", value: "bl" } ] }
           - label: "Текст + фото рядом"
             name: "split"
             widget: "object"
@@ -390,10 +412,17 @@ collections:
               - { name: "text", label: "Текст", widget: "markdown" }
               - { name: "image", label: "Фото", widget: "image" }
               - { name: "imageSide", label: "Фото слева/справа", widget: "select", options: ["left", "right"], default: "right" }
+              - { name: "caption", label: "Подпись к фото", widget: "string", required: false }
+              - { name: "shape", label: "Цветной круг за кадром", widget: "select", required: false, options: [ { label: "Алый", value: "alyi" }, { label: "Лимон", value: "limon" }, { label: "Кобальт", value: "kobalt" }, { label: "Фуксия", value: "fuxia" } ], hint: "Только в дорожной раскладке. Можно не выбирать." }
+              - { name: "shapePos", label: "Где круг", widget: "select", required: false, options: [ { label: "сверху справа", value: "tr" }, { label: "сверху слева", value: "tl" }, { label: "снизу справа", value: "br" }, { label: "снизу слева", value: "bl" } ] }
           - label: "Галерея"
             name: "gallery"
             widget: "object"
-            fields: [ { name: "images", label: "Фото", widget: "list", field: { name: "image", widget: "image" } } ]
+            fields:
+              - { name: "images", label: "Фото", widget: "list", field: { name: "image", widget: "image" } }
+              - { name: "fit", label: "Как показывать", widget: "select", required: false, options: [ { label: "Квадратами", value: "" }, { label: "Целиком, в ряд (этикетки, вертикальные)", value: "natural" } ] }
+              - { name: "wide", label: "Шире текста", widget: "boolean", required: false, default: false }
+              - { name: "caption", label: "Подпись", widget: "string", required: false }
           - label: "Цитата"
             name: "quote"
             widget: "object"
@@ -413,6 +442,59 @@ collections:
               - { name: "provider", label: "Источник", widget: "select", options: ["youtube", "vimeo"] }
               - { name: "url", label: "Ссылка", widget: "string" }
               - { name: "caption", label: "Подпись", widget: "string", required: false }
+          - label: "Коллаж (2–4 кадра)"
+            name: "collage"
+            widget: "object"
+            fields:
+              - name: "items"
+                label: "Кадры"
+                label_singular: "кадр"
+                widget: "list"
+                summary: "{{fields.caption}}"
+                fields:
+                  - { name: "image", label: "Фото", widget: "image", required: false }
+                  - { name: "video", label: "Видео вместо фото (необяз.)", widget: "video", required: false, hint: "MP4 до 20 МБ, 5–10 секунд. Играет само без звука, когда до него долистали." }
+                  - { name: "poster", label: "Кадр-заставка для видео (необяз.)", widget: "image", required: false }
+                  - { name: "caption", label: "Подпись", widget: "string", required: false }
+              - { name: "variant", label: "Раскладка двух кадров", widget: "select", required: false, options: [ { label: "большой слева", value: "a" }, { label: "большой справа", value: "b" } ] }
+              - { name: "shape", label: "Цветной круг за кадром", widget: "select", required: false, options: [ { label: "Алый", value: "alyi" }, { label: "Лимон", value: "limon" }, { label: "Кобальт", value: "kobalt" }, { label: "Фуксия", value: "fuxia" } ], hint: "Только в дорожной раскладке. Можно не выбирать." }
+              - { name: "shapePos", label: "Где круг", widget: "select", required: false, options: [ { label: "сверху справа", value: "tr" }, { label: "сверху слева", value: "tl" }, { label: "снизу справа", value: "br" }, { label: "снизу слева", value: "bl" } ] }
+          - label: "Кадр на весь экран"
+            name: "fullbleed"
+            widget: "object"
+            fields:
+              - { name: "image", label: "Фото", widget: "image", required: false }
+              - { name: "video", label: "Видео вместо фото (необяз.)", widget: "video", required: false, hint: "MP4 до 20 МБ, 5–10 секунд. Играет само без звука, когда до него долистали." }
+              - { name: "poster", label: "Кадр-заставка для видео (необяз.)", widget: "image", required: false }
+              - { name: "caption", label: "Подпись", widget: "string", required: false }
+          - label: "Цитата вразрядку"
+            name: "pull"
+            widget: "object"
+            fields:
+              - { name: "text", label: "Фраза", widget: "string", hint: "Короткая, до 8 слов. Обычно повтор строки из текста." }
+          - label: "Маршрут дальше («билет»)"
+            name: "route"
+            widget: "object"
+            fields:
+              - { name: "heading", label: "Заголовок", widget: "string", hint: "Напр. Дальше по маршруту: к кому я ехал" }
+              - { name: "startAt", label: "Номер первой остановки", widget: "number", value_type: "int", required: false, default: 1 }
+              - name: "stops"
+                label: "Остановки"
+                label_singular: "город"
+                widget: "list"
+                summary: "{{fields.city}}"
+                fields:
+                  - { name: "city", label: "Город", widget: "string" }
+                  - { name: "when", label: "Когда (необяз.)", widget: "string", required: false }
+                  - name: "items"
+                    label: "Кто и где"
+                    label_singular: "пункт"
+                    widget: "list"
+                    summary: "{{fields.name}}"
+                    fields:
+                      - { name: "name", label: "Художник / что", widget: "string" }
+                      - { name: "where", label: "Где", widget: "string", required: false }
+                      - { name: "note", label: "Пара фраз", widget: "text", required: false }
 
   # ─────────────────────────────────────────────
   # ЖУРНАЛ — ЛЕНТА ПОСТОВ (между выпусками)

@@ -630,6 +630,7 @@
           v && !cur ? h("option", { value: v, selected: true }, v + " — не найдено, выберите заново") : null);
       }
       case "image": return imageWidget(f, v, id, (val) => set(val));
+      case "video": return imageWidget(f, v, id, (val) => set(val), true);
       case "datetime": {
         const val = v ? String(v).slice(0, 10) : "";
         return h("input", { id, class: "inp inp--mono", type: "date", value: val, onchange: (e) => set(e.target.value) });
@@ -698,21 +699,25 @@
   }
 
   /* Фото: перетащить / выбрать файл. Сохраняется вместе с записью. */
-  function imageWidget(f, v, id, set) {
+  /* Фото или видео (video = true): то же поле, только принимает ролики и показывает их превью. */
+  function imageWidget(f, v, id, set, video) {
     const box = h("div", {});
+    const accept = video ? "video/mp4,video/quicktime,video/webm" : "image/*";
     const draw = (val) => {
       if (!val) {
-        const input = h("input", { id, type: "file", accept: "image/*", "aria-label": labelOf(f), onchange: (e) => e.target.files[0] && take(e.target.files[0]) });
-        const drop = h("div", { class: "drop" }, h("div", { class: "drop__cta" }, icon("upload"), h("b", {}, "Перетащите фото сюда"), "или нажмите, чтобы выбрать файл"), input);
+        const input = h("input", { id, type: "file", accept, "aria-label": labelOf(f), onchange: (e) => e.target.files[0] && take(e.target.files[0]) });
+        const drop = h("div", { class: "drop" }, h("div", { class: "drop__cta" }, icon("upload"), h("b", {}, video ? "Перетащите видео сюда" : "Перетащите фото сюда"), "или нажмите, чтобы выбрать файл"), input);
         drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("is-over"); });
         drop.addEventListener("dragleave", () => drop.classList.remove("is-over"));
         drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("is-over"); const fl = e.dataTransfer.files[0]; if (fl) take(fl); });
         box.replaceChildren(drop);
       } else {
         const pending = !!S.media[val];
-        const repl = h("input", { type: "file", accept: "image/*", class: "sr", onchange: (e) => e.target.files[0] && take(e.target.files[0]) });
+        const repl = h("input", { type: "file", accept, class: "sr", onchange: (e) => e.target.files[0] && take(e.target.files[0]) });
         box.replaceChildren(h("div", { class: "photo" },
-          h("img", { class: "photo__img", src: imgSrc(val), alt: "", onerror: (e) => { e.target.alt = "не открылось"; } }),
+          video
+            ? h("video", { class: "photo__img", src: imgSrc(val), muted: true, loop: true, autoplay: true, playsinline: true })
+            : h("img", { class: "photo__img", src: imgSrc(val), alt: "", onerror: (e) => { e.target.alt = "не открылось"; } }),
           h("div", { class: "photo__side" },
             pending ? h("span", { class: "photo__badge" }, "загрузится при сохранении") : null,
             h("div", { class: "photo__name" }, decodeURIComponent(String(val).split("/").pop())),
@@ -723,9 +728,9 @@
     const take = async (file) => {
       try {
         busy(true);
-        const val = await stageImage(file);
+        const val = video ? await stageVideo(file) : await stageImage(file);
         set(val); draw(val);
-      } catch (e) { toast("Не получилось взять фото: " + e.message, true); }
+      } catch (e) { toast((video ? "Не получилось взять видео: " : "Не получилось взять фото: ") + e.message, true); }
       finally { busy(false); }
     };
     draw(v);
@@ -753,6 +758,19 @@
     const pub = "/" + (S.cfg.public_folder || folder).replace(/^\/|\/$/g, "");
     const val = `${pub}/${name}`;
     S.media[val] = { path: `${folder}/${name}`, b64: bytesToB64(new Uint8Array(await blob.arrayBuffer())), url: URL.createObjectURL(blob) };
+    return val;
+  }
+
+  async function stageVideo(file) {
+    if (!/^video\//.test(file.type) && !/\.(mp4|mov|webm|m4v)$/i.test(file.name)) throw new Error("это не видео");
+    if (file.size > 20e6) throw new Error("видео больше 20 МБ — укоротите до 5–10 секунд или пришлите Артёму");
+    const ext = (file.name.split(".").pop() || "mp4").toLowerCase();
+    const base = slugify(file.name.replace(/\.[^.]+$/, "")).slice(0, 50) || "video";
+    const name = `${base}-${Date.now().toString(36)}.${ext}`;
+    const folder = (S.cfg.media_folder || "images").replace(/^\/|\/$/g, "");
+    const pub = "/" + (S.cfg.public_folder || folder).replace(/^\/|\/$/g, "");
+    const val = `${pub}/${name}`;
+    S.media[val] = { path: `${folder}/${name}`, b64: bytesToB64(new Uint8Array(await file.arrayBuffer())), url: URL.createObjectURL(file) };
     return val;
   }
 
@@ -823,7 +841,16 @@
     }
     for (const sf of fields) {
       const v = item[sf.name];
-      if (typeof v === "string" && v.trim() && sf.widget !== "image") return stripTags(v).replace(/^[#>*\-\s]+|[*_]{1,2}/g, "").slice(0, 90);
+      if (typeof v === "string" && v.trim() && !["image", "video", "select"].includes(sf.widget)) return stripTags(v).replace(/^[#>*\-\s]+|[*_]{1,2}/g, "").slice(0, 90);
+    }
+    // коллаж, маршрут: подписи вложенных кадров / названия городов
+    for (const sf of fields) {
+      const v = item[sf.name];
+      if (Array.isArray(v) && v.length && typeof v[0] === "object") {
+        const names = v.map((x) => x && (x.caption || x.city || x.name)).filter(Boolean);
+        if (names.length) return stripTags(names.join(" · ")).slice(0, 90);
+        return v.length + " шт.";
+      }
     }
     return "";
   }
