@@ -1600,7 +1600,7 @@ def render_journal_index():
     masthead_html = f'''<div class="jn-masthead">
   <div class="jn-mast-word">«<em>ЁPRST</em>»<em>.</em></div>
   <div class="jn-mast-side">
-    <p class="jn-mast-desc">Журнал магазина про петербургскую печатную графику. Интервью, разборы по-человечески и история сцены.</p>
+    <p class="jn-mast-desc">Выставки, поездки и художники, которых мы любим</p>
     <div class="jn-mast-stamp">{_mast_stamp}</div>
   </div>
 </div>'''
