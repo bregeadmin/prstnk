@@ -907,3 +907,5 @@
 .rt-city .jn-link { background: none; border-bottom: none; font-weight: inherit; padding: 0; }
 .rt-city .jn-link:hover { background: none; }
 .rt-city .jn-card { font-size: 1rem; letter-spacing: 0; }
+/* чтобы было видно, что город кликабелен, ещё до наведения */
+.mz-route a { color: rgba(20,20,19,.62); border-bottom: 1px dashed rgba(20,20,19,.35); }
