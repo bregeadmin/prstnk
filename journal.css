@@ -738,3 +738,6 @@
 /* заголовки глав в дорожной статье: линейка сверху, крупнее обычного */
 .material--travel .bl-heading { margin-top: 64px; padding-top: 18px; border-top: 2px solid var(--ink); }
 .material--travel .bl-heading h2 { font-size: clamp(30px, 4vw, 44px); line-height: .98; letter-spacing: -.03em; margin: 0; text-wrap: balance; }
+
+/* у кадров теперь есть width/height (место резервируется заранее) — высоту считает браузер */
+.material .bl-photo img, .material .bl-split img, .material .cl-item img, .material .cl-item video, .material .bl-loop, .material .bl-gallery:not([data-fit="natural"]) img { height: auto; }

@@ -1608,6 +1608,29 @@ def _blk_quote(b):
     return (f'<div class="bl bl-quote"><blockquote>{esc(b.get("text", ""))}'
             f'{cite_html}</blockquote></div>')
 
+def img_dims(src):
+    """Ширина и высота JPEG/PNG по заголовку файла (без сторонних библиотек), чтобы страница не «прыгала» при загрузке."""
+    try:
+        data = (ROOT / src.lstrip("/")).read_bytes()
+    except OSError:
+        return None
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    i = 2
+    while i < len(data) - 9 and data[:2] == b"\xff\xd8":
+        if data[i] != 0xFF:
+            i += 1
+            continue
+        marker, size = data[i + 1], int.from_bytes(data[i + 2:i + 4], "big")
+        if marker in (0xC0, 0xC1, 0xC2):
+            return int.from_bytes(data[i + 7:i + 9], "big"), int.from_bytes(data[i + 5:i + 7], "big")
+        i += 2 + size
+    return None
+
+def _wh(src):
+    d = img_dims(src or "")
+    return f' width="{d[0]}" height="{d[1]}"' if d else ""
+
 def _cap_html(b, tag="figcaption"):
     """Подпись к фото: штамп времени съёмки (моно) + текст."""
     cap, t = b.get("caption", ""), b.get("time", "")
@@ -1621,9 +1644,9 @@ def _media_html(b):
     alt = esc(b.get("alt") or b.get("caption", ""))
     if b.get("video"):
         poster = f' poster="{esc(b["poster"])}"' if b.get("poster") else ""
-        return (f'<video class="bl-loop" src="{esc(b["video"])}"{poster} muted loop playsinline '
+        return (f'<video class="bl-loop" src="{esc(b["video"])}"{poster}{_wh(b.get("poster"))} muted loop playsinline '
                 f'preload="metadata" aria-label="{alt}"></video>')
-    return f'<img src="{esc(b.get("image", ""))}" loading="lazy" alt="{alt}"/>'
+    return f'<img src="{esc(b.get("image", ""))}"{_wh(b.get("image"))} loading="lazy" alt="{alt}"/>'
 
 def _blk_photo(b):
     wide = " bl--wide" if b.get("wide") else ""
@@ -1631,7 +1654,7 @@ def _blk_photo(b):
 
 def _blk_split(b):
     side = "left" if b.get("imageSide") == "left" else "right"
-    img_html = (f'<div class="bl-split-img"><img src="{esc(b.get("image", ""))}" loading="lazy" '
+    img_html = (f'<div class="bl-split-img"><img src="{esc(b.get("image", ""))}"{_wh(b.get("image"))} loading="lazy" '
                 f'alt="{esc(b.get("caption", ""))}"/>{_cap_html(b, "div")}</div>')
     txt_html = f'<div class="bl-split-text">{md_to_html(b.get("text", ""))}</div>'
     inner = (img_html + txt_html) if side == "left" else (txt_html + img_html)
@@ -1639,7 +1662,7 @@ def _blk_split(b):
 
 def _blk_gallery(b):
     imgs = b.get("images") or []
-    cells = "".join(f'<img src="{esc(i)}" loading="lazy" alt=""/>' for i in imgs)
+    cells = "".join(f'<img src="{esc(i)}"{_wh(i)} loading="lazy" alt=""/>' for i in imgs)
     fit = ' data-fit="natural"' if b.get("fit") == "natural" else ""
     cap = _cap_html(b, "div")
     return f'<div class="bl bl-gallery{" bl--wide" if b.get("wide") else ""}" data-count="{len(imgs)}"{fit}>{cells}</div>{cap}'
