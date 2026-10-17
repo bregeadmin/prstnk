@@ -64,7 +64,11 @@ articles = [x for x in load_collection("articles")
 
 
 def load_lenta():
-    """Лента: посты канала (data/lenta_channel.json) если есть, иначе ручная коллекция materials."""
+    """Лента: свои посты сайта (data/materials, правятся в админке), новые первыми.
+    Если своих постов нет — посты Telegram-канала (data/lenta_channel.json)."""
+    own = sorted(materials, key=lambda m: str(m.get("date", "")), reverse=True)
+    if own:
+        return own
     p = ROOT / "data" / "lenta_channel.json"
     if p.exists():
         try:
@@ -1126,8 +1130,55 @@ def fmt_date_ru(s):
 
 
 def issue_has_page(issue):
-    """Выпуск получает отдельную страницу zine-<slug>.html, если в нём есть статьи."""
-    return bool(issue.get("articles"))
+    """Выпуск получает отдельную страницу zine-<slug>.html, если в нём есть статьи
+    (свои, articles) или он собирает уже опубликованные материалы (materials — список slug)."""
+    return bool(issue.get("articles") or issue_materials(issue))
+
+
+def issue_materials(issue):
+    """Опубликованные статьи журнала, собранные в выпуск (поле materials: список slug), по порядку."""
+    by_slug = {a.get("slug"): a for a in articles}
+    return [by_slug[s] for s in (issue.get("materials") or []) if s in by_slug]
+
+
+def series_cards(arts, cls="sx"):
+    """Карточки статей выпуска: обложка, номер, город/рубрика, заголовок, вводка."""
+    out = []
+    for i, a in enumerate(arts, start=1):
+        img = a.get("cover", "")
+        t = esc(strip_tags(a.get("title", "")))
+        em = a.get("titleEm", "")
+        if em:
+            t = t.replace(esc(em), f"<em>{esc(em)}</em>", 1)
+        acc = a.get("accent", "alyi")
+        out.append(f'''<a class="{cls}-card" href="journal/{esc(a.get("slug", ""))}" style="--sx-accent:var(--c-{esc(acc)})">
+      <span class="{cls}-img">{f'<img src="{esc(img)}"{_wh(img)} loading="lazy" alt=""/>' if img else ""}</span>
+      <span class="{cls}-n">{i:02d}</span>
+      <span class="{cls}-title">{t}</span>
+      <span class="{cls}-lead">{esc(strip_tags(a.get("lead", "")))}</span>
+      <span class="{cls}-go">Читать →</span>
+    </a>''')
+    return "\n".join(out)
+
+
+def render_series_issue_page(issue):
+    """Страница выпуска, который собирает уже опубликованные статьи в одну историю."""
+    slug = iss_slug(issue)
+    canonical = f"{BASE_URL}/zine-{slug}.html"
+    arts = issue_materials(issue)
+    plain = strip_tags(issue.get("title", ""))
+    title = f'«ЁPRST» № {issue.get("number", "")}, {issue.get("period", "")}: {plain} — PRSTNK'
+    desc = strip_tags(issue.get("coverLead") or issue.get("lead", ""))
+    body = f'''<div class="jn-wrap sx-page">
+  <a class="material-back material-back--top" href="journal">← В журнал</a>
+  <div class="sx-eyebrow">Выпуск № {esc(issue.get("number", ""))} · {esc(issue.get("period", ""))} · {len(arts)} {_plural(len(arts), "статья", "статьи", "статей")}</div>
+  <h1 class="sx-h1">{issue.get("title", "")}</h1>
+  <p class="sx-lead">{esc(desc)}</p>
+  <div class="sx-grid">
+    {series_cards(arts)}
+  </div>
+</div>'''
+    return (f'{head(title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n{body}\n{FOOTER}')
 
 
 def issue_cover_svg(issue):
@@ -1520,7 +1571,7 @@ def render_journal_index():
   </div>
   <div class="lc-title">{esc(m.get("title",""))}</div>
   {exc_html}
-  <span class="lc-cta">Читать в Telegram →</span>
+  <span class="lc-cta">{"Читать в Telegram →" if "t.me/" in url_m else ("Подробнее →" if url_m else "")}</span>
 </a>'''
 
     if lenta_items:
@@ -1529,15 +1580,30 @@ def render_journal_index():
     <div class="lenta-label">
       <div>
         <div class="lenta-label-title">Лента.<br/><em>Каждый<br/>день.</em></div>
-        <div class="lenta-label-sub">из Telegram · между выпусками</div>
+        <div class="lenta-label-sub">Петербург и мир · между выпусками</div>
       </div>
-      <a class="lenta-label-tg" href="https://t.me/prstnk_eprst" target="_blank" rel="noopener">@prstnk_eprst →</a>
+      <a class="lenta-label-tg" href="lenta">Вся лента →</a>
     </div>
     <div class="lenta-list">{lc_html}</div>
   </div>
 </div>'''
     else:
         lenta_html = ""
+
+    # ── ТЕКУЩИЙ ВЫПУСК-СЕРИЯ (одна карточка со всеми статьями) ─────────────
+    series_band_html = ""
+    _sx = issue_materials(current) if current else []
+    if _sx:
+        series_band_html = f'''<section class="sx-band">
+  <a class="sx-band-head" href="zine-{iss_slug(current)}.html">
+    <span class="sx-eyebrow">Выпуск № {esc(current.get("number", ""))} · {esc(current.get("period", ""))}</span>
+    <span class="sx-band-title">{current.get("title", "")}</span>
+    <span class="sx-band-lead">{esc(strip_tags(current.get("lead", "")))}</span>
+  </a>
+  <div class="sx-grid">
+    {series_cards(_sx)}
+  </div>
+</section>'''
 
     # ── ВЫПУСКИ ────────────────────────────────────────────────────────────
     issue_cards = ""
@@ -1546,7 +1612,7 @@ def render_journal_index():
         href_i = f'href="zine-{slug_i}.html"' if issue_has_page(iss) else ""
         n_i    = iss.get("number","")
         p_i    = iss.get("period","")
-        mc_i   = iss.get("materialsCount") or len(iss.get("articles",[]))
+        mc_i   = iss.get("materialsCount") or len(iss.get("articles",[])) or len(issue_materials(iss))
         im_i   = (f'№ {n_i} · {p_i} · {mc_i} {_plural(mc_i,"материал","материала","материалов")}'
                   if mc_i else f'№ {n_i} · {p_i}')
         issue_cards += f'''<a class="issue-card" {href_i} data-analytics="issues-card" data-issue="{n_i}">
@@ -1582,6 +1648,7 @@ def render_journal_index():
 {masthead_html}
 {rubric_html}
 {hero_html}
+{series_band_html}
 {art_header_html}
 {grid_html}
 {feature_html}
@@ -1755,7 +1822,8 @@ def _blk_picks(b):
                   f'<div class="pick-artist">{esc(w.get("artistName", ""))}</div>'
                   f'<div class="pick-row"><span class="pick-price">{esc(price)}</span>'
                   f'<span class="pick-buy">в магазин →</span></div></a>')
-    head_html = f'<div class="picks-head">{heading}</div>' if heading else ""
+    head_html = (f'<div class="picks-top"><span class="picks-kicker">Можно повесить дома · каталог PRSTNK</span>'
+                 f'{f"<div class=picks-head>{heading}</div>" if heading else ""}</div>')
     return f'<div class="bl bl-picks">{head_html}<div class="picks-grid">{cards}</div></div>'
 
 _BLOCK_RENDERERS = {
@@ -1794,14 +1862,27 @@ TRAVEL_JS = """<div class="tr-progress" aria-hidden="true"><span></span></div>
   var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var io = "IntersectionObserver" in window;
 
-  // Видеопетли играют, только когда видны; при «меньше движения» — ручной запуск
-  document.querySelectorAll(".bl-loop").forEach(function (v) {
-    if (still || !io) { v.controls = true; return; }
+  // Видеопетли играют, только когда видны; при «меньше движения» — ручной запуск.
+  // Видео в одной ленте (как сторис) стартуют и останавливаются вместе.
+  var play = function (v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); };
+  var handled = [];
+  document.querySelectorAll(".bl-collage[data-variant='reel']").forEach(function (reel) {
+    var vids = [].slice.call(reel.querySelectorAll(".bl-loop"));
+    if (!vids.length) return;
+    handled = handled.concat(vids);
+    if (still || !io) { vids.forEach(function (v) { v.controls = true; }); return; }
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
-        else v.pause();
+        if (e.isIntersecting) vids.forEach(function (v) { v.currentTime = 0; play(v); });
+        else vids.forEach(function (v) { v.pause(); });
       });
+    }, { threshold: 0.25 }).observe(reel);
+  });
+  document.querySelectorAll(".bl-loop").forEach(function (v) {
+    if (handled.indexOf(v) >= 0) return;
+    if (still || !io) { v.controls = true; return; }
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) play(v); else v.pause(); });
     }, { threshold: 0.35 }).observe(v);
   });
 
@@ -1830,7 +1911,7 @@ TRAVEL_JS = """<div class="tr-progress" aria-hidden="true"><span></span></div>
 
   // Плавное появление кадров: проявление + лёгкое всплытие; только для того, что ниже первого экрана
   if (still || !io) return;
-  var els = document.querySelectorAll(".material--travel .bl-photo, .material--travel .cl-item, .material--travel .bl-gallery, .material--travel .bl-split-img, .material--travel .pick");
+  var els = document.querySelectorAll(".material--travel .bl-photo, .material--travel .bl-collage:not([data-variant='reel']) .cl-item, .material--travel .bl-collage[data-variant='reel'], .material--travel .bl-gallery, .material--travel .bl-split-img, .material--travel .pick");
   var rv = new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("is-in"); rv.unobserve(e.target); } });
   }, { rootMargin: "0px 0px -10% 0px" });
@@ -2053,6 +2134,34 @@ def _feed_rhythm(items):
 
 def _materials_sorted():
     return sorted(articles, key=lambda a: a.get("date", ""), reverse=True)
+
+def lenta_card(m):
+    date_s = fmt_date_ru(m.get("date", ""))
+    url_m = (m.get("url") or "").strip()
+    href_attr = f'href="{esc(url_m)}" target="_blank" rel="noopener"' if url_m else ""
+    tag_html = f'<span class="lc-tag">{esc(m.get("tag", ""))}</span>' if m.get("tag") else ""
+    exc_html = f'<div class="lc-excerpt">{esc(m.get("excerpt", ""))}</div>' if m.get("excerpt") else ""
+    img = (m.get("photo") or m.get("image") or "").strip()
+    img_html = f'<div class="lc-img"><img src="{esc(img)}" loading="lazy" alt=""/></div>' if img else ""
+    cta = "Читать в Telegram →" if "t.me/" in url_m else ("Подробнее →" if url_m else "")
+    return (f'<a class="lc" {href_attr} data-analytics="lenta-card">{img_html}'
+            f'<div class="lc-meta"><span class="lc-date">{date_s}</span>{tag_html}</div>'
+            f'<div class="lc-title">{esc(m.get("title", ""))}</div>{exc_html}'
+            f'<span class="lc-cta">{cta}</span></a>')
+
+
+def render_lenta_page():
+    canonical = f"{BASE_URL}/lenta.html"
+    cards = "\n".join(lenta_card(m) for m in lenta)
+    body = f'''<div class="jn-wrap lenta-page">
+  <div class="materials-head"><h1>Лента. <em>Новости искусства</em></h1>
+    <span class="materials-count">Петербург и мир · между выпусками</span></div>
+  <div class="lenta-grid">{cards}</div>
+  <a class="material-back" href="journal">← В журнал</a>
+</div>'''
+    return (f'{head("Лента новостей — Журнал ЁPRST · PRSTNK", "Короткие новости искусства: Петербург, Лондон, Берлин, Милан.", canonical, extra_css="journal.css")}{HEADER}\n'
+            f'{body}\n{FOOTER}')
+
 
 def render_materials_index():
     canonical = f"{BASE_URL}/materials.html"
@@ -2321,6 +2430,7 @@ def render_sitemap():
     for w in artworks:
         urls.append((f"work-{w['slug']}.html", "0.8", "weekly"))
     urls.append(("materials.html", "0.7", "weekly"))
+    urls.append(("lenta.html", "0.6", "daily"))
     for a in articles:
         urls.append((f"journal/{a['slug']}.html", "0.7", "weekly"))
     for rub_slug in RUBRICS:
@@ -2384,6 +2494,8 @@ if __name__ == "__main__":
         (ROOT / "journal" / f'{a["slug"]}.html').write_text(clean_links(render_material_page(a)))
     print(f"  ✓ {len(articles)} страниц материалов (journal/<slug>.html)")
 
+    (ROOT / "lenta.html").write_text(clean_links(render_lenta_page()))
+    print("  ✓ lenta.html — вся лента")
     (ROOT / "materials.html").write_text(clean_links(render_materials_index()))
     print("  ✓ materials.html — все материалы")
 
@@ -2393,7 +2505,9 @@ if __name__ == "__main__":
 
     zn = 0
     for issue in issues:
-        if issue_has_page(issue):
+        if issue_materials(issue) and not issue.get("articles"):
+            (ROOT / f"zine-{iss_slug(issue)}.html").write_text(clean_links(render_series_issue_page(issue)))
+        elif issue_has_page(issue):
             (ROOT / f"zine-{iss_slug(issue)}.html").write_text(clean_links(render_issue_page(issue)))
             zn += 1
     print(f"  ✓ {zn} страниц выпусков (zine-*.html)")

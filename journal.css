@@ -909,3 +909,72 @@
 .rt-city .jn-card { font-size: 1rem; letter-spacing: 0; }
 /* чтобы было видно, что город кликабелен, ещё до наведения */
 .mz-route a { color: rgba(20,20,19,.62); border-bottom: 1px dashed rgba(20,20,19,.35); }
+
+/* страница «Вся лента» */
+.lenta-page { padding-bottom: 80px; }
+.lenta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); border-top: 1px solid var(--ink); }
+.lenta-grid .lc { border-right: 1px solid rgba(20,20,19,.12); border-bottom: 1px solid rgba(20,20,19,.12); }
+
+/* лента сторис проявляется целиком, мягко, без подпрыгивания кадров */
+.material--travel .bl-collage[data-variant="reel"].rv { transform: none; }
+.material--travel .bl-collage[data-variant="reel"].rv video, .material--travel .bl-collage[data-variant="reel"].rv img { transform: none; }
+.material--travel .bl-collage[data-variant="reel"].rv.is-in { transition: opacity 1s ease; }
+.bl-collage[data-variant="reel"] video { background: var(--paper-2, #eee); }
+
+
+/* ═══ Слот продаж в конце статьи: тёмная плашка, цвет статьи в акцентах ═══ */
+.bl-picks { --pk-acc: var(--mz-accent, var(--c-alyi)); background: var(--ink); color: #F4F1EA; border-radius: 6px; padding: clamp(22px, 4vw, 44px); margin: 56px 0 48px; }
+.picks-top { display: flex; flex-direction: column; gap: 10px; margin-bottom: clamp(20px, 3vw, 32px); }
+.picks-kicker { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--pk-acc); }
+.bl-picks .picks-head { font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 3vw, 36px); line-height: 1.05; letter-spacing: -.025em; text-transform: none; color: #F4F1EA; margin: 0; text-wrap: balance; }
+.bl-picks .pick-img { background: #2a2a28; }
+.bl-picks .pick-img img { transition: transform .9s cubic-bezier(.2,.7,.2,1); }
+.bl-picks .pick:hover .pick-img img { transform: scale(1.04); }
+.bl-picks .pick-artist { color: rgba(244,241,234,.6); }
+.bl-picks .pick-title { font-size: 16px; }
+.bl-picks .pick-buy { color: var(--pk-acc); border-bottom-color: currentColor; }
+.bl-picks .pick:hover .pick-buy { color: #F4F1EA; }
+@media (max-width: 640px) {
+  .picks-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .bl-picks .pick:nth-child(3):last-child { grid-column: 1 / -1; }
+  .bl-picks .pick:nth-child(3):last-child .pick-img { aspect-ratio: 4/3; }
+}
+@media (prefers-reduced-motion: reduce) { .bl-picks .pick-img img { transition: none; } }
+
+/* ═══ Выпуск-серия: одна карточка «№ 05 · сентябрь–октябрь» со всеми статьями ═══ */
+.sx-band { margin: clamp(40px, 6vw, 72px) 0; padding: clamp(22px, 3.5vw, 40px); background: var(--ink); color: #F4F1EA; border-radius: 6px; }
+.sx-band-head { display: grid; gap: 10px; text-decoration: none; color: inherit; margin-bottom: clamp(22px, 3vw, 36px); max-width: 760px; }
+.sx-eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--c-alyi); }
+.sx-band-title { font-family: var(--f-display); font-weight: 800; font-size: clamp(32px, 5vw, 64px); line-height: .98; letter-spacing: -.035em; text-wrap: balance; }
+.sx-band-title em, .sx-h1 em { font-style: italic; color: var(--c-alyi); }
+.sx-band-lead { font-family: var(--f-text); font-size: 17px; line-height: 1.5; color: rgba(244,241,234,.72); max-width: 62ch; }
+.sx-band-head:hover .sx-band-title { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.sx-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 2vw, 28px); counter-reset: sx; }
+.sx-card { position: relative; display: grid; grid-template-rows: auto auto auto 1fr auto; text-decoration: none; color: inherit; }
+.sx-img { position: relative; display: block; aspect-ratio: 4/5; overflow: hidden; border-radius: 4px; background: #2a2a28; margin-bottom: 14px; }
+.sx-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .9s cubic-bezier(.2,.7,.2,1); }
+.sx-card:hover .sx-img img { transform: scale(1.04); }
+.sx-n { font-family: var(--f-mono); font-size: 12px; letter-spacing: .06em; color: var(--sx-accent); margin-bottom: 6px; }
+.sx-title { font-family: var(--f-display); font-weight: 800; font-size: clamp(20px, 2vw, 26px); line-height: 1.05; letter-spacing: -.02em; margin-bottom: 8px; text-wrap: balance; }
+.sx-title em { font-style: italic; color: var(--sx-accent); }
+.sx-lead { font-family: var(--f-text); font-size: 14px; line-height: 1.45; color: rgba(244,241,234,.66); margin-bottom: 14px; }
+.sx-go { font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--sx-accent); justify-self: start; border-bottom: 1.5px solid currentColor; padding-bottom: 1px; }
+/* страница выпуска — светлая, карточки на фоне страницы */
+.sx-page { padding-top: 24px; padding-bottom: 96px; }
+.sx-page .sx-eyebrow { margin-top: 28px; }
+.sx-h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(44px, 8vw, 96px); line-height: .95; letter-spacing: -.04em; margin: 12px 0 18px; text-wrap: balance; }
+.sx-lead { max-width: 62ch; }
+.sx-page > .sx-lead { font-family: var(--f-text); font-size: 19px; line-height: 1.5; color: rgba(20,20,19,.72); margin-bottom: clamp(32px, 5vw, 56px); }
+.sx-page .sx-img { background: #e8e4dc; }
+.sx-page .sx-lead { color: rgba(20,20,19,.66); }
+@media (max-width: 860px) {
+  .sx-grid { grid-template-columns: 1fr; gap: 32px; }
+  .sx-card { grid-template-columns: 38% 1fr; grid-template-rows: auto auto 1fr auto; column-gap: 16px; }
+  .sx-img { grid-row: 1 / 5; aspect-ratio: 4/5; margin-bottom: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .sx-img img { transition: none; } }
+/* мелкий цветной текст на тёмном: подсветляем цвет, чтобы кобальт и хвоя читались */
+.picks-kicker, .bl-picks .pick-buy { color: color-mix(in oklab, var(--pk-acc) 62%, #fff); }
+.sx-band .sx-n, .sx-band .sx-go { color: color-mix(in oklab, var(--sx-accent) 62%, #fff); }
+.sx-band .sx-eyebrow { color: color-mix(in oklab, var(--c-alyi) 70%, #fff); }
+.mz-grid > .bl-picks { margin-right: clamp(16px, 3vw, 40px); }

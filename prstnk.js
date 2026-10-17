@@ -73,6 +73,22 @@
     a.addEventListener('blur',      () => root.style.setProperty('--prstnk-color', defaultColor));
   });
 
+  /* --- Знак сам по себе: простенок медленно перебирает цвета палитры.
+         При наведении на меню/работу уступает их цвету; в статьях со своим
+         цветом (data-accent) и при «меньше движения» стоит на месте. --- */
+  const marks = document.querySelectorAll('.site-header .brand__mark');
+  const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (marks.length && !still && !document.querySelector('.material--travel')) {
+    const CYCLE = ['var(--c-alyi)', 'var(--c-kobalt)', 'var(--c-fuxia)', 'var(--c-hvoya)', 'var(--c-limon)'];
+    let i = 0, paused = false;
+    const paint = (c) => marks.forEach(m => c ? m.style.setProperty('--mark-color', c) : m.style.removeProperty('--mark-color'));
+    setInterval(() => { if (paused || document.hidden) return; i = (i + 1) % CYCLE.length; paint(CYCLE[i]); }, 2600);
+    document.querySelectorAll('.nav a, [data-work-color]').forEach(el => {
+      el.addEventListener('mouseenter', () => { paused = true; paint(null); });
+      el.addEventListener('mouseleave', () => { paused = false; paint(CYCLE[i]); });
+    });
+  }
+
   /* --- Entry animation: staggered показ работ + герой --- */
   const els = document.querySelectorAll('.stagger');
   if ('IntersectionObserver' in window) {

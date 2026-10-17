@@ -255,6 +255,12 @@ collections:
           - { label: "Фуксия", value: "fuxia" }
           - { label: "Уголь", value: "ugol" }
       - { name: "readingTime", label: "Время чтения", widget: "string", required: false, hint: "Напр. 20 мин чтения" }
+      - name: "materials"
+        label: "Статьи журнала в этом выпуске"
+        hint: "Соберите уже опубликованные статьи в один выпуск (как сентябрьская серия). Порядок здесь = порядок на странице выпуска."
+        widget: "list"
+        required: false
+        field: { name: "article", label: "Статья", widget: "relation", collection: "articles", value_field: "slug", search_fields: ["title"], display_fields: ["title"] }
       - name: "credits"
         label: "Над выпуском работали"
         widget: "list"

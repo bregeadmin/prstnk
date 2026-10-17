@@ -1,0 +1,16 @@
+{
+  "number": "05",
+  "slug": "05",
+  "period": "сентябрь–октябрь 2026",
+  "title": "Сентябрь <em>в дороге</em>",
+  "lead": "Лион, Лондон, Берлин: три города, три статьи, один маршрут. Ротко дважды, Бэкон в конце, а между ними красный цвет, лица и очень много печати.",
+  "current": true,
+  "order": 0,
+  "materials": [
+    "lion-sentyabr",
+    "london-sentyabr",
+    "berlin-sentyabr"
+  ],
+  "coverColor": "alyi",
+  "readingTime": "25 мин чтения"
+}

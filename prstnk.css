@@ -153,8 +153,8 @@ h1, h2, h3, h4 {
   transition: color 0.2s ease;
 }
 .brand__mark .pillar {
-  fill: var(--prstnk-color);
-  transition: fill 0.4s cubic-bezier(.2,.7,.2,1);
+  fill: var(--mark-color, var(--prstnk-color));
+  transition: fill 1.2s cubic-bezier(.2,.7,.2,1);
 }
 .brand__mark .window {
   fill: none;
