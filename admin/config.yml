@@ -385,6 +385,7 @@ collections:
         fields:
           - { name: "city", label: "Город", widget: "string" }
           - { name: "here", label: "Эта статья про этот город", widget: "boolean", required: false, default: false }
+          - { name: "slug", label: "Адрес статьи про этот город (латиницей)", widget: "string", required: false, hint: "Напр. london-sentyabr. Тогда город в маршруте станет ссылкой." }
       - { name: "author", label: "Автор", widget: "string", default: "редакция ЁPRST" }
       - { name: "date", label: "Дата", widget: "datetime" }
       - { name: "readMins", label: "Время чтения (мин)", widget: "number", value_type: "int" }

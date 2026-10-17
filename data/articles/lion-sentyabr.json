@@ -10,13 +10,16 @@
   "route": [
     {
       "city": "Лион",
-      "here": true
+      "here": true,
+      "slug": "lion-sentyabr"
     },
     {
-      "city": "Лондон"
+      "city": "Лондон",
+      "slug": "london-sentyabr"
     },
     {
-      "city": "Берлин"
+      "city": "Берлин",
+      "slug": "berlin-sentyabr"
     }
   ],
   "author": "AG, редакция ЁPRST",
@@ -203,7 +206,8 @@
               "where": "HENI Gallery, Сохо · «Depictions»",
               "note": "Акула в формальдегиде, точки, бабочки. С бабочками у него давняя история, с начала девяностых."
             }
-          ]
+          ],
+          "slug": "london-sentyabr"
         },
         {
           "city": "Берлин",
@@ -223,7 +227,8 @@
               "where": "Берлин",
               "note": "Не ждал, а он висит и тут."
             }
-          ]
+          ],
+          "slug": "berlin-sentyabr"
         }
       ]
     },

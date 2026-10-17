@@ -1706,7 +1706,9 @@ def _blk_route(b):
             f'<li><b>{esc(it.get("name", ""))}</b><span class="rt-where">{esc(it.get("where", ""))}</span>'
             f'<span class="rt-note">{esc(it.get("note", ""))}</span></li>' for it in st.get("items") or [])
         stops += (f'<section class="rt-stop"><div class="rt-head"><span class="rt-n">{i:02d}</span>'
-                  f'<h3 class="rt-city">{esc(st.get("city", ""))}</h3>'
+                  + (f'<h3 class="rt-city"><a href="journal/{esc(st["slug"])}">{esc(st.get("city", ""))} <span class="rt-go">→</span></a></h3>'
+                     if st.get("slug") and any(a.get("slug") == st["slug"] for a in articles)
+                     else f'<h3 class="rt-city">{esc(st.get("city", ""))}</h3>')
                   + (f'<span class="rt-when">{esc(st["when"])}</span>' if st.get("when") else "") + f'</div><ul>{rows}</ul></section>')
     head = esc(b.get("heading", ""))
     return (f'<div class="bl bl-route bl--wide"><div class="rt-title">{head}</div>'
@@ -1911,9 +1913,16 @@ def link_previews(html):
 def render_travel_page(article, h1, blocks_html, page_title, desc, canonical, rub):
     """Дорожная статья в журнальной раскладке: огромный заголовок, обложка-коллаж,
     слева «паспорт» материала с жирной вертикальной линией, фото выходят до правого края экрана."""
-    route = "".join(
-        f'<li class="{"is-here" if st.get("here") else ""}">{esc(st.get("city", ""))}</li>'
-        for st in article.get("route") or [])
+    # Города маршрута: текущий подсвечен, остальные ведут на свои статьи (если статья есть на сайте)
+    live = {a.get("slug") for a in articles}
+    def _stop(st):
+        city = esc(st.get("city", ""))
+        if st.get("here"):
+            return f'<li class="is-here"><span aria-current="page">{city}</span></li>'
+        if st.get("slug") in live:
+            return f'<li><a href="journal/{esc(st["slug"])}">{city}</a></li>'
+        return f'<li>{city}</li>'
+    route = "".join(_stop(st) for st in article.get("route") or [])
     shape = esc(article.get("coverShape", "limon"))
     # Цвет статьи из палитры Простенка: им же красится столбик логотипа в шапке
     acc = article.get("accent", "alyi")

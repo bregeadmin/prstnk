@@ -895,3 +895,15 @@
   .jn-card-lead { display: block; font-family: var(--f-text); font-size: 13.5px; line-height: 1.45; color: rgba(20,20,19,.7); }
 }
 @media (prefers-reduced-motion: reduce) { .jn-card { transition: none; } }
+
+/* города маршрута — ссылки на соседние статьи серии */
+.mz-route a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; transition: color .2s ease, border-color .2s ease; }
+.mz-route a:hover, .mz-route a:focus-visible { color: var(--ink); border-bottom-color: var(--mz-accent, var(--c-alyi)); }
+.mz-route a::after { content: " →"; font-family: var(--f-mono); font-size: .8em; opacity: 0; transition: opacity .2s ease; }
+.mz-route a:hover::after, .mz-route a:focus-visible::after { opacity: 1; }
+.rt-city a { color: inherit; text-decoration: none; }
+.rt-city a .rt-go { color: var(--mz-accent, var(--c-alyi)); font-size: .6em; vertical-align: middle; transition: transform .25s cubic-bezier(.16,1,.3,1); display: inline-block; }
+.rt-city a:hover .rt-go, .rt-city a:focus-visible .rt-go { transform: translateX(6px); }
+.rt-city .jn-link { background: none; border-bottom: none; font-weight: inherit; padding: 0; }
+.rt-city .jn-link:hover { background: none; }
+.rt-city .jn-card { font-size: 1rem; letter-spacing: 0; }

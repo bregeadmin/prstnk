@@ -11,14 +11,17 @@
   "issueLabel": "ЁPRST · Сентябрь",
   "route": [
     {
-      "city": "Лион"
+      "city": "Лион",
+      "slug": "lion-sentyabr"
     },
     {
       "city": "Лондон",
-      "here": true
+      "here": true,
+      "slug": "london-sentyabr"
     },
     {
-      "city": "Берлин"
+      "city": "Берлин",
+      "slug": "berlin-sentyabr"
     }
   ],
   "author": "AG, редакция ЁPRST",
@@ -249,7 +252,8 @@
               "where": "Neue Nationalgalerie · постоянная экспозиция",
               "note": "Второй раз за неделю. И рядом кое-кто, до кого я в Лондоне так и не дошёл."
             }
-          ]
+          ],
+          "slug": "berlin-sentyabr"
         }
       ]
     },
