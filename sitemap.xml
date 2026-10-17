@@ -186,6 +186,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://prstnk.ru/journal/berlin-sentyabr</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://prstnk.ru/journal/lion-sentyabr</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

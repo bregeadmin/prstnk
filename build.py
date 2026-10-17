@@ -1889,6 +1889,25 @@ def render_material_page(article):
             f'<div class="jn-wrap">\n{body}\n</div>\n{FOOTER}')
 
 
+def link_previews(html):
+    """Ссылки на другие статьи журнала: подсветка + карточка-превью при наведении (на компьютере)."""
+    by_slug = {a.get("slug"): a for a in articles}
+    def repl(m):
+        a = by_slug.get(m.group(1))
+        if not a:
+            return m.group(0)
+        img = a.get("cover", "")
+        lead = strip_tags(a.get("lead", ""))
+        lead = lead if len(lead) <= 150 else lead[:147].rsplit(" ", 1)[0] + "…"
+        card = (f'<span class="jn-card" aria-hidden="true">'
+                + (f'<span class="jn-card-img" style="background-image:url(\'/{esc(img.lstrip("/"))}\')"></span>' if img else "")
+                + f'<span class="jn-card-body"><span class="jn-card-rub">{rubric_label(a.get("rubric", ""))}</span>'
+                f'<span class="jn-card-title">{esc(strip_tags(a.get("title", "")))}</span>'
+                f'<span class="jn-card-lead">{esc(lead)}</span></span></span>')
+        return f'<a class="jn-link" href="journal/{m.group(1)}">{m.group(2)}{card}</a>'
+    return re.sub(r'<a href="journal/([a-z0-9-]+)">(.*?)</a>', repl, html)
+
+
 def render_travel_page(article, h1, blocks_html, page_title, desc, canonical, rub):
     """Дорожная статья в журнальной раскладке: огромный заголовок, обложка-коллаж,
     слева «паспорт» материала с жирной вертикальной линией, фото выходят до правого края экрана."""
@@ -1915,6 +1934,7 @@ def render_travel_page(article, h1, blocks_html, page_title, desc, canonical, ru
     </dl>
     {f'<ol class="mz-route" aria-label="Маршрут">{route}</ol>' if route else ""}
   </div></aside>'''
+    blocks_html = link_previews(blocks_html)
     body = f'''<article class="material material--travel mz">
   <div class="mz-grid">
   {side}
