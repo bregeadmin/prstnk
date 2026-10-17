@@ -35,7 +35,6 @@
     },
     {
       "type": "collage",
-      "variant": "a",
       "items": [
         {
           "image": "images/journal/berlin/kafe-zelenye.jpg",
@@ -44,6 +43,14 @@
         {
           "image": "images/journal/berlin/kafe-vecher.jpg",
           "caption": "Кафе на углу."
+        },
+        {
+          "image": "images/journal/berlin/kofe-stolik.jpg",
+          "caption": "Берлинский кофе."
+        },
+        {
+          "image": "images/journal/berlin/kofe-ulica.jpg",
+          "caption": "И улица вокруг него."
         }
       ]
     },
@@ -187,32 +194,6 @@
       "type": "pull",
       "tone": "seagram",
       "text": "Тот же красный, только с лицами"
-    },
-    {
-      "type": "heading",
-      "text": "Элегантная точка"
-    },
-    {
-      "type": "text",
-      "text": "После Каттелана я пошёл пить кофе в кафе, которое мне посоветовали. Это рядом с домом, недалеко от Еврейского музея. И вдруг справа увидел Марата Гельмана∗, который как будто стал символом того, что каникулы искусства подошли к концу. Такая элегантная точка. Позже я узнал, что он открывает новую галерею прямо в том здании, где было это кафе."
-    },
-    {
-      "type": "note",
-      "text": "∗ Марат Гельман признан Минюстом РФ иностранным агентом и внесён Росфинмониторингом в перечень террористов и экстремистов."
-    },
-    {
-      "type": "collage",
-      "variant": "b",
-      "items": [
-        {
-          "image": "images/journal/berlin/kofe-stolik.jpg",
-          "caption": "Берлинский кофе."
-        },
-        {
-          "image": "images/journal/berlin/kofe-ulica.jpg",
-          "caption": "И улица вокруг него."
-        }
-      ]
     },
     {
       "type": "heading",
