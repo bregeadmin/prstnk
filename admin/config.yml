@@ -351,6 +351,7 @@ collections:
     slug: "{{slug}}"
     identifier_field: "title"
     fields:
+      - { name: "draft", label: "Черновик (ещё не на сайте)", widget: "boolean", required: false, default: false, hint: "Снимите галочку, когда статья готова — она появится в журнале." }
       - { name: "hidden", label: "Скрыть с сайта (остаётся в базе)", widget: "boolean", required: false, default: false, hint: "Включите — материал пропадёт с сайта, но останется здесь." }
       - { name: "title", label: "Заголовок", widget: "string" }
       - { name: "titleEm", label: "Курсивная часть заголовка (необяз.)", widget: "string", required: false }

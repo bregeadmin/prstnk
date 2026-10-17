@@ -16,6 +16,7 @@ PRSTNK — генератор статических страниц из data/*.
 """
 
 import json
+import os
 import re
 from pathlib import Path
 
@@ -57,7 +58,9 @@ artists = [a for a in load_collection("artists") if not a.get("hidden")]
 collections = load_collection("collections")
 issues = [x for x in load_collection("issues") if not x.get("hidden")]        # выпуски журнала «ЁPRST»
 materials = [x for x in load_collection("materials") if not x.get("hidden")]  # лента коротких постов
-articles = [x for x in load_collection("articles") if not x.get("hidden")]    # материалы журнала (track A)
+# draft: true — черновик статьи: на сайт не попадает; локально виден при PRSTNK_DRAFTS=1
+articles = [x for x in load_collection("articles")
+            if not x.get("hidden") and (not x.get("draft") or os.environ.get("PRSTNK_DRAFTS"))]    # материалы журнала (track A)
 
 
 def load_lenta():
@@ -1605,16 +1608,31 @@ def _blk_quote(b):
     return (f'<div class="bl bl-quote"><blockquote>{esc(b.get("text", ""))}'
             f'{cite_html}</blockquote></div>')
 
+def _cap_html(b, tag="figcaption"):
+    """Подпись к фото: штамп времени съёмки (моно) + текст."""
+    cap, t = b.get("caption", ""), b.get("time", "")
+    if not (cap or t):
+        return ""
+    stamp = f'<span class="bl-stamp">{esc(t)}</span>' if t else ""
+    return f'<{tag} class="bl-cap">{stamp}{esc(cap)}</{tag}>'
+
+def _media_html(b):
+    """Картинка или беззвучная видеопетля («живое фото» вместо гифки)."""
+    alt = esc(b.get("alt") or b.get("caption", ""))
+    if b.get("video"):
+        poster = f' poster="{esc(b["poster"])}"' if b.get("poster") else ""
+        return (f'<video class="bl-loop" src="{esc(b["video"])}"{poster} muted loop playsinline '
+                f'preload="metadata" aria-label="{alt}"></video>')
+    return f'<img src="{esc(b.get("image", ""))}" loading="lazy" alt="{alt}"/>'
+
 def _blk_photo(b):
-    img = esc(b.get("image", ""))
-    cap = b.get("caption", "")
-    cap_html = f'<figcaption class="bl-cap">{esc(cap)}</figcaption>' if cap else ""
-    return (f'<figure class="bl bl-photo"><img src="{img}" loading="lazy" alt="{esc(cap)}"/>'
-            f'{cap_html}</figure>')
+    wide = " bl--wide" if b.get("wide") else ""
+    return f'<figure class="bl bl-photo{wide}">{_media_html(b)}{_cap_html(b)}</figure>'
 
 def _blk_split(b):
     side = "left" if b.get("imageSide") == "left" else "right"
-    img_html = f'<div class="bl-split-img"><img src="{esc(b.get("image", ""))}" loading="lazy" alt=""/></div>'
+    img_html = (f'<div class="bl-split-img"><img src="{esc(b.get("image", ""))}" loading="lazy" '
+                f'alt="{esc(b.get("caption", ""))}"/>{_cap_html(b, "div")}</div>')
     txt_html = f'<div class="bl-split-text">{md_to_html(b.get("text", ""))}</div>'
     inner = (img_html + txt_html) if side == "left" else (txt_html + img_html)
     return f'<div class="bl bl-split bl-split--{side}"><div class="bl-split-grid">{inner}</div></div>'
@@ -1622,7 +1640,39 @@ def _blk_split(b):
 def _blk_gallery(b):
     imgs = b.get("images") or []
     cells = "".join(f'<img src="{esc(i)}" loading="lazy" alt=""/>' for i in imgs)
-    return f'<div class="bl bl-gallery" data-count="{len(imgs)}">{cells}</div>'
+    fit = ' data-fit="natural"' if b.get("fit") == "natural" else ""
+    cap = _cap_html(b, "div")
+    return f'<div class="bl bl-gallery{" bl--wide" if b.get("wide") else ""}" data-count="{len(imgs)}"{fit}>{cells}</div>{cap}'
+
+def _blk_collage(b):
+    """Свободная раскладка 2–3 кадров (фото и видеопетли) со смещением, на ширину шире текста."""
+    items = b.get("items") or []
+    cells = "".join(f'<figure class="cl-item">{_media_html(it)}{_cap_html(it)}</figure>' for it in items)
+    return f'<div class="bl bl-collage bl--wide" data-count="{len(items)}" data-variant="{esc(b.get("variant", "a"))}">{cells}</div>'
+
+def _blk_fullbleed(b):
+    """Кадр на всю ширину экрана между главами (фото или видеопетля), с лёгким параллаксом."""
+    return (f'<figure class="bl bl-fullbleed"><div class="fb-frame">{_media_html(b)}</div>'
+            f'{_cap_html(b)}</figure>')
+
+def _blk_daymark(b):
+    """Отметка дня/времени в дорожном дневнике."""
+    return (f'<div class="bl bl-daymark"><span class="dm-date">{esc(b.get("date", ""))}</span>'
+            f'<span class="dm-text">{esc(b.get("text", ""))}</span></div>')
+
+def _blk_route(b):
+    """«Билет» на следующие остановки маршрута: город, даты, кто и где."""
+    stops = ""
+    for i, st in enumerate(b.get("stops") or [], start=int(b.get("startAt", 1))):
+        rows = "".join(
+            f'<li><b>{esc(it.get("name", ""))}</b><span class="rt-where">{esc(it.get("where", ""))}</span>'
+            f'<span class="rt-note">{esc(it.get("note", ""))}</span></li>' for it in st.get("items") or [])
+        stops += (f'<section class="rt-stop"><div class="rt-head"><span class="rt-n">{i:02d}</span>'
+                  f'<h3 class="rt-city">{esc(st.get("city", ""))}</h3>'
+                  + (f'<span class="rt-when">{esc(st["when"])}</span>' if st.get("when") else "") + f'</div><ul>{rows}</ul></section>')
+    head = esc(b.get("heading", ""))
+    return (f'<div class="bl bl-route bl--wide"><div class="rt-title">{head}</div>'
+            f'<div class="rt-stops">{stops}</div></div>')
 
 def _embed_id(provider, url):
     url = url or ""
@@ -1677,6 +1727,10 @@ _BLOCK_RENDERERS = {
     "gallery": _blk_gallery,
     "embed": _blk_embed,
     "picks": _blk_picks,
+    "collage": _blk_collage,
+    "daymark": _blk_daymark,
+    "fullbleed": _blk_fullbleed,
+    "route": _blk_route,
 }
 
 def render_block(block):
@@ -1690,6 +1744,64 @@ def check_article_slugs(items):
     for a in items:
         if a.get("slug") in RESERVED_SLUGS:
             raise ValueError(f'Slug материала "{a.get("slug")}" зарезервирован под рубрику. Переименуйте.')
+
+
+TRAVEL_JS = """<div class="tr-progress" aria-hidden="true"><span></span></div>
+<script>
+(function () {
+  var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var io = "IntersectionObserver" in window;
+
+  // Видеопетли играют, только когда видны; при «меньше движения» — ручной запуск
+  document.querySelectorAll(".bl-loop").forEach(function (v) {
+    if (still || !io) { v.controls = true; return; }
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+        else v.pause();
+      });
+    }, { threshold: 0.35 }).observe(v);
+  });
+
+  // Полоса прочитанного
+  var bar = document.querySelector(".tr-progress span"), art = document.querySelector(".material--travel");
+  // Параллакс кадров на всю ширину
+  var fbs = still ? [] : [].slice.call(document.querySelectorAll(".fb-frame > *"));
+  var ticking = false;
+  function onScroll() {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function () {
+      ticking = false;
+      if (bar && art) {
+        var r = art.getBoundingClientRect(), total = r.height - innerHeight;
+        bar.style.transform = "scaleX(" + Math.min(1, Math.max(0, -r.top / (total || 1))) + ")";
+      }
+      fbs.forEach(function (m) {
+        var f = m.parentNode.getBoundingClientRect();
+        if (f.bottom < 0 || f.top > innerHeight) return;
+        var k = (f.top + f.height / 2 - innerHeight / 2) / innerHeight;
+        m.style.transform = "translate3d(0," + (k * -8).toFixed(2) + "%,0) scale(1.12)";
+      });
+    });
+  }
+  addEventListener("scroll", onScroll, { passive: true }); addEventListener("resize", onScroll); onScroll();
+
+  // Плавное появление кадров: проявление + лёгкое всплытие; только для того, что ниже первого экрана
+  if (still || !io) return;
+  var els = document.querySelectorAll(".material--travel .bl-photo, .material--travel .cl-item, .material--travel .bl-gallery, .material--travel .bl-split-img, .material--travel .pick");
+  var rv = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("is-in"); rv.unobserve(e.target); } });
+  }, { rootMargin: "0px 0px -10% 0px" });
+  els.forEach(function (el) {
+    if (el.getBoundingClientRect().top > innerHeight * 0.9) {
+      var sib = el.parentNode.children, n = [].indexOf.call(sib, el);
+      el.style.setProperty("--d", (el.classList.contains("cl-item") || el.classList.contains("pick") ? n * 140 : 0) + "ms");
+      el.classList.add("rv"); rv.observe(el);
+    }
+  });
+})();
+</script>
+"""
 
 
 def render_material_page(article):
@@ -1715,14 +1827,37 @@ def render_material_page(article):
 
     blocks_html = "\n".join(render_block(b) for b in article.get("blocks", []))
 
-    body = f'''<article class="material">
-  <header class="material-head">
+    travel = article.get("layout") == "travel" and article.get("cover")
+    hero = ""
+    if travel:
+        route = ""
+        for st in article.get("route") or []:
+            cls = " is-here" if st.get("here") else ""
+            route += (f'<li class="tr-stop{cls}"><span class="tr-city">{esc(st.get("city", ""))}</span>'
+                      + (f'<span class="tr-when">{esc(st["when"])}</span>' if st.get("when") else "") + '</li>')
+        hero = f'''<header class="tr-hero">
+  <img class="tr-hero-img" src="{esc(article["cover"])}" alt="{esc(article.get("coverAlt", ""))}"/>
+  <div class="tr-hero-in">
+    <a class="tr-back" href="journal">← В журнал</a>
+    <div class="material-kicker tr-kicker">{rubric_label(rub)}</div>
+    <h1 class="material-title tr-title">{h1}</h1>
+    {f'<ol class="tr-route" aria-label="Маршрут">{route}</ol>' if route else ""}
+  </div>
+</header>'''
+
+    head_html = (f'''  <header class="material-head tr-head">
+    <p class="material-lead">{esc(article.get("lead", ""))}</p>
+    <div class="material-meta">{" · ".join(meta_parts)}</div>
+  </header>''' if travel else f'''  <header class="material-head">
     <a class="material-back material-back--top" href="journal">← В журнал</a>
     <div class="material-kicker {rub_cls}">{rubric_label(rub)}</div>
     <h1 class="material-title">{h1}</h1>
     <p class="material-lead">{esc(article.get("lead", ""))}</p>
     <div class="material-meta">{" · ".join(meta_parts)}</div>
-  </header>
+  </header>''')
+
+    body = f'''<article class="material{' material--travel' if travel else ''}">
+{head_html}
   <div class="material-body">
 {blocks_html}
   </div>
@@ -1730,7 +1865,8 @@ def render_material_page(article):
 </article>'''
 
     return (f'{head(page_title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n'
-            f'<div class="jn-wrap">\n{body}\n</div>\n{FOOTER}')
+            f'{hero}<div class="jn-wrap">\n{body}\n</div>\n'
+            f'{TRAVEL_JS if travel else ""}{FOOTER}')
 
 
 def _feed_meta(a):
