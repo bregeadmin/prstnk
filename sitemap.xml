@@ -86,27 +86,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-krym-14</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-sumerki</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-2</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-gde-to-na-vo</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-3</loc>
+    <loc>https://prstnk.ru/work-peizazh-s-domom</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -116,17 +96,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-peizazh-s-domom</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-5</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-tribunal-24</loc>
+    <loc>https://prstnk.ru/work-derevenskii-naturmort-6</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -136,27 +106,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-peizazh-s-troitskim-soborom</loc>
+    <loc>https://prstnk.ru/work-kanal-griboedova</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-promzona</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-bez-nazvaniia-4</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-most-u-gorohovoi</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://prstnk.ru/work-derevenskii-naturmort-6</loc>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-2</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -166,12 +121,57 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/work-kanal-griboedova</loc>
+    <loc>https://prstnk.ru/work-sumerki</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-4</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-promzona</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-tribunal-24</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-most-u-gorohovoi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-peizazh-s-troitskim-soborom</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-3</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-gde-to-na-vo</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://prstnk.ru/work-derevenskii-naturmort-5</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-krym-14</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://prstnk.ru/work-bez-nazvaniia-5</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -186,12 +186,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/journal/kak-travyat-tsink</loc>
+    <loc>https://prstnk.ru/journal/london-sentyabr</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://prstnk.ru/journal/london-sentyabr</loc>
+    <loc>https://prstnk.ru/journal/kak-travyat-tsink</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
