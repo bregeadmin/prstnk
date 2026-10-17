@@ -541,7 +541,15 @@ collections:
           - { label: "Хвоя", value: "hvoya" }
           - { label: "Фуксия", value: "fuxia" }
           - { label: "Уголь", value: "ugol" }
-      - { name: "url", label: "Ссылка на пост в Telegram", widget: "string", required: false, hint: "Напр. https://t.me/prstnk_store/123. Если пусто — откроется чат." }
+      - name: "body"
+        label: "Текст новости (на её странице)"
+        widget: "markdown"
+        required: false
+        hint: "2–4 абзаца своими словами. Если пусто — на странице будет короткий текст."
+        buttons: ["bold", "italic", "link"]
+      - { name: "imageCredit", label: "Подпись к фото (кто автор)", widget: "string", required: false, hint: "Напр. Фото: Tate" }
+      - { name: "url", label: "Ссылка на источник", widget: "string", required: false, hint: "Откуда новость. Будет внизу страницы новости. Если это пост Telegram (t.me/...), карточка сразу откроет Telegram." }
+      - { name: "sourceName", label: "Название источника", widget: "string", required: false, hint: "Напр. The Art Newspaper. Если пусто — возьмётся адрес сайта." }
       - { name: "tag", label: "Метка", widget: "string", required: false, hint: "Напр. репортаж" }
       - { name: "date", label: "Дата", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
       - { name: "slug", label: "Адрес (латиницей)", widget: "string", hint: "Напр. ofort-shtapakov" }

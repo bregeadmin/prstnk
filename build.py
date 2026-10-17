@@ -18,6 +18,7 @@ PRSTNK — генератор статических страниц из data/*.
 import json
 import os
 import re
+import urllib.parse
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -1549,30 +1550,7 @@ def render_journal_index():
 </div>'''
 
     # ── ЛЕНТА ──────────────────────────────────────────────────────────────
-    lc_html = ""
-    for m in lenta_items:
-        date_s = fmt_date_ru(m.get("date",""))
-        tag_s  = m.get("tag","")
-        url_m  = (m.get("url") or "").strip()
-        if not url_m and m.get("tgText"):
-            url_m = "https://t.me/prstnk_eprst"
-        href_attr = f'href="{esc(url_m)}" target="_blank" rel="noopener"' if url_m else ""
-        photo_m = (m.get("photo") or "").strip()
-        img_html = (f'<div class="lc-img"><img src="{esc(photo_m)}" loading="lazy" alt=""/></div>'
-                    if photo_m else "")
-        excerpt_m = m.get("excerpt", "")
-        exc_html = f'<div class="lc-excerpt">{esc(excerpt_m)}</div>' if excerpt_m else ""
-        tag_html = f'<span class="lc-tag">{esc(tag_s)}</span>' if tag_s else ""
-        lc_html += f'''<a class="lc" {href_attr} data-analytics="lenta-card">
-  {img_html}
-  <div class="lc-meta">
-    <span class="lc-date">{date_s}</span>
-    {tag_html}
-  </div>
-  <div class="lc-title">{esc(m.get("title",""))}</div>
-  {exc_html}
-  <span class="lc-cta">{"Читать в Telegram →" if "t.me/" in url_m else ("Подробнее →" if url_m else "")}</span>
-</a>'''
+    lc_html = "".join(lenta_card(m) for m in lenta_items)
 
     if lenta_items:
         lenta_html = f'''<div class="lenta-section">
@@ -1589,21 +1567,6 @@ def render_journal_index():
 </div>'''
     else:
         lenta_html = ""
-
-    # ── ТЕКУЩИЙ ВЫПУСК-СЕРИЯ (одна карточка со всеми статьями) ─────────────
-    series_band_html = ""
-    _sx = issue_materials(current) if current else []
-    if _sx:
-        series_band_html = f'''<section class="sx-band">
-  <a class="sx-band-head" href="zine-{iss_slug(current)}.html">
-    <span class="sx-eyebrow">Выпуск № {esc(current.get("number", ""))} · {esc(current.get("period", ""))}</span>
-    <span class="sx-band-title">{current.get("title", "")}</span>
-    <span class="sx-band-lead">{esc(strip_tags(current.get("lead", "")))}</span>
-  </a>
-  <div class="sx-grid">
-    {series_cards(_sx)}
-  </div>
-</section>'''
 
     # ── ВЫПУСКИ ────────────────────────────────────────────────────────────
     issue_cards = ""
@@ -1648,7 +1611,6 @@ def render_journal_index():
 {masthead_html}
 {rubric_html}
 {hero_html}
-{series_band_html}
 {art_header_html}
 {grid_html}
 {feature_html}
@@ -2135,19 +2097,68 @@ def _feed_rhythm(items):
 def _materials_sorted():
     return sorted(articles, key=lambda a: a.get("date", ""), reverse=True)
 
+def lenta_own(m):
+    """Своя новость сайта (а не пост Telegram): у неё есть своя страница lenta/<slug>."""
+    return bool(m.get("slug")) and "t.me/" not in (m.get("url") or "")
+
+
+def lenta_img(m):
+    return (m.get("image") or m.get("photo") or "").strip()
+
+
 def lenta_card(m):
     date_s = fmt_date_ru(m.get("date", ""))
     url_m = (m.get("url") or "").strip()
-    href_attr = f'href="{esc(url_m)}" target="_blank" rel="noopener"' if url_m else ""
+    if not url_m and m.get("tgText"):
+        url_m = "https://t.me/prstnk_eprst"
+    if lenta_own(m):
+        href_attr, cta = f'href="lenta/{esc(m["slug"])}"', "Читать →"
+    else:
+        href_attr = f'href="{esc(url_m)}" target="_blank" rel="noopener"' if url_m else ""
+        cta = "Читать в Telegram →" if url_m else ""
     tag_html = f'<span class="lc-tag">{esc(m.get("tag", ""))}</span>' if m.get("tag") else ""
     exc_html = f'<div class="lc-excerpt">{esc(m.get("excerpt", ""))}</div>' if m.get("excerpt") else ""
-    img = (m.get("photo") or m.get("image") or "").strip()
-    img_html = f'<div class="lc-img"><img src="{esc(img)}" loading="lazy" alt=""/></div>' if img else ""
-    cta = "Читать в Telegram →" if "t.me/" in url_m else ("Подробнее →" if url_m else "")
+    img = lenta_img(m)
+    img_html = (f'<div class="lc-img"><img src="{esc(img)}"{_wh(img)} loading="lazy" alt=""/></div>' if img
+                else f'<div class="lc-img lc-img--plate" style="background:var(--c-{esc(m.get("color") or "alyi")})"></div>')
     return (f'<a class="lc" {href_attr} data-analytics="lenta-card">{img_html}'
             f'<div class="lc-meta"><span class="lc-date">{date_s}</span>{tag_html}</div>'
             f'<div class="lc-title">{esc(m.get("title", ""))}</div>{exc_html}'
             f'<span class="lc-cta">{cta}</span></a>')
+
+
+def render_lenta_item(m):
+    """Страница одной новости: фото, текст, внизу ссылка на источник и ещё новости."""
+    slug = m["slug"]
+    canonical = f"{BASE_URL}/lenta/{slug}.html"
+    title = strip_tags(m.get("title", ""))
+    desc = strip_tags(m.get("excerpt", ""))
+    img = lenta_img(m)
+    credit = m.get("imageCredit", "")
+    fig = (f'<figure class="ln-fig"><img src="{esc(img)}"{_wh(img)} alt="{esc(title)}"/>'
+           f'{f"<figcaption>{esc(credit)}</figcaption>" if credit else ""}</figure>') if img else ""
+    body_md = (m.get("body") or "").strip() or m.get("excerpt", "")
+    url_m = (m.get("url") or "").strip()
+    src_name = (m.get("sourceName") or re.sub(r"^www\.", "", urllib.parse.urlparse(url_m).netloc)) if url_m else ""
+    src_html = (f'<a class="ln-source" href="{esc(url_m)}" target="_blank" rel="noopener">'
+                f'<span>Источник</span><b>{esc(src_name)} ↗</b></a>') if url_m else ""
+    more = [x for x in lenta if x is not m and lenta_own(x)][:3]
+    more_html = (f'<div class="ln-more"><div class="ln-more-head">Ещё в ленте</div>'
+                 f'<div class="lenta-grid">{"".join(lenta_card(x) for x in more)}</div></div>') if more else ""
+    body = f'''<div class="jn-wrap ln-page">
+  <a class="material-back material-back--top" href="lenta">← Вся лента</a>
+  <article class="ln-article">
+    <div class="ln-meta"><span>{fmt_date_ru(m.get("date", ""))}</span>{f'<span class="lc-tag">{esc(m.get("tag", ""))}</span>' if m.get("tag") else ""}</div>
+    <h1 class="ln-h1">{esc(title)}</h1>
+    {fig}
+    <div class="ln-body">{md_to_html(body_md)}</div>
+    {src_html}
+  </article>
+  {more_html}
+</div>'''
+    og = f"{BASE_URL}/{img}" if img else None
+    return (f'{head(title + " — Лента ЁPRST · PRSTNK", desc, canonical, og_type="article", og_image=og, extra_css="journal.css", base_href="/")}{HEADER}\n'
+            f'{body}\n{FOOTER}')
 
 
 def render_lenta_page():
@@ -2431,6 +2442,7 @@ def render_sitemap():
         urls.append((f"work-{w['slug']}.html", "0.8", "weekly"))
     urls.append(("materials.html", "0.7", "weekly"))
     urls.append(("lenta.html", "0.6", "daily"))
+    urls += [(f"lenta/{m['slug']}.html", "0.5", "monthly") for m in lenta if lenta_own(m)]
     for a in articles:
         urls.append((f"journal/{a['slug']}.html", "0.7", "weekly"))
     for rub_slug in RUBRICS:
@@ -2495,6 +2507,15 @@ if __name__ == "__main__":
     print(f"  ✓ {len(articles)} страниц материалов (journal/<slug>.html)")
 
     (ROOT / "lenta.html").write_text(clean_links(render_lenta_page()))
+    (ROOT / "lenta").mkdir(exist_ok=True)
+    own = [m for m in lenta if lenta_own(m)]
+    keep_l = {f"{m['slug']}.html" for m in own}
+    for p_ in (ROOT / "lenta").glob("*.html"):
+        if p_.name not in keep_l:
+            p_.unlink()
+    for m in own:
+        (ROOT / "lenta" / f"{m['slug']}.html").write_text(clean_links(render_lenta_item(m)))
+    print(f"  ✓ {len(own)} страниц новостей (lenta/*.html)")
     print("  ✓ lenta.html — вся лента")
     (ROOT / "materials.html").write_text(clean_links(render_materials_index()))
     print("  ✓ materials.html — все материалы")

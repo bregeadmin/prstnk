@@ -978,3 +978,22 @@
 .sx-band .sx-n, .sx-band .sx-go { color: color-mix(in oklab, var(--sx-accent) 62%, #fff); }
 .sx-band .sx-eyebrow { color: color-mix(in oklab, var(--c-alyi) 70%, #fff); }
 .mz-grid > .bl-picks { margin-right: clamp(16px, 3vw, 40px); }
+
+/* ═══ Страница новости ленты ═══ */
+.ln-page { padding-top: 24px; padding-bottom: 96px; }
+.ln-article { max-width: 760px; margin: 28px auto 0; }
+.ln-meta { display: flex; gap: 14px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: rgba(20,20,19,.5); margin-bottom: 14px; }
+.ln-h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(32px, 5vw, 56px); line-height: 1; letter-spacing: -.035em; margin: 0 0 clamp(22px, 3vw, 34px); text-wrap: balance; }
+.ln-fig { margin: 0 0 clamp(22px, 3vw, 34px); }
+.ln-fig img { width: 100%; height: auto; display: block; border-radius: 4px; background: #e8e4dc; }
+.ln-fig figcaption { font-family: var(--f-mono); font-size: 10px; letter-spacing: .04em; color: rgba(20,20,19,.45); margin-top: 8px; }
+.ln-body { font-family: var(--f-text); font-size: 19px; line-height: 1.6; max-width: 66ch; text-wrap: pretty; }
+.ln-body p { margin: 0 0 1em; }
+.ln-body a { color: inherit; text-decoration-color: var(--c-alyi); text-underline-offset: 3px; }
+.ln-source { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: clamp(28px, 4vw, 44px); padding: 18px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); text-decoration: none; color: inherit; }
+.ln-source span { font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: rgba(20,20,19,.5); }
+.ln-source b { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+.ln-source:hover b { color: var(--c-alyi); }
+.ln-more { margin-top: clamp(56px, 7vw, 88px); }
+.ln-more-head { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: rgba(20,20,19,.5); margin-bottom: 14px; }
+.lc-img--plate { aspect-ratio: 16/10; }
