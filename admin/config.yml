@@ -372,6 +372,7 @@ collections:
         required: false
         options: [ { label: "Обычная", value: "" }, { label: "Дорожная (журнальная)", value: "travel" } ]
         hint: "Дорожная — огромный заголовок, обложка на всю ширину, слева колонка с автором и маршрутом, фото до края экрана. Нужна обложка."
+      - { name: "coverPosition", label: "Какую часть обложки показывать", widget: "select", required: false, options: [ { label: "середину", value: "" }, { label: "верх", value: "50% 25%" }, { label: "низ", value: "50% 80%" } ] }
       - { name: "coverAlt", label: "Что на обложке (для незрячих и поиска)", widget: "string", required: false }
       - { name: "coverShape", label: "Цветной круг у обложки", widget: "select", required: false, options: [ { label: "Алый", value: "alyi" }, { label: "Лимон", value: "limon" }, { label: "Кобальт", value: "kobalt" }, { label: "Фуксия", value: "fuxia" } ] }
       - { name: "accent", label: "Цвет статьи (дорожная раскладка)", widget: "select", required: false, options: [ { label: "Алый", value: "alyi" }, { label: "Лимон", value: "limon" }, { label: "Кобальт", value: "kobalt" }, { label: "Хвоя", value: "hvoya" }, { label: "Фуксия", value: "fuxia" }, { label: "Уголь", value: "ugol" } ], hint: "Полоса сверху, выделение в заголовке, маршрут и логотип в шапке." }
@@ -468,6 +469,11 @@ collections:
               - { name: "video", label: "Видео вместо фото (необяз.)", widget: "video", required: false, hint: "MP4 до 20 МБ, 5–10 секунд. Играет само без звука, когда до него долистали." }
               - { name: "poster", label: "Кадр-заставка для видео (необяз.)", widget: "image", required: false }
               - { name: "caption", label: "Подпись", widget: "string", required: false }
+          - label: "Сноска мелким шрифтом"
+            name: "note"
+            widget: "object"
+            fields:
+              - { name: "text", label: "Текст сноски", widget: "markdown", hint: "Напр. пометка про иноагента. Начните со значка ∗, если в тексте он стоит у слова." }
           - label: "Цитата вразрядку"
             name: "pull"
             widget: "object"

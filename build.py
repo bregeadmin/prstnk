@@ -1678,6 +1678,10 @@ def _blk_fullbleed(b):
     return (f'<figure class="bl bl-fullbleed"><div class="fb-frame">{_media_html(b)}</div>'
             f'{_cap_html(b)}</figure>')
 
+def _blk_note(b):
+    """Сноска мелким шрифтом (пометки, источники)."""
+    return f'<div class="bl bl-note">{md_to_html(b.get("text", ""))}</div>'
+
 def _blk_pull(b):
     """Крупная цитата вразрядку, как в печатном журнале."""
     tone = f' data-tone="{esc(b["tone"])}"' if b.get("tone") else ""
@@ -1765,6 +1769,7 @@ _BLOCK_RENDERERS = {
     "daymark": _blk_daymark,
     "fullbleed": _blk_fullbleed,
     "pull": _blk_pull,
+    "note": _blk_note,
     "route": _blk_route,
 }
 
@@ -1900,7 +1905,7 @@ def render_travel_page(article, h1, blocks_html, page_title, desc, canonical, ru
     hero = f'''{accent_css}<header class="mz-hero">
   <div class="mz-hero-top"><a class="mz-back" href="journal">← Журнал ЁPRST</a><span class="mz-rub">{rubric_label(rub)}</span></div>
   <div class="mz-title-row"><h1 class="mz-title">{h1}</h1>{mark}</div>
-  <figure class="mz-cover" data-shape="{shape}"><img src="{esc(article["cover"])}"{_wh(article["cover"])} alt="{esc(article.get("coverAlt", ""))}"/></figure>
+  <figure class="mz-cover" data-shape="{shape}"><img src="{esc(article["cover"])}"{_wh(article["cover"])}{f' style="object-position:{esc(article["coverPosition"])}"' if article.get("coverPosition") else ""} alt="{esc(article.get("coverAlt", ""))}"/></figure>
 </header>'''
     side = f'''<aside class="mz-side"><div class="mz-side-in">
     <div class="mz-issue">{esc(article.get("issueLabel", "Журнал ЁPRST"))}</div>

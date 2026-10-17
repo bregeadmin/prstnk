@@ -871,3 +871,7 @@
   .bl-collage[data-variant="reel"] .cl-item:nth-child(3n) { margin-top: 14px !important; }
   .mz-grid > .bl-collage[data-variant="reel"] .cl-item .bl-cap { padding: 0; }
 }
+
+/* сноска мелким шрифтом */
+.bl-note { margin-top: -18px; }
+.bl-note p { font-family: var(--f-mono); font-size: 11.5px; line-height: 1.5; color: rgba(20,20,19,.6); margin: 0; max-width: 60ch; text-align: left !important; }
