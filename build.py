@@ -579,7 +579,7 @@ def render_work_page(art):
     # атрибуты — пустые строки скрываются; доп. характеристики из списка specs
     attrib_rows = [
         ("Техника", art.get("technique", "")),
-        ("Размер листа", art.get("sheetSize", "")),
+        ("Размер", art.get("sheetSize", "")),
     ]
     if art.get("imageSize"):
         attrib_rows.append(("Размер изображения", art["imageSize"]))
@@ -2248,7 +2248,7 @@ def update_index_home():
         cn = len([s for s in c.get("works", []) if s in artworks_by_slug])
         if not cn:
             continue
-        word = _plural(cn, "лист", "листа", "листов")
+        word = _plural(cn, "работа", "работы", "работ")
         plates.append(
             f'      <a class="plate plate--{c.get("color", "alyi")}" href="collection-{c["slug"]}.html" data-analytics="plate" data-plate-id="{c["slug"]}">\n'
             f'        <span class="plate__num">№ {i:02d} · {cn} {word}</span>\n'
