@@ -294,7 +294,7 @@
     ensureModal();
     const fit = opts.mode === 'fit';
     const cert = opts.mode === 'cert';
-    modal.querySelector('#orderEyebrow').textContent = cert ? 'Подарочный сертификат' : (fit ? 'Подбор куратора' : 'Заявка');
+    modal.querySelector('#orderEyebrow').textContent = cert ? 'Подарочный сертификат' : (fit ? 'Подбор под стену' : 'Заявка');
     modal.querySelector('#orderTitle').textContent = cert ? 'Оформить сертификат' : (fit ? 'Подбор по фото стены' : 'Оформить заявку');
     const sub = modal.querySelector('#orderSub');
     if (cert) {
@@ -302,7 +302,7 @@
       sub.textContent = 'Сертификат на любую сумму. Получатель сам выбирает работу из каталога. Срок действия — год.';
     } else if (fit) {
       sub.hidden = false;
-      sub.textContent = 'Пришлите фото стены — куратор подберёт 3–5 листов по размеру, цвету и настроению. Бесплатно.';
+      sub.textContent = 'Пришлите фото стены — мы подберём 3–5 работ по размеру, цвету и настроению. Бесплатно.';
     } else if (opts.work) {
       sub.hidden = false;
       sub.innerHTML = `<b>${escAttr(opts.work)}</b>` + (opts.price ? ` · ${escAttr(opts.price)}` : '');

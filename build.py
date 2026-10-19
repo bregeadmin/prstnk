@@ -473,7 +473,7 @@ def cta_block(art):
     wish = f'<button class="btn btn--big btn--ghost" aria-label="Сохранить в избранное" data-fav-toggle data-fav-slug="{slug}" aria-pressed="false" data-analytics="lot-wishlist" data-lot-slug="{slug}">♡</button>'
     extra = f'''        <div class="lot__cta-extra">
           <a class="btn btn--ghost" data-tg-text="Здравствуйте! Хочу подобрать раму для «{esc(art['title'])}» — {esc(art['artistName'])}, {art['year']}, {esc(art['sheetSize'])}." data-analytics="lot-frame" data-lot-slug="{slug}">Подобрать раму</a>
-          <a class="btn btn--ghost" data-tg-text="Здравствуйте! Есть вопрос по «{esc(art['title'])}» — {esc(art['artistName'])}, {art['year']}." data-analytics="lot-curator-question" data-lot-slug="{slug}">Задать вопрос куратору</a>
+          <a class="btn btn--ghost" data-tg-text="Здравствуйте! Есть вопрос по «{esc(art['title'])}» — {esc(art['artistName'])}, {art['year']}." data-analytics="lot-curator-question" data-lot-slug="{slug}">Задать вопрос</a>
         </div>'''
     if status == "sold":
         return f'''        <div class="lot__cta">
@@ -655,7 +655,7 @@ def render_work_page(art):
       <div class="section-head">
         <h2 class="stagger">Похожее <em>по настроению</em>.</h2>
         <div class="section-head__right">
-          <span>Подобрано вручную куратором</span>
+          <span>Подобрали вручную</span>
           <a class="link" href="works.html" data-analytics="lot-back-to-catalog">К витрине →</a>
         </div>
       </div>
@@ -708,7 +708,7 @@ def render_work_page(art):
           <ul>
             <li>Подпись карандашом{" и нумерация автора" if art["workType"]=="editioned" else " автора"}</li>
             <li>Оригинал — не репродукция и не постер</li>
-            <li>{"Бережная упаковка в короб" if art.get("techniqueGroup") in ("painting", "object", "author-tech") else "Архивный тубус + картон"} + открытка от куратора</li>
+            <li>{"Бережная упаковка в короб" if art.get("techniqueGroup") in ("painting", "object", "author-tech") else "Архивный тубус + картон"} + открытка</li>
             <li>Возврат в течение 14 дней без вопросов</li>
           </ul>
         </div>
@@ -793,7 +793,7 @@ def render_catalog():
           <input type="search" id="catSearch" placeholder="Название, художник, техника" aria-label="Поиск по каталогу"/>
         </label>
         <select class="cat-sort" id="catSort" aria-label="Сортировка">
-          <option value="curated">Кураторская подборка</option>
+          <option value="curated">Наш порядок</option>
           <option value="new">Сначала новые</option>
           <option value="price-asc">Сначала дешевле</option>
           <option value="price-desc">Сначала дороже</option>
@@ -811,8 +811,8 @@ def render_catalog():
       </div>
       <div class="catalog-empty" id="catEmpty" hidden>
         <h3>Ничего не нашлось.</h3>
-        <p>Снимите часть фильтров — или попросите куратора подобрать листы под вашу стену.</p>
-        <a class="btn btn--accent" data-fit data-tg-text="Здравствуйте! Не нашёл подходящую работу в каталоге — помогите подобрать." data-analytics="catalog-empty">Куратор подберёт →</a>
+        <p>Снимите часть фильтров или напишите нам, подберём работы под вашу стену.</p>
+        <a class="btn btn--accent" data-fit data-tg-text="Здравствуйте! Не нашёл подходящую работу в каталоге — помогите подобрать." data-analytics="catalog-empty">Подобрать работу →</a>
       </div>
     </section>
 
@@ -820,7 +820,7 @@ def render_catalog():
       <div class="fit__grid">
         <div class="fit__left">
           <div class="eyebrow">Не нашли своё?</div>
-          <h2 style="font-size: clamp(32px, 4.4vw, 56px); margin-top: 16px;">Куратор подберёт <em>под стену</em>.</h2>
+          <h2 style="font-size: clamp(32px, 4.4vw, 56px); margin-top: 16px;">Подберём <em>под стену</em>.</h2>
           <p class="fit__lead">Покажите фото стены, и мы подберём 3–5 работ по размеру, цвету и настроению. Бесплатно.</p>
           <a class="btn btn--big btn--accent fit__cta" data-fit data-tg-text="Здравствуйте! Хочу подбор работы по фото стены." data-analytics="catalog-fit">
             Отправить фото стены
@@ -874,7 +874,7 @@ def render_artist_page(a, idx):
         works_h2 = f'Работы <em>{a["firstName"]}</em>.'
         works_html = f'''<div class="artist-works__empty">
         <h3>В каталоге пока нет работ.</h3>
-        <p>Из архива можем подобрать что-то конкретное — напишите куратору в Telegram, расскажем, что есть у {a['gen']} в работе и какие тиражи готовятся.</p>
+        <p>Из архива можем подобрать что-то конкретное — напишите нам в Telegram, расскажем, что есть у {a['gen']} в работе и какие тиражи готовятся.</p>
         <a class="btn btn--accent" data-tg-text="Здравствуйте! Хочу узнать про работы {a['gen']} — что есть в архиве?" data-analytics="artist-empty-cta">Спросить про работы {a['firstName']} →</a>
       </div>'''
 
@@ -977,10 +977,10 @@ def render_artists_index():
       <div class="fit__grid">
         <div class="fit__left">
           <div class="eyebrow">Не знаете кого выбрать?</div>
-          <h2 style="font-size: clamp(32px, 4.4vw, 56px); margin-top: 16px;">Куратор <em>подскажет</em>.</h2>
+          <h2 style="font-size: clamp(32px, 4.4vw, 56px); margin-top: 16px;">Мы <em>подскажем</em>.</h2>
           <p class="fit__lead">Напишите, что у вас на стене сейчас и какое настроение хотите, и мы подберём работы под ваш интерьер.</p>
           <a class="btn btn--big btn--accent fit__cta" data-tg-text="Здравствуйте! Помогите выбрать художника. Расскажу про интерьер и настроение." data-analytics="artists-curator">
-            Спросить у куратора
+            Спросить нас
             <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true"><path d="M1 7H17M17 7L11 1M17 7L11 13" stroke="currentColor" stroke-width="2"/></svg>
           </a>
         </div>
@@ -990,7 +990,7 @@ def render_artists_index():
             <g transform="translate(40, 60)"><rect width="90" height="120" fill="#F8F6F1" stroke="#141413" stroke-width="2"/><rect x="10" y="10" width="70" height="80" fill="#2A4BFF"/><circle cx="45" cy="50" r="14" fill="#FFCC00"/></g>
             <g transform="translate(155, 60)"><rect width="90" height="120" fill="#F8F6F1" stroke="#141413" stroke-width="2"/><rect x="10" y="10" width="70" height="80" fill="#FA2A22"/><rect x="32" y="40" width="26" height="34" fill="#141413"/></g>
             <g transform="translate(270, 60)"><rect width="90" height="120" fill="#F8F6F1" stroke="#141413" stroke-width="2"/><rect x="10" y="10" width="70" height="80" fill="#2E5A2A"/><ellipse cx="45" cy="50" rx="20" ry="12" fill="#FF3DA0"/></g>
-            <text x="200" y="230" font-family="monospace" font-size="14" text-anchor="middle" fill="#6E6B61" letter-spacing="2">КУРАТОР → ВЫ</text>
+            <text x="200" y="230" font-family="monospace" font-size="14" text-anchor="middle" fill="#6E6B61" letter-spacing="2">МЫ → ВЫ</text>
           </svg>
         </div>
       </div>
@@ -2349,7 +2349,7 @@ def render_collection(coll):
     works = [artworks_by_slug[s] for s in coll.get("works", []) if s in artworks_by_slug]
     n = len(works)
     title = f"{coll['title']} — подборка PRSTNK"
-    desc = coll.get("description") or f"Кураторская подборка «{coll['title']}»: {n} оригинальных работ петербургских художников."
+    desc = coll.get("description") or f"Подборка «{coll['title']}»: {n} оригинальных работ петербургских художников."
     eyebrow = "Подборка" + (f" · {coll['subtitle']}" if coll.get("subtitle") else "")
     if works:
         cards = "\n        ".join(work_card(w) for w in works)
@@ -2358,8 +2358,8 @@ def render_collection(coll):
         tg = esc(coll.get("telegramText") or f"Здравствуйте! Расскажите про подборку «{coll['title']}».")
         body_grid = f'''<div class="favorites-empty">
         <h3>Подборка пока собирается.</h3>
-        <p>Куратор готовит работы для этой подборки — напишите, подскажем, что уже есть.</p>
-        <a class="btn btn--accent" data-tg-text="{tg}" data-analytics="collection-empty">Спросить у куратора →</a>
+        <p>Подборка ещё собирается. Напишите, подскажем, что уже есть.</p>
+        <a class="btn btn--accent" data-tg-text="{tg}" data-analytics="collection-empty">Спросить нас →</a>
       </div>'''
     return f'''{head(title, desc, canonical)}{HEADER}
   <main class="wrap">
@@ -2400,7 +2400,7 @@ def render_favorites():
     <section class="page-hero" style="padding-bottom: 24px;">
       <div class="eyebrow">♥ · <b>Избранное</b></div>
       <h1>Отложено: <em><span id="favCount">0</span></em>.</h1>
-      <p class="page-hero__lead">Работы, которые вы сохранили. Список хранится в этом браузере. Когда готовы — откройте работу и оформите заявку или попросите куратора придержать.</p>
+      <p class="page-hero__lead">Работы, которые вы сохранили. Список хранится в этом браузере. Когда готовы — откройте работу и оформите заявку или попросите нас придержать.</p>
     </section>
 
     <section class="catalog-grid-wrap">
