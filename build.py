@@ -928,7 +928,7 @@ def render_artists_index():
     nvis = len(vis)
     word_cap = num2word_ru(nvis)
     noun = _plural(nvis, "имя", "имени", "имён")
-    title = f"Художники PRSTNK — {word_cap.lower()} {noun} ленинградской школы"
+    title = "Художники — PRSTNK"
     desc = "Петербургские художники PRSTNK: " + ", ".join(a["name"] for a in vis) + "."
 
     cards = []
