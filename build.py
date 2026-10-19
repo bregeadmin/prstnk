@@ -730,7 +730,7 @@ def render_catalog():
         ("lithography", "Литография"),
         ("silkscreen", "Шелкография"),
         ("linocut", "Линогравюра"),
-        ("etching", "Офорт"),
+        ("etching", "Офорт и сухая игла"),
         ("graphics", "Графика и монотипия"),
         ("painting", "Живопись"),
         ("object", "Объект"),
@@ -744,6 +744,8 @@ def render_catalog():
     # Чипсы техник (выбор один из) + чипсы-переключатели
     tech_chips = ['<button class="catalog-filter__chip is-active" data-group="tech" data-filter="all" data-analytics="catalog-filter">Все техники</button>']
     for gid, label in groups:
+        if not any(w.get("techniqueGroup") == gid for w in artworks):
+            continue  # пустой фильтр не показываем
         tech_chips.append(f'<button class="catalog-filter__chip" data-group="tech" data-filter="{gid}" data-analytics="catalog-filter">{label}</button>')
     toggle_chips = [
         '<button class="catalog-filter__chip" data-toggle="available" data-analytics="catalog-toggle">В наличии</button>',
