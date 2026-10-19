@@ -10,7 +10,7 @@
        prstnk.ru/?open=off             — снова показать заглушку
    ============================================================ */
 (function () {
-  var GATE_ON = true;                 // ← false, чтобы открыть сайт
+  var GATE_ON = false;                // ← false, чтобы открыть сайт
   var SECRET  = 'prstnk-preview';     // ← секретное слово для просмотра
   var KEY     = 'prstnk_preview';
 
