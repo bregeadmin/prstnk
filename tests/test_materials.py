@@ -94,7 +94,9 @@ class TestPicksBlock(unittest.TestCase):
 
 class TestArticlesCollection(unittest.TestCase):
     def test_articles_loaded(self):
-        self.assertTrue(any(a.get("slug") == "kak-travyat-tsink" for a in build.articles))
+        slugs = {a.get("slug") for a in build.articles}
+        self.assertIn("lion-sentyabr", slugs)
+        self.assertNotIn("kak-travyat-tsink", slugs)  # скрытый образец не попадает на сайт
 
     def test_reserved_slug_guard_raises(self):
         with self.assertRaises(ValueError):
@@ -106,7 +108,10 @@ class TestArticlesCollection(unittest.TestCase):
 
 class TestMaterialPage(unittest.TestCase):
     def setUp(self):
-        self.art = next(a for a in build.articles if a["slug"] == "kak-travyat-tsink")
+        # обычная (не дорожная) статья — собираем свою, чтобы не зависеть от данных сайта
+        self.art = {"slug": "test-tsink", "rubric": "na-paltsakh", "title": "Как травят цинк: кислота и игла",
+                    "titleEm": "кислота и игла", "lead": "лид", "readMins": 7, "date": "2026-05-14",
+                    "blocks": [{"type": "text", "text": "Абзац."}]}
         self.html = build.render_material_page(self.art)
 
     def test_has_title_and_em(self):
@@ -158,9 +163,9 @@ class TestFeed(unittest.TestCase):
 
 class TestRubricPage(unittest.TestCase):
     def test_rubric_page_lists_only_its_rubric(self):
-        html = build.render_rubric_page("na-paltsakh")
-        self.assertIn("На пальцах", html)
-        self.assertIn("journal/kak-travyat-tsink", html)  # этот материал — na-paltsakh
+        html = build.render_rubric_page("kak-smotret")
+        self.assertIn("Как смотреть", html)
+        self.assertIn("journal/lion-sentyabr", html)  # этот материал — kak-smotret
 
     def test_rubric_page_links_css(self):
         html = build.render_rubric_page("razgovory")
@@ -172,10 +177,10 @@ class TestJournalIndexUsesArticles(unittest.TestCase):
         self.html = build.render_journal_index()
 
     def test_rubricator_links_to_rubric_pages(self):
-        self.assertIn('href="journal/na-paltsakh"', self.html)
+        self.assertIn('href="journal/kak-smotret"', self.html)
 
     def test_rubricator_uses_rubric_labels(self):
-        self.assertIn("На пальцах", self.html)
+        self.assertIn("Как смотреть", self.html)
 
     def test_all_materials_link_present(self):
         self.assertIn('href="materials"', self.html)
