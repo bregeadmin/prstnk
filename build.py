@@ -202,9 +202,13 @@ def enrich_artwork(w):
     else:
         w["telegramReserveText"] = (f"Хочу забронировать экземпляр {'№' + ed if '/' in ed else ''} работы «{w.get('title','')}» — "
                                     f"{aname}, {w.get('year','')}. Цена {w['priceFormatted']}.")
-    w["seoTitle"] = f"{aname}. «{w.get('title','')}», {w.get('year','')} — {w.get('technique','')} {ed} — PRSTNK"
-    w["seoDescription"] = (f"«{w.get('title','')}» — {w.get('technique','')}, {aname}, {w.get('year','')}, "
-                           f"{w.get('sheetSize','')}. Оригинал, подпись автора. {w['priceFormatted']}.")
+    size = str(w.get("sheetSize", "")).strip()
+    if size and not size.endswith("см"):
+        size += " см"
+    kind = "Уникальная работа" if w.get("workType") == "unique" else f"Тираж {ed}".strip()
+    w["seoTitle"] = f"«{w.get('title','')}» — {aname}, {w.get('year','')} · PRSTNK"
+    w["seoDescription"] = (f"{str(w.get('technique','')).strip().rstrip('.').capitalize()}, {size}. {kind}, {w['priceFormatted']}. "
+                           f"Оригинал с подписью автора.")
 
 
 for _w in artworks:
@@ -254,7 +258,14 @@ def esc(s):
 
 # ─── Общие куски ───
 def head(title, description, canonical, og_type="website", extra_meta="", og_image=None, extra_css="", base_href=""):
-    img = og_image or f"{BASE_URL}/og-cover.svg"
+    # Картинка для превью ссылки: своя карточка images/og/<страница>.jpg (делает tools/og_cards.py),
+    # иначе переданная картинка, иначе общая карточка сайта
+    _key = canonical.replace(BASE_URL, "").strip("/").removesuffix(".html").replace("/", "_") or "index"
+    _card = ROOT / "images" / "og" / f"{_key}.jpg"
+    if _card.exists():
+        img, og_wh = f"{BASE_URL}/images/og/{_key}.jpg", '\n  <meta property="og:image:width" content="1200"/>\n  <meta property="og:image:height" content="630"/>'
+    else:
+        img, og_wh = og_image or f"{BASE_URL}/images/og/index.jpg", ""
     base_tag = f'<base href="{base_href}"/>\n  ' if base_href else ""
     return f'''<!doctype html>
 <html lang="ru">
@@ -271,7 +282,7 @@ def head(title, description, canonical, og_type="website", extra_meta="", og_ima
   <meta property="og:title" content="{esc(title)}"/>
   <meta property="og:description" content="{esc(description)}"/>
   <meta property="og:url" content="{canonical}"/>
-  <meta property="og:image" content="{img}"/>
+  <meta property="og:image" content="{img}"/>{og_wh}
   <meta property="og:locale" content="ru_RU"/>
 {extra_meta}  <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" content="{esc(title)}"/>
@@ -663,7 +674,7 @@ def render_work_page(art):
     </section>
 '''
 
-    body = f'''{head(art["seoTitle"], art["seoDescription"], canonical, og_type="product", extra_meta=extra_meta)}{HEADER}
+    body = f'''{head(art["seoTitle"], art["seoDescription"], canonical, og_type="product", extra_meta=extra_meta, og_image=(f'{BASE_URL}/{art["mainImage"].lstrip("/")}' if art.get("mainImage") else None))}{HEADER}
   <main class="wrap">
     <nav class="crumbs" aria-label="Хлебные крошки">
       <a href="index.html">Главная</a><span class="sep">/</span>
@@ -852,7 +863,8 @@ def render_artist_page(a, idx):
     canonical = f"{BASE_URL}/artist-{a['slug']}.html"
     title = f"{a['name']}. Художник PRSTNK"
     one_clean = re.sub(r"<[^>]+>", "", a["oneLiner"])
-    desc = f"{a['name']} — петербургский художник. {', '.join(a['techniques'][:3])}. {one_clean}"
+    _n = sum(1 for w in artworks if w.get("artistId") == a.get("id"))
+    desc = f"{a['name']}, петербургский художник. {one_clean} {_n} {_plural(_n, 'работа', 'работы', 'работ')} в каталоге PRSTNK."
     parts = a["name"].split(" ", 1)
     h1 = f'{parts[0]}<br/>{parts[1]}.' if len(parts) == 2 else f'{a["name"]}.'
 
@@ -1495,8 +1507,9 @@ def _jrn_article_img(art: dict) -> str:
 def render_journal_index():
     canonical = f"{BASE_URL}/journal.html"
     title = "Журнал «ЁPRST» — PRSTNK"
-    desc = ("Журнал PRSTNK про авторскую графику: разговоры с художниками, "
-            "техники, коллекции, репортажи из мастерских. Выходит ежемесячно.")
+    _cur = next((i for i in issues if i.get("current")), None)
+    desc = "Журнал Простенка: выставки, поездки и художники, которых мы любим. Выходит раз в квартал." + (
+        f' Сейчас выпуск № {_cur.get("number")} «{strip_tags(_cur.get("title", ""))}».' if _cur else "")
 
     # ── данные ─────────────────────────────────────────────────────────────
     current = next((i for i in issues if i.get("current")), issues[0] if issues else {})
@@ -2008,7 +2021,7 @@ def render_material_page(article):
   <a class="material-back" href="materials">← Все материалы</a>
 </article>'''
 
-    return (f'{head(page_title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n'
+    return (f'{head(page_title, desc, canonical, og_type="article", extra_css="journal.css", base_href="/")}{HEADER}\n'
             f'<div class="jn-wrap">\n{body}\n</div>\n{FOOTER}')
 
 
@@ -2073,7 +2086,7 @@ def render_travel_page(article, h1, blocks_html, page_title, desc, canonical, ru
   <a class="material-back mz-end" href="materials">← Все материалы</a>
   </div>
 </article>'''
-    return (f'{head(page_title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n'
+    return (f'{head(page_title, desc, canonical, og_type="article", extra_css="journal.css", base_href="/")}{HEADER}\n'
             f'{hero}\n{body}\n{TRAVEL_JS}{FOOTER}')
 
 
@@ -2255,7 +2268,7 @@ def render_lenta_page():
 def render_materials_index():
     canonical = f"{BASE_URL}/materials.html"
     title = "Все материалы — Журнал ЁPRST · PRSTNK"
-    desc = "Все материалы журнала ЁPRST: разговоры, техники, история, как смотреть графику."
+    desc = "Все статьи журнала ЁPRST: выставки, поездки и художники, которых мы любим."
     feed = _feed_rhythm(_materials_sorted())
     count_word = _plural(len(articles), "материал", "материала", "материалов")
     body = f'''<div class="materials-page jn-wrap">
