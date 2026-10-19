@@ -1157,28 +1157,107 @@ def series_cards(arts, cls="sx"):
 
 
 def render_series_issue_page(issue):
-    """Страница выпуска, который собирает уже опубликованные статьи в одну историю."""
+    """Выпуск-лонгрид: опубликованные статьи склеены в одну большую историю с главами.
+    Обложка выпуска с оглавлением, у каждой статьи разворот-заставка на весь экран,
+    дальше её блоки в журнальной раскладке; цвет страницы меняется от главы к главе."""
     slug = iss_slug(issue)
     canonical = f"{BASE_URL}/zine-{slug}.html"
     arts = issue_materials(issue)
+    n = len(arts)
     plain = strip_tags(issue.get("title", ""))
-    title = f'«ЁPRST» № {issue.get("number", "")}, {issue.get("period", "")}: {plain} — PRSTNK'
+    page_title = f'«ЁPRST» № {issue.get("number", "")}: {plain} — PRSTNK'
     desc = strip_tags(issue.get("coverLead") or issue.get("lead", ""))
-    body = f'''<div class="jn-wrap sx-page">
-  <a class="material-back material-back--top" href="journal">← В журнал</a>
-  <div class="sx-eyebrow">Выпуск № {esc(issue.get("number", ""))} · {esc(issue.get("period", ""))} · {len(arts)} {_plural(len(arts), "статья", "статьи", "статей")}</div>
-  <div class="sx-top">
-    <div class="sx-cover">{issue_cover_visual(issue)}</div>
-    <div>
-      <h1 class="sx-h1">{issue.get("title", "")}</h1>
-      <p class="sx-lead">{esc(desc)}</p>
+    in_issue = {a.get("slug") for a in arts}
+    accs = []
+    for a_ in arts:
+        acc = a_.get("accent", "alyi")
+        accs.append(acc if acc in ("alyi", "limon", "kobalt", "hvoya", "fuxia", "ugol") else "alyi")
+    city = lambda a_: (next((st.get("city") for st in a_.get("route") or [] if st.get("here")), "")
+                       or strip_tags(a_.get("title", "")).split(":")[0])
+    mins = sum(int(a_.get("readMins") or 0) for a_ in arts)
+
+    def h1_of(a_):
+        h = esc(a_.get("title", ""))
+        em = a_.get("titleEm", "")
+        return h.replace(esc(em), f"<em>{esc(em)}</em>", 1) if em else h
+
+    # оглавление (на обложке и сбоку в каждой главе)
+    toc = "".join(
+        f'''<li><a href="#ch-{esc(a_["slug"])}" style="--ch:var(--c-{accs[i]})">
+      <span class="lr-toc-n">{i + 1:02d}</span><span class="lr-toc-city">{esc(city(a_))}</span>
+      <span class="lr-toc-t">{esc(strip_tags(a_.get("title", "")).split(":", 1)[-1].strip())}</span>
+      <span class="lr-toc-m">{a_.get("readMins", "")} мин</span></a></li>'''
+        for i, a_ in enumerate(arts))
+    cover = (issue.get("coverImage") or "").strip()
+    hero = f'''<header class="lr-hero">
+  <div class="lr-hero-in">
+    <figure class="lr-hero-cover">{f'<img src="{esc(cover)}"{_wh(cover)} alt="Обложка выпуска № {esc(issue.get("number", ""))}"/>' if cover else issue_cover_svg(issue)}</figure>
+    <div class="lr-hero-text">
+      <a class="mz-back" href="journal">← Журнал ЁPRST</a>
+      <div class="lr-kicker">Выпуск № {esc(issue.get("number", ""))} · {esc(issue.get("period", ""))} · {mins} минут чтения</div>
+      <h1 class="lr-title">{issue.get("title", "")}</h1>
+      <p class="lr-lead">{esc(desc)}</p>
+      <ol class="lr-toc">{toc}</ol>
     </div>
   </div>
-  <div class="sx-grid">
-    {series_cards(arts)}
+</header>'''
+
+    chapters = []
+    for i, a_ in enumerate(arts):
+        acc = accs[i]
+        blocks = [b for b in a_.get("blocks", []) if b.get("type") != "route"]   # «дальше по маршруту» внутри выпуска не нужно
+        html = "\n".join(render_block(b) for b in blocks)
+        for sl in in_issue:   # ссылки на соседние главы ведут внутрь выпуска
+            html = html.replace(f'href="journal/{sl}"', f'href="#ch-{sl}"')
+        html = link_previews(html)
+        side_toc = "".join(
+            (f'<li class="is-here"><span aria-current="true">{esc(city(x))}</span></li>' if x is a_
+             else f'<li><a href="#ch-{esc(x["slug"])}">{esc(city(x))}</a></li>') for x in arts)
+        pos = a_.get("coverPosition")
+        opener = f'''<header class="lr-open">
+    <div class="lr-open-img"><img src="{esc(a_["cover"])}"{_wh(a_["cover"])}{f' style="object-position:{esc(pos)}"' if pos else ""} alt="{esc(a_.get("coverAlt", ""))}" loading="lazy"/></div>
+    <div class="lr-open-text">
+      <div class="lr-open-n">Глава {i + 1:02d} / {n:02d}</div>
+      <div class="lr-open-city">{esc(city(a_))}</div>
+      <h2 class="lr-open-title">{(h1_of(a_).split(":", 1)[-1].strip()) or h1_of(a_)}</h2>
+      <p class="lr-open-lead">{esc(a_.get("lead", ""))}</p>
+      <div class="lr-open-meta">{esc(a_.get("author", ""))} · {a_.get("readMins", "")} минут</div>
+    </div>
+  </header>'''
+        chapters.append(f'''<section class="lr-chapter material material--travel mz" id="ch-{esc(a_["slug"])}" data-accent="{acc}" style="--mz-accent:var(--c-{acc})">
+  {opener}
+  <div class="mz-grid">
+  <aside class="mz-side"><div class="mz-side-in">
+    <div class="mz-issue">ЁPRST · № {esc(issue.get("number", ""))}</div>
+    <dl class="mz-meta"><dt>Глава</dt><dd>{i + 1} из {n}</dd><dt>Читать</dt><dd>{a_.get("readMins", "")} минут</dd></dl>
+    <ol class="mz-route" aria-label="Главы выпуска">{side_toc}</ol>
+  </div></aside>
+{html}
   </div>
-</div>'''
-    return (f'{head(title, desc, canonical, extra_css="journal.css", base_href="/")}{HEADER}\n{body}\n{FOOTER}')
+</section>''')
+
+    nxt = f'''<footer class="lr-end">
+  <div class="lr-end-in">
+    <div class="lr-kicker">Конец выпуска № {esc(issue.get("number", ""))}</div>
+    <p class="lr-end-t">Следующий выпуск выйдет через квартал.</p>
+    <a class="lr-end-a" href="journal">← В журнал</a>
+  </div>
+</footer>'''
+    accent_js = """<script>
+(function () {
+  var root = document.documentElement, chs = document.querySelectorAll(".lr-chapter");
+  if (!("IntersectionObserver" in window) || !chs.length) return;
+  var io = new IntersectionObserver(function (es) { es.forEach(function (e) {
+    if (e.isIntersecting) { var c = "var(--c-" + e.target.getAttribute("data-accent") + ")";
+      root.style.setProperty("--mz-accent", c); root.style.setProperty("--prstnk-color", c); }
+  }); }, { rootMargin: "-45% 0px -45% 0px" });
+  chs.forEach(function (c) { io.observe(c); });
+})();
+</script>"""
+    first = accs[0] if accs else "alyi"
+    css0 = f'<style>:root{{--mz-accent:var(--c-{first});--prstnk-color:var(--c-{first})}}</style>'
+    return (f'{head(page_title, desc, canonical, og_type="article", og_image=(f"{BASE_URL}/{cover}" if cover else None), extra_css="journal.css", base_href="/")}{HEADER}\n'
+            f'{css0}<main class="lr">{hero}\n{"".join(chapters)}\n{nxt}</main>\n{TRAVEL_JS}{accent_js}{FOOTER}')
 
 
 def issue_cover_svg(issue):
