@@ -825,7 +825,7 @@ def render_catalog():
         <div class="fit__left">
           <div class="eyebrow">Не нашли своё?</div>
           <h2 style="font-size: clamp(32px, 4.4vw, 56px); margin-top: 16px;">Куратор подберёт <em>под стену</em>.</h2>
-          <p class="fit__lead">Покажите фото стены — Илья Кирин подберёт 3–5 листов по размеру, цвету и настроению. Бесплатно.</p>
+          <p class="fit__lead">Покажите фото стены, и мы подберём 3–5 работ по размеру, цвету и настроению. Бесплатно.</p>
           <a class="btn btn--big btn--accent fit__cta" data-fit data-tg-text="Здравствуйте! Хочу подбор работы по фото стены." data-analytics="catalog-fit">
             Отправить фото стены
             <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true"><path d="M1 7H17M17 7L11 1M17 7L11 13" stroke="currentColor" stroke-width="2"/></svg>
@@ -985,7 +985,7 @@ def render_artists_index():
         <div class="fit__left">
           <div class="eyebrow">Не знаете кого выбрать?</div>
           <h2 style="font-size: clamp(32px, 4.4vw, 56px); margin-top: 16px;">Куратор <em>подскажет</em>.</h2>
-          <p class="fit__lead">Напишите что у вас на стене сейчас, какое настроение хотите получить — куратор Илья Кирин подберёт авторов под ваш интерьер.</p>
+          <p class="fit__lead">Напишите, что у вас на стене сейчас и какое настроение хотите, и мы подберём работы под ваш интерьер.</p>
           <a class="btn btn--big btn--accent fit__cta" data-tg-text="Здравствуйте! Помогите выбрать художника. Расскажу про интерьер и настроение." data-analytics="artists-curator">
             Спросить у куратора
             <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true"><path d="M1 7H17M17 7L11 1M17 7L11 13" stroke="currentColor" stroke-width="2"/></svg>
