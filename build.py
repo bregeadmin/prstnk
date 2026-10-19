@@ -706,7 +706,7 @@ def render_work_page(art):
         <div class="authenticity">
           <h4>Подлинность</h4>
           <ul>
-            <li>Подпись карандашом{" и нумерация автора" if art["workType"]=="editioned" else " автора"}</li>
+            <li>{"Подпись карандашом и нумерация автора" if art["workType"]=="editioned" else "Подпись автора"}</li>
             <li>Оригинал — не репродукция и не постер</li>
             <li>Бережная упаковка</li>
           </ul>
