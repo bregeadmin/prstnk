@@ -1578,7 +1578,7 @@ def render_journal_index():
 
     issues_html = f'''<div class="issues-section">
   <div class="issues-head">
-    <h3>Выпуски <em>месяца</em>.</h3>
+    <h3>Все <em>выпуски</em>.</h3>
     <a class="issues-head-link" href="issues.html">Все выпуски →</a>
   </div>
   <div class="issues-grid">{issue_cards}</div>
@@ -1587,8 +1587,8 @@ def render_journal_index():
     # ── МАСТКЕД (нэйм-плашка журнала) ──────────────────────────────────────
     _mast_period = (current.get("period", "") or "").upper()
     _mast_num = current.get("number", "")
-    _mast_stamp = (f'№ {_mast_num} · {_mast_period} · ВЫХОДИТ РАЗ В МЕСЯЦ'
-                   if _mast_num else 'ВЫХОДИТ РАЗ В МЕСЯЦ')
+    _mast_stamp = (f'№ {_mast_num} · {_mast_period} · ВЫХОДИТ РАЗ В КВАРТАЛ'
+                   if _mast_num else 'ВЫХОДИТ РАЗ В КВАРТАЛ')
     masthead_html = f'''<div class="jn-masthead">
   <div class="jn-mast-word">«<em>ЁPRST</em>»<em>.</em></div>
   <div class="jn-mast-side">
