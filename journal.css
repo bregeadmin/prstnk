@@ -997,3 +997,9 @@
 .ln-more { margin-top: clamp(56px, 7vw, 88px); }
 .ln-more-head { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: rgba(20,20,19,.5); margin-bottom: 14px; }
 .lc-img--plate { aspect-ratio: 16/10; }
+/* обложка на странице выпуска */
+.sx-top { display: grid; grid-template-columns: minmax(220px, 360px) 1fr; gap: clamp(24px, 4vw, 56px); align-items: end; margin-bottom: clamp(32px, 5vw, 56px); }
+.sx-cover { aspect-ratio: 3/4; border-radius: 4px; overflow: hidden; box-shadow: 0 18px 40px rgba(20,20,19,.18); }
+.sx-top .sx-lead { margin-bottom: 0 !important; }
+@media (max-width: 700px) { .sx-top { grid-template-columns: 1fr; } .sx-cover { max-width: 320px; } }
+.sx-top .sx-lead { font-family: var(--f-text); font-size: 19px; line-height: 1.5; color: rgba(20,20,19,.72); }

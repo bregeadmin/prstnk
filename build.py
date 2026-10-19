@@ -1167,8 +1167,13 @@ def render_series_issue_page(issue):
     body = f'''<div class="jn-wrap sx-page">
   <a class="material-back material-back--top" href="journal">← В журнал</a>
   <div class="sx-eyebrow">Выпуск № {esc(issue.get("number", ""))} · {esc(issue.get("period", ""))} · {len(arts)} {_plural(len(arts), "статья", "статьи", "статей")}</div>
-  <h1 class="sx-h1">{issue.get("title", "")}</h1>
-  <p class="sx-lead">{esc(desc)}</p>
+  <div class="sx-top">
+    <div class="sx-cover">{issue_cover_visual(issue)}</div>
+    <div>
+      <h1 class="sx-h1">{issue.get("title", "")}</h1>
+      <p class="sx-lead">{esc(desc)}</p>
+    </div>
+  </div>
   <div class="sx-grid">
     {series_cards(arts)}
   </div>
@@ -1573,7 +1578,7 @@ def render_journal_index():
         im_i   = (f'№ {n_i} · {p_i} · {mc_i} {_plural(mc_i,"материал","материала","материалов")}'
                   if mc_i else f'№ {n_i} · {p_i}')
         issue_cards += f'''<a class="issue-card" {href_i} data-analytics="issues-card" data-issue="{n_i}">
-  <div class="cover">{issue_cover_svg(iss)}</div>
+  <div class="cover">{issue_cover_visual(iss)}</div>
   <div class="im">{im_i}</div>
   <h4>{strip_tags(iss.get("title",""))}</h4>
 </a>'''
