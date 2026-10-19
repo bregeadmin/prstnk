@@ -44,6 +44,17 @@ jobs:
       - name: Собрать страницы из данных
         run: python build.py
 
+      - name: Поставить Node (для карточек превью ссылок)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Нарисовать карточки превью для новых и изменённых страниц
+        run: |
+          export CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          python tools/og_cards.py && python build.py
+        continue-on-error: true
+
       - name: Анонсировать новые материалы в телеграм-канал
         run: python tools/announce_materials.py
         env:
@@ -92,6 +103,8 @@ jobs:
             **/build.py
             **/*.py
             **/*.md
+            **/tools/**
+            **/images/og/manifest.json
             **/.claude/**
             **/launch.json
             **/.DS_Store

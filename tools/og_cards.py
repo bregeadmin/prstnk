@@ -1,16 +1,22 @@
 """Карточки превью ссылок (Telegram, WhatsApp, VK): images/og/<страница>.jpg, 1200×630.
 
-Запуск после изменений в данных (нужны Chrome и локальный сервер на :8771):
-    python3 tools/og_cards.py
+Запускается сам при каждой сборке на GitHub (.github/workflows/build.yml) и рисует только
+новые и изменившиеся карточки (отпечатки в images/og/manifest.json). Вручную:
+    python3 tools/og_cards.py            — только то, что изменилось
+    python3 tools/og_cards.py --all      — перерисовать все
+    python3 tools/og_cards.py work-mera  — конкретные карточки
+Нужны Chrome (путь в переменной CHROME, если не стандартный) и Node 22+.
 build.py сам подхватывает готовые карточки по адресу страницы."""
-import json, shutil, subprocess, sys
+import hashlib, json, os, re, shutil, socket, subprocess, sys, time
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import build as B  # noqa: E402
 
 TMP = ROOT / "_og_tmp"
-SRV = "http://localhost:8771"
+PORT = 8790
+SRV = f"http://localhost:{PORT}"
+MANIFEST = ROOT / "images" / "og" / "manifest.json"
 esc = B.esc
 
 
@@ -136,15 +142,61 @@ def cards():
     return out
 
 
+def fingerprint(html):
+    """Отпечаток карточки: её HTML + содержимое картинок, на которые она ссылается."""
+    h = hashlib.sha1(html.encode())
+    for p in sorted(set(re.findall(r'src="/([^"]+)"', html))):
+        from urllib.parse import unquote
+        f = ROOT / unquote(p)
+        if f.exists():
+            h.update(hashlib.sha1(f.read_bytes()).digest())
+    return h.hexdigest()
+
+
+def server():
+    """Свой маленький сервер для шрифтов и картинок (если порт уже занят — используем его)."""
+    with socket.socket() as s_:
+        if s_.connect_ex(("127.0.0.1", PORT)) == 0:
+            return None
+    p = subprocess.Popen([sys.executable, "-m", "http.server", str(PORT), "--bind", "127.0.0.1", "--directory", str(ROOT)],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(1)
+    return p
+
+
 if __name__ == "__main__":
-    only = set(sys.argv[1:])
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    force = "--all" in sys.argv
+    all_cards = cards()
+    manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+    og_dir = ROOT / "images" / "og"
+    # карточки страниц, которых больше нет, удаляем
+    for f in og_dir.glob("*.jpg"):
+        if f.stem not in all_cards:
+            f.unlink(); manifest.pop(f.stem, None)
+    todo = {}
+    for key, html in all_cards.items():
+        fp = fingerprint(html)
+        if (args and key in args) or force or (not args and (manifest.get(key) != fp or not (og_dir / f"{key}.jpg").exists())):
+            todo[key] = (html, fp)
+    if not todo:
+        MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1, sort_keys=True))
+        print("Карточки превью актуальны.")
+        sys.exit(0)
     shutil.rmtree(TMP, ignore_errors=True); TMP.mkdir()
     jobs = []
-    for key, html in cards().items():
-        if only and key not in only:
-            continue
+    for key, (html, fp) in todo.items():
         (TMP / f"{key}.html").write_text(html)
-        jobs.append({"url": f"{SRV}/_og_tmp/{key}.html", "out": str(ROOT / "images" / "og" / f"{key}.jpg")})
+        jobs.append({"url": f"{SRV}/_og_tmp/{key}.html", "out": str(og_dir / f"{key}.jpg")})
     (TMP / "jobs.json").write_text(json.dumps(jobs))
-    subprocess.run(["node", str(ROOT / "tools" / "og-render.mjs"), str(TMP / "jobs.json")], check=True)
-    shutil.rmtree(TMP, ignore_errors=True)
+    srv = server()
+    try:
+        subprocess.run(["node", str(ROOT / "tools" / "og-render.mjs"), str(TMP / "jobs.json")], check=True)
+    finally:
+        if srv:
+            srv.terminate()
+        shutil.rmtree(TMP, ignore_errors=True)
+    for key, (html, fp) in todo.items():
+        manifest[key] = fp
+    MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1, sort_keys=True))
+    print("Обновлено карточек:", ", ".join(todo))
