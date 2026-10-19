@@ -47,7 +47,6 @@
       <nav class="nav" id="nav" aria-label="Главное меню">
         <a href="works">Каталог</a>
         <a href="#fit">Подбор</a>
-        <a href="#gifts">Подарки</a>
         <a href="artists">Художники</a>
         <a href="journal">Журнал</a>
       </nav>
@@ -140,7 +139,7 @@
   <!-- ─────────── КАТАЛОГ ─────────── -->
   <section class="wrap" id="works">
     <div class="section-head">
-      <h2 class="stagger">Кураторская <em>подборка</em>. Весна 2026.</h2>
+      <h2 class="stagger">Кураторская <em>подборка</em>.</h2>
       <div class="section-head__right">
         <a class="link" href="works" data-analytics="catalog-all">Все работы →</a>
       </div>
@@ -253,7 +252,6 @@
     <div class="section-head">
       <h2 class="stagger">Художники.<br/><!--AH-TITLE--><em>Три</em> имени.<!--/AH-TITLE--></h2>
       <div class="section-head__right">
-        <span>От ленинградской школы<br/>до питерских ризо-25</span>
         <a class="link" href="artists" data-analytics="artists-all">Все художники →</a>
       </div>
     </div>
@@ -416,7 +414,7 @@
   </section>
 
   <!-- ─────────── ПОДАРКИ ─────────── -->
-  <section class="wrap gifts-block" id="gifts">
+  <section class="wrap gifts-block" id="gifts" hidden>
     <div class="section-head">
       <h2 class="stagger">Подарок, <em>который не выбросят</em>.</h2>
       <div class="section-head__right">
@@ -530,7 +528,7 @@
       <details class="faq__item" data-analytics="faq-toggle" data-faq-key="price">
         <summary>Почему цена именно такая?</summary>
         <div class="faq__body">
-          <p>Цена зависит от тиража (чем меньше, тем дороже), техники (литография в три камня дороже линогравюры), бумаги, размера и автора. У нас работы от 5 400 ₽ за лист.</p>
+          <p>Цена зависит от тиража (чем меньше, тем дороже), техники, бумаги, размера и автора.</p>
           <p>В цену уже входит упаковка для пересылки и открытка от куратора. Рама — отдельно.</p>
         </div>
       </details>
@@ -556,7 +554,6 @@
         <summary>Можно оформить как подарок?</summary>
         <div class="faq__body">
           <p>Да. По умолчанию упаковка подарочная: тубус с открыткой от куратора. Можем добавить персональную надпись.</p>
-          <p>Если не знаете, что выбрать — есть подарочный сертификат на любую сумму. Получатель сам выберет лист в Telegram у куратора.</p>
         </div>
       </details>
     </div>
@@ -572,7 +569,7 @@
           Кураторские заметки.
         </h2>
         <p class="journal__lead">
-          Раз в квартал собираем выпуск с интервью художников, репортажами из мастерских и подсказками, что повесить, если стен много, а смыслов мало.
+          Выставки, поездки и художники, которых мы любим.
         </p>
         <a class="btn journal__cta" href="journal" data-analytics="journal-subscribe">Читать выпуск →</a>
       </div>
@@ -628,7 +625,6 @@
           <ul>
             <li><a href="works">Каталог</a></li>
             <li><a href="#fit">Подбор на стену</a></li>
-            <li><a href="#gifts">Подарки</a></li>
             <li><a href="artists">Художники</a></li>
             <li><a href="#plates">Готовые подборки</a></li>
           </ul>
@@ -646,10 +642,7 @@
         <div>
           <h4>Связь</h4>
           <ul>
-            <li><a href="mailto:hello@prstnk.ru" data-analytics="footer-email">hello@prstnk.ru</a></li>
-            <li><a href="tel:+78120000000" data-analytics="footer-phone">+7 812 000 00 00</a></li>
-            <li>наб. Обводного, 60</li>
-            <li>пн–сб 12:00–20:00</li>
+            <li><a data-tg-open data-analytics="footer-tg">Написать в Telegram</a></li>
           </ul>
         </div>
       </div>

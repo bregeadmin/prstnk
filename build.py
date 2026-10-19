@@ -302,7 +302,6 @@ HEADER = '''  <header class="site-header">
       <nav class="nav" id="nav" aria-label="Главное меню">
         <a href="works.html">Каталог</a>
         <a href="index.html#fit">Подбор</a>
-        <a href="index.html#gifts">Подарки</a>
         <a href="artists.html">Художники</a>
         <a href="journal.html">Журнал</a>
       </nav>
@@ -348,7 +347,6 @@ FOOTER = '''  <footer class="site-footer">
           <ul>
             <li><a href="works.html">Каталог</a></li>
             <li><a href="index.html#fit">Подбор на стену</a></li>
-            <li><a href="index.html#gifts">Подарки</a></li>
             <li><a href="artists.html">Художники</a></li>
             <li><a href="index.html#plates">Готовые подборки</a></li>
           </ul>
@@ -366,10 +364,7 @@ FOOTER = '''  <footer class="site-footer">
         <div>
           <h4>Связь</h4>
           <ul>
-            <li><a href="mailto:hello@prstnk.ru" data-analytics="footer-email">hello@prstnk.ru</a></li>
-            <li><a href="tel:+78120000000" data-analytics="footer-phone">+7 812 000 00 00</a></li>
-            <li>наб. Обводного, 60</li>
-            <li>пн–сб 12:00–20:00</li>
+            <li><a data-tg-open data-analytics="footer-tg">Написать в Telegram</a></li>
           </ul>
         </div>
       </div>
@@ -623,7 +618,8 @@ def render_work_page(art):
     # описание (если есть) — иначе нейтральный текст
     desc = art.get("description") or (
         f'«{art["title"]}» — {art["technique"]}, {a["name"]}, {art["year"]}. '
-        f'{a["oneLiner"]} Лист отпечатан в мастерской и подписан автором карандашом.')
+        f'{a["oneLiner"]}' + (' Лист отпечатан в мастерской и подписан автором карандашом.'
+                              if re.search(r"монотип|линогр|офорт|сухая игла|литогр|шелкогр|акватинт", art["technique"].lower()) else ''))
 
     # ещё у автора (до 3 других)
     same_artist = [w for w in artworks if w["artistId"] == art["artistId"] and w["slug"] != art["slug"]][:3]
@@ -966,10 +962,7 @@ def render_artists_index():
 
     <section class="page-hero">
       <div class="eyebrow">№ 05 · <b>Все художники</b></div>
-      <h1>{word_cap} <em>{noun}</em>.<br/>От ленинградской школы до Север-7.</h1>
-      <p class="page-hero__lead">
-        У нас печатают мастера трёх поколений: одни учились у Пахомова и Бакакина в Мухинском, другие выросли на риzо и зине нулевых, третьи дебютировали недавно. Объединяет одно — каждый делает форму сам.
-      </p>
+      <h1>{word_cap} <em>{noun}</em>.</h1>
       <div class="page-hero__stats">
         <div><b>{nvis}</b>художников</div>
         <div><b>{len(artworks)}</b>работ в каталоге</div>
