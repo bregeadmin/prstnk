@@ -771,7 +771,7 @@ def render_catalog():
     </nav>
 
     <section class="page-hero">
-      <div class="eyebrow">№ 04 · <b>Каталог</b></div>
+      <div class="eyebrow"><b>Каталог</b></div>
       <h1>Все <em>{total} {_plural(total, "работа", "работы", "работ")}</em>.<br/>Подписано автором.</h1>
       <p class="page-hero__lead">
         Полный каталог PRSTNK: живопись, графика, авторская печать и объекты. Уникальные работы и оттиски из небольших тиражей — только оригиналы, никаких репродукций.
@@ -889,7 +889,7 @@ def render_artist_page(a, idx):
 
     <section class="artist-page-hero">
       <div>
-        <div class="eyebrow"><b>№ {idx:02d}</b> · художник</div>
+        <div class="eyebrow"><b>Художник</b></div>
         <h1>{h1}</h1>
         <p class="one-liner">{a['oneLiner']}</p>
       </div>
@@ -962,7 +962,7 @@ def render_artists_index():
     </nav>
 
     <section class="page-hero">
-      <div class="eyebrow">№ 05 · <b>Все художники</b></div>
+      <div class="eyebrow"><b>Все художники</b></div>
       <h1>{word_cap} <em>{noun}</em>.</h1>
       <div class="page-hero__stats">
         <div><b>{nvis}</b>художников</div>
@@ -2253,7 +2253,7 @@ def update_index_home():
         word = _plural(cn, "работа", "работы", "работ")
         plates.append(
             f'      <a class="plate plate--{c.get("color", "alyi")}" href="collection-{c["slug"]}.html" data-analytics="plate" data-plate-id="{c["slug"]}">\n'
-            f'        <span class="plate__num">№ {i:02d} · {cn} {word}</span>\n'
+            f'        <span class="plate__num">{cn} {word}</span>\n'
             f'        <span class="plate__title">{c["title"]}</span>\n'
             f'        <span class="plate__meta">{c.get("subtitle", "")}</span>\n'
             f'      </a>')
