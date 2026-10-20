@@ -1917,7 +1917,20 @@ TRAVEL_JS = """<div class="tr-progress" aria-hidden="true"><span></span></div>
 
   // Видеопетли играют, только когда видны; при «меньше движения» — ручной запуск.
   // Видео в одной ленте (как сторис) стартуют и останавливаются вместе.
-  var play = function (v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); };
+  // Если телефон не даёт запустить видео сам (энергосбережение, встроенный браузер) —
+  // показываем кнопку «играть»: по нажатию запускаем это видео и всю его ленту.
+  var group = function (v) { var r = v.closest(".bl-collage[data-variant='reel']"); return r ? [].slice.call(r.querySelectorAll(".bl-loop")) : [v]; };
+  var needTap = function (v) {
+    if (v._tap) return; v._tap = true;
+    var box = v.parentNode, btn = document.createElement("button");
+    btn.type = "button"; btn.className = "bl-play"; btn.setAttribute("aria-label", "Включить видео");
+    if (getComputedStyle(box).position === "static") box.style.position = "relative";
+    box.appendChild(btn);
+    btn.addEventListener("click", function () {
+      group(v).forEach(function (x) { x.play(); if (x.parentNode.querySelector(".bl-play")) x.parentNode.querySelector(".bl-play").remove(); x._tap = false; });
+    });
+  };
+  var play = function (v) { var p = v.play(); if (p && p.catch) p.catch(function () { needTap(v); }); };
   var handled = [];
   document.querySelectorAll(".bl-collage[data-variant='reel']").forEach(function (reel) {
     var vids = [].slice.call(reel.querySelectorAll(".bl-loop"));

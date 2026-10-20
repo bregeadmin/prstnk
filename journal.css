@@ -1060,3 +1060,8 @@
   .lr-hero-cover { max-width: 360px; }
   .lr-open { min-height: 88svh; border-left-width: 6px; }
 }
+
+/* кнопка «играть», если телефон не запустил видео сам */
+.bl-play { position: absolute; left: 50%; top: 50%; width: 68px; height: 68px; margin: -34px 0 0 -34px; border: 0; border-radius: 50%; background: rgba(248,246,241,.92); box-shadow: 0 8px 24px rgba(0,0,0,.25); cursor: pointer; z-index: 2; }
+.bl-play::before { content: ""; position: absolute; left: 27px; top: 21px; border-style: solid; border-width: 13px 0 13px 21px; border-color: transparent transparent transparent var(--ink); }
+.bl-play:hover { background: #fff; }
