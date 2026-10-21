@@ -1268,8 +1268,10 @@ def render_series_issue_page(issue):
 </script>"""
     first = accs[0] if accs else "alyi"
     css0 = f'<style>:root{{--mz-accent:var(--c-{first});--prstnk-color:var(--c-{first})}}</style>'
+    # на странице стоит <base href="/">, поэтому «#глава» надо писать с адресом выпуска, иначе уводит на главную
+    main = f'{hero}\n{"".join(chapters)}\n{nxt}'.replace('href="#ch-', f'href="zine-{slug}.html#ch-')
     return (f'{head(page_title, desc, canonical, og_type="article", og_image=(f"{BASE_URL}/{cover}" if cover else None), extra_css="journal.css", base_href="/")}{HEADER}\n'
-            f'{css0}<main class="lr">{hero}\n{"".join(chapters)}\n{nxt}</main>\n{TRAVEL_JS}{accent_js}{FOOTER}')
+            f'{css0}<main class="lr">{main}</main>\n{TRAVEL_JS}{accent_js}{FOOTER}')
 
 
 def issue_cover_svg(issue):
