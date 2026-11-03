@@ -1,0 +1,22 @@
+{
+  "mainImage": "/images/works/1-img-7317-img-7310-mw0s0chy.jpg",
+  "orientation": "horizontal",
+  "title": "Пейзаж - 1",
+  "artistId": "grikovsky",
+  "price": 60000,
+  "status": "available",
+  "workType": "unique",
+  "editionClosed": false,
+  "year": 2025,
+  "technique": "Бумага, тушь",
+  "techniqueGroup": "graphics",
+  "sheetSize": "61 х 86",
+  "featuredOnHome": false,
+  "slug": "peizazh-1",
+  "id": "peizazh-1",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
