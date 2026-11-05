@@ -1,9 +1,9 @@
 {
- "artist-gartshtapakov": "a61fa65c725a2bf13f922a2921a56694f4cae754",
- "artist-grikovsky": "1c11a6607e2575c1f8a5b8c48b87ad2d41683cda",
+ "artist-gartshtapakov": "66ef3e3513309b0e806a680a6c41bddb8238ab4b",
+ "artist-grikovsky": "ea3f9e630faaa37f1eaa44c4cccfbc32a032806e",
  "artist-kazimov": "dc080db8529d7b581becd33caf35ce75efeef4bb",
- "artist-shtapakov": "cacf9d6e25f3737d9770839b1b5742bd4c9ffd7d",
- "artists": "47b69c03b290a466775edb1c8e64609b73435656",
+ "artist-shtapakov": "3b94a278fd103a00de9251dbddc3a1ec8022ef4e",
+ "artists": "c4eee92d6773a237178b12e774d3777f7148fbc0",
  "collection-bw": "db6cecefc426d7e9758937c58126bfae18ae24d2",
  "collection-color": "a96f6671d71c176023fecb929bec0f40236e2999",
  "collection-first-wall": "6b2e5fef61dbd2f0caf2a0afbc54eb4cc38cd437",
@@ -64,6 +64,7 @@
  "work-peizazh-5": "5752636b8573273a133d1619d8b839cab23630dd",
  "work-peizazh-6": "da5862520ece26e11652f1a0d194438f3c0ac757",
  "work-peizazh-7": "6e18d8119fe3ab55058e90b70f25b89f9cdd57bc",
+ "work-peizazh-8": "1d5888ba3f7a760d0d93c02daafc6581144e810d",
  "work-peizazh-s-domom": "78019ccaad0916be6baf06939daf71ac1a8b6597",
  "work-peizazh-s-troitskim-soborom": "b3cf3d1159b7f2d2cf2a840a54a81f1f49a7f4a2",
  "work-promzona": "f2f2c9dbae67ac9a13ad78e017200ec43b56af97",
@@ -72,6 +73,6 @@
  "work-sumerki": "48e7fcfc4af86512f830cd8eeef72af55bd95573",
  "work-tri-limona": "899db006094cbec7b3d7e75ad3bbebd577fdcfe2",
  "work-tribunal-24": "175e15c349c49072961c6b886676b30f019b1415",
- "works": "dc2588ddbe9a0efd33b870f0a8a8ce0fb65f6f3d",
+ "works": "762e827594eeb6e090c6ee37b34a122a7df90829",
  "zine-01": "a7bbe382f5147f28a750f04cea4bfe14a209ab40"
 }
