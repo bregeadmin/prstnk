@@ -330,7 +330,8 @@
     return items.map((it) => {
       const d = it.data;
       const v = d[vf] || (vf === "id" ? d.slug : null) || d[vf];
-      const label = (f.display_fields || ["title"]).map((k) => stripTags(d[k])).filter(Boolean).join(" · ") || it.file;
+      let label = (f.display_fields || ["title"]).map((k) => stripTags(d[k])).filter(Boolean).join(" · ") || it.file;
+      if (d.hidden) label += " — скрыт с сайта"; // работы скрытого автора на сайт не попадут
       return { v, label, d };
     }).filter((o) => o.v).sort((a, b) => a.label.localeCompare(b.label, "ru"));
   }

@@ -122,6 +122,13 @@ for _w in artworks:
     if _w.get("artistId") not in artists_by_id and _w.get("artistId") in _artists_by_name:
         _w["artistId"] = _artists_by_name[_w["artistId"]]["id"]
 
+# Работа без видимого художника (скрыт с сайта или удалён) на сайт не попадает,
+# но и не роняет сборку всего сайта — только предупреждение в журнале сборки.
+_orphans = [w for w in artworks if w.get("artistId") not in artists_by_id]
+for _w in _orphans:
+    print(f"  ⚠ работа «{_w.get('title', '?')}» пропущена: художник «{_w.get('artistId')}» скрыт с сайта или не найден")
+artworks = [w for w in artworks if w.get("artistId") in artists_by_id]
+
 
 def _fmt_price(n):
     try:
