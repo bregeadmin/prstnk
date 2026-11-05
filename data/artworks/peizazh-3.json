@@ -1,0 +1,22 @@
+{
+  "mainImage": "/images/works/3-img-7319-mw3fw9yn.jpg",
+  "orientation": "horizontal",
+  "title": "Пейзаж - 3",
+  "artistId": "grikovsky",
+  "price": 60000,
+  "status": "available",
+  "workType": "unique",
+  "editionClosed": false,
+  "year": 2024,
+  "technique": "Бумага, тушь",
+  "techniqueGroup": "graphics",
+  "sheetSize": "61 х 86",
+  "featuredOnHome": false,
+  "slug": "peizazh-3",
+  "id": "peizazh-3",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
