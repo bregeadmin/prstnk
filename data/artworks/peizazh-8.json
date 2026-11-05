@@ -1,0 +1,22 @@
+{
+  "mainImage": "/images/works/99287daf-0e1b-46cd-bf22-d78ab45fc453-mw3gn8l7.jpg",
+  "orientation": "horizontal",
+  "title": "Пейзаж - 8",
+  "artistId": "grikovsky",
+  "price": 60000,
+  "status": "available",
+  "workType": "unique",
+  "editionClosed": false,
+  "year": 2023,
+  "technique": "Бумага, тушь",
+  "techniqueGroup": "graphics",
+  "sheetSize": "61 х 86",
+  "featuredOnHome": false,
+  "slug": "peizazh-8",
+  "id": "peizazh-8",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
