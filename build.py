@@ -2357,8 +2357,8 @@ def update_index_home():
     rows_block = "<!--AH-ROWS-->\n" + "\n".join(rows) + "\n      <!--/AH-ROWS-->"
     html = re.sub(r"<!--AH-ROWS-->.*?<!--/AH-ROWS-->", lambda m: rows_block, html, flags=re.DOTALL)
 
-    # Заголовок-число «N имён»
-    nvis = len([a for a in artists if a.get("showInArtists", True)])
+    # Заголовок-число «N имён» — ровно столько, сколько строк в списке выше
+    nvis = len(home)
     title_block = (f"<!--AH-TITLE--><em>{num2word_ru(nvis)}</em> "
                    f"{_plural(nvis, 'имя', 'имени', 'имён')}.<!--/AH-TITLE-->")
     html = re.sub(r"<!--AH-TITLE-->.*?<!--/AH-TITLE-->", lambda m: title_block, html, flags=re.DOTALL)
