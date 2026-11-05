@@ -1,0 +1,22 @@
+{
+  "mainImage": "/images/works/6-img-7306-mw3gdg7t.jpg",
+  "orientation": "horizontal",
+  "title": "Пейзаж - 6",
+  "artistId": "grikovsky",
+  "price": 60000,
+  "status": "available",
+  "workType": "unique",
+  "editionClosed": false,
+  "year": 2023,
+  "technique": "Бумага, тушь",
+  "techniqueGroup": "graphics",
+  "sheetSize": "61 х 86",
+  "featuredOnHome": false,
+  "slug": "peizazh-6",
+  "id": "peizazh-6",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
