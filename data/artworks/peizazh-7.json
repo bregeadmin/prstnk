@@ -1,0 +1,22 @@
+{
+  "mainImage": "/images/works/7-img-7309-mw3gfc2i.jpg",
+  "orientation": "horizontal",
+  "title": "Пейзаж - 7",
+  "artistId": "grikovsky",
+  "price": 60000,
+  "status": "available",
+  "workType": "unique",
+  "editionClosed": false,
+  "year": 2026,
+  "technique": "Бумага, тушь",
+  "techniqueGroup": "graphics",
+  "sheetSize": "61 х 86",
+  "featuredOnHome": false,
+  "slug": "peizazh-7",
+  "id": "peizazh-7",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
