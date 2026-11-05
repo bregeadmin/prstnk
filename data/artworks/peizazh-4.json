@@ -1,0 +1,22 @@
+{
+  "mainImage": "/images/works/4-img-7318-mw3g078c.jpg",
+  "orientation": "horizontal",
+  "title": "Пейзаж - 4",
+  "artistId": "grikovsky",
+  "price": 60000,
+  "status": "available",
+  "workType": "unique",
+  "editionClosed": false,
+  "year": 2023,
+  "technique": "Бумага, тушь",
+  "techniqueGroup": "graphics",
+  "sheetSize": "61 х 86",
+  "featuredOnHome": false,
+  "slug": "peizazh-4",
+  "id": "peizazh-4",
+  "galleryImages": [],
+  "artistProofs": 0,
+  "specs": [],
+  "featuredInCatalog": true,
+  "order": 99
+}
